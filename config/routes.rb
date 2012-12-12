@@ -1,4 +1,13 @@
 Newauth::Application.routes.draw do
+
+  root :to => 'pages#home'
+
+  match '/login', to: 'pages#login'
+
+  match '/success', to: 'pages#success'
+  
+  match '/fail', to: 'pages#fail'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
