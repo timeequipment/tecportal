@@ -1,15 +1,19 @@
 Newauth::Application.routes.draw do
 
-  root :to => 'pages#home'
+  devise_for :users
 
-  match '/login', to: 'pages#login'
+  resources :dashboard
 
-  match '/success', to: 'pages#success'
+  root :to => 'home#index'
+
+  # match '/login', to: 'pages#login'
+
+  # match '/success', to: 'pages#success'
   
-  match '/fail', to: 'pages#fail'
+  # match '/fail', to: 'pages#fail'
 
   # The priority is based upon order of creation:
-  # first created -> highest priority.
+  # first created -> highest priority. 
 
   # Sample of regular route:
   #   match 'products/:id' => 'catalog#view'
