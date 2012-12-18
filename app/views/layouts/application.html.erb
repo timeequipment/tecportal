@@ -9,6 +9,7 @@
 <body>
 
 <div id="user_nav">
+	<h3><%= link_to "CANT Ministries", root_path %></h3>
 	<% if user_signed_in? %>
 		Signed in as <%= current_user.email %>.  Not you?
 		<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
