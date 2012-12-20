@@ -27,4 +27,19 @@ Newauth::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
+
+
+  #Missing host to link to! Please provide the :host parameter, set default_url_options[:host], or set :only_path to true
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+
+  config.action_mailer.smtp_settings = {
+    address: "smtp.gmail.com",
+    port: 587,
+    domain: "example.com",
+    authentication: "plain",
+    enable_starttls_auto: true,
+    user_name: ENV["GMAIL_USERNAME"],
+    password: ENV["GMAIL_PASSWORD"]
+  }
+
 end
