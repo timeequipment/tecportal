@@ -1,21 +1,6 @@
 class User
   include Mongoid::Document
-
-  # --------------------------------------------------------------------
-  # Regarding 'Forgot your password'
-  #
-  #   If you want to utilize 'Forgot your password' links, 
-  #   then add :recoverable to the list below, and uncomment the  
-  #   Recoverable section, then run rake db:migrate.
-  #   Also, you'll have to ensure that ActionMailer is setup and working, 
-  #   which I've set it up in the app to use gmail.com.  You'll have to 
-  #   identify an email service and an email address which will send the 
-  #   'Forgot your password' emails to the users.  
-  #
-  #   See:  config/environment/development.rb for email setup
-  #
-  #---------------------------------------------------------------------
-
+  
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable

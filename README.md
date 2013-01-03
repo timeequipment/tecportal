@@ -1,15 +1,45 @@
-## Newauth
-This is our first attempt at authentication for Lane's learning purposes. We'll use this on several future projects, learn away and ask lots of questions.
+# NewAuth
 
-## Notes from Lane
-
-I've built this app to incorporate several features:
+NewAuth is a barebones Ruby on Rails web application with user authentication built in.  It uses Devise to provide authentication, and a MongoDB database to store usernames and passwords.  It incorporates several features:
 
 * There is a landing (home) page for everyone initially.  Once logged in as a user, each user has their own dashboard, and during their session this becomes their home page.  
 
 * Users can login with a username and password, instead of with an email and password.
 
-* Data is stored in a small MongoDB database.
+* 'Forgot your password' links have been disabled.  If you want to utilize 'Forgot your password' links, then edit /app/models/user.rb.  Add :recoverable to the list of devise modules at the top of the file, uncomment the Recoverable section, and then run '''$ rake db:migrate'''  Also, you'll have to ensure that ActionMailer is setup and working, which has been set up in the app to use gmail. You'll have to identify an email service and an email address with which to send the 'Forgot your password' emails to the users.  See:  /config/environment/development.rb for email setup.
 
-* 'Forgot your password' links have been disabled until we can identify an email service and email address we'd like to use to send and receive instructions to reset user's passwords.  This feature has been added and tested, it just needs to be flipped on.  
 
+## Dependencies
+
+Before creating the application, you will need:
+
+* The Ruby language (version 1.9.3)
+* Rails 3.2
+* A working installation of ["MongoDB"](http://www.mongodb.org) (version 1.6.0 or newer)
+
+#### Installing MongoDB
+
+If you don't have MongoDB installed on your computer, you'll need to install it and set it up to be always running on your computer (run at launch). On Mac OS X, the easiest way to install MongoDB is to install ["Homebrew"](http://mxcl.github.com/homebrew) and then run the following:
+
+'''
+$ brew install mongodb
+'''
+
+Homebrew will provide post-installation instructions to get MongoDB running. The last line of the installation output shows you the MongoDB install location (for example, */usr/local/Cellar/mongodb/1.8.0-x86_64*). You'll find the MongoDB configuration file there. After an installation using Homebrew, the default data directory will be */usr/local/var/mongodb*.
+
+
+## Installation
+
+First, clone the GitHub repo:
+
+'''
+$ git clone git://github.com/RailsApps/rails3-mongoid-devise.git
+'''
+
+Next, perform a search-and-replace to change the project name throughout the application. 
+
+Finally, run the following to create your MongoDB database:
+
+'''
+$ rake db:migrate
+'''
