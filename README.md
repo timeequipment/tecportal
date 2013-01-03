@@ -36,10 +36,22 @@ First, clone the GitHub repo:
 $ git clone https://github.com/mattgraham/newauth.git
 ```
 
-Next, perform a search-and-replace to change the project name throughout the application. 
+Then install the gems:
 
-Finally, run the following to create your MongoDB database:
+```
+$ bundle install
+```
+
+Then perform a search-and-replace to change the project name _NewAuth_ throughout the application. 
+
+Then run the following to create your MongoDB database:
 
 ```
 $ rake db:migrate
+```
+
+Finally, test the application:
+
+```
+$ rails server
 ```
