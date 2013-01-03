@@ -1,12 +1,12 @@
 # NewAuth
 
-NewAuth is a barebones Ruby on Rails web application with user authentication built in.  It uses Devise to provide authentication, and a MongoDB database to store usernames and passwords.  It incorporates several features:
+NewAuth is a barebones Ruby on Rails web application with user authentication built in.  It uses Devise to provide authentication, and a MongoDB database to store the users.  It incorporates several features:
 
-* There is a landing (home) page for everyone initially.  Once logged in as a user, each user has their own dashboard, and during their session this becomes their home page.  
+* There is a landing (home) page for all visitors initially.  Once logged in as a user, each user has their own dashboard, and during their session this becomes their home page.  
 
-* Users can login with a username and password, instead of with an email and password.
+* Users can login with a username and password, instead of an email and password.
 
-* 'Forgot your password' links have been disabled.  If you want to utilize 'Forgot your password' links, then edit /app/models/user.rb.  Add :recoverable to the list of devise modules at the top of the file, uncomment the Recoverable section, and then run ```$ rake db:migrate```  Also, you'll have to ensure that ActionMailer is setup and working, which has been set up in the app to use gmail. You'll have to identify an email service and an email address with which to send the 'Forgot your password' emails to the users.  See:  /config/environment/development.rb for email setup.
+* 'Forgot your password' links have been disabled.  If you want to utilize 'Forgot your password' links, then edit /app/models/user.rb.  Add __:recoverable__ to the list of devise modules at the top of the file, uncomment the __Recoverable__ section, and then run ```$ rake db:migrate```  Also, you'll have to ensure that ActionMailer is setup and working, which has been set up in the app to use gmail. You'll have to identify an email service and an email address with which to send the 'Forgot your password' emails to the users.  See:  /config/environment/development.rb for email setup.
 
 
 ## Dependencies
@@ -33,7 +33,7 @@ Homebrew will provide post-installation instructions to get MongoDB running. The
 First, clone the GitHub repo:
 
 ```
-$ git clone git://github.com/RailsApps/rails3-mongoid-devise.git
+$ git clone https://github.com/mattgraham/newauth.git
 ```
 
 Next, perform a search-and-replace to change the project name throughout the application. 
