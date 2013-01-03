@@ -55,3 +55,16 @@ Finally, test the application:
 ```
 $ rails server
 ```
+
+## Information
+
+#### Devise
+
+NewAuth relies heavily on the Devise gem to perform user authentication.  For more information, see the [documentation](http://devise.plataformatec.com.br/) for Devise or the [GitHub repo](https://github.com/plataformatec/devise).
+
+#### Mongoid
+
+If you want to learn more about how NewAuth saves users to its database, see the [documentation](http://mongoid.org/en/mongoid/index.html) for Mongoid or the [GitHub repo](https://github.com/mongoid/mongoid).
+
+
+
