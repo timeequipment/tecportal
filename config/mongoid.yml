@@ -160,13 +160,14 @@ test:
       <<: *default_session
       database: delight_test
 
+# ENV['MONGOHQ_URL']: 
+# mongodb://heroku:5fefd628de5d2275160260295a650a16@linus.mongohq.com:10018/app10274692 
+
 <% if ENV['MONGOHQ_URL'] %>
   <% uri = URI.parse(ENV['MONGOHQ_URL']) %>
 production:
-  <<: *defaults
   sessions:
     default:
-      <<: *default_session
       database: <%= uri.path.sub('/','') %>
       username: <%= uri.user %>
       password: <%= uri.password %>
