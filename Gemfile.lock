@@ -122,7 +122,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   devise
   jquery-rails
-  mongoid (~> 3.0.0)
+  mongoid
   rails (= 3.2.9)
   sass-rails (~> 3.2.3)
   uglifier (>= 1.0.3)
