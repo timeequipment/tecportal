@@ -17,19 +17,19 @@
 			<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
 			<%= link_to "Edit profile", edit_user_registration_path %>
 		<% else %>
-			<%= link_to "Sign up", new_user_registration_path %> <%= link_to "Sign in", new_user_session_path %>
+			<%= link_to "Sign up", new_user_registration_path %><%= link_to "Sign in", new_user_session_path %>
 		<% end %>
 	</nav>
 	</div>
 </header>
 
-<div class="flash">
+<div class="flash wrapper">
 	<% flash.each do |name, msg| %>
 		<%= content_tag :div, msg, :id => "flash_#{name}" %>
 	<% end %>
 </div>
 
-<div class="content">
+<div class="content wrapper">
 	<%= yield %>
 </div>
 
