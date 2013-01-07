@@ -166,8 +166,10 @@ test:
 <% if ENV['MONGOHQ_URL'] %>
   <% uri = URI.parse(ENV['MONGOHQ_URL']) %>
 production:
+  <<: *defaults
   sessions:
     default:
+      <<: *default_session
       database: <%= uri.path.sub('/','') %>
       username: <%= uri.user %>
       password: <%= uri.password %>
