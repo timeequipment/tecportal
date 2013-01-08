@@ -21,6 +21,10 @@ Newauth::Application.configure do
   #   Run this before every git push: bundle exec rake assets:precompile 
   config.assets.compile = true
 
+  # Specify the default JavaScript compressor
+  config.assets.js_compressor  = :uglifier
+  config.assets.css_compressor = :scss
+
   # Generate digests for assets URLs
   config.assets.digest = true
 
