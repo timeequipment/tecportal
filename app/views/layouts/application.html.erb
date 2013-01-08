@@ -13,7 +13,6 @@
 	<h3><%= link_to "NewAuth", root_path, id: "logo" %></h3>
 	<nav class="nav">
 		<% if user_signed_in? %>
-			<span is="user">Signed in as <%= current_user.username %>.  Not you?</span>
 			<%= link_to "Sign out", destroy_user_session_path, :method => :delete %><%= link_to "Edit profile", edit_user_registration_path %>
 		<% else %>
 			<%= link_to "Sign up", new_user_registration_path %><%= link_to "Sign in", new_user_session_path %>
@@ -31,6 +30,10 @@
 <div class="content wrapper">
 	<%= yield %>
 </div>
-
+	<% if user_signed_in? %>
+	<div id="footer"
+		<span class="user">You are signed in as <a href="#"><%= current_user.username %></a>.  Not you? <%= link_to "Sign out", destroy_user_session_path, :method => :delete %></span>
+	</div>
+	<% end %>
 </body>
 </html>

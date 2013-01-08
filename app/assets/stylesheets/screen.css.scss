@@ -60,6 +60,11 @@ h2 {
 	margin-bottom: 20px;
 }
 
+i {
+	font-size: 12px;
+	color: #666;
+}
+
 .shrink-wrap {
 	margin: 0 auto;
 	display: block;
@@ -83,6 +88,15 @@ h2 {
 	background: #ffc4ba;
 	border: 1px solid #ff817b;
 	@include border-radius(2px);
+}
+
+#flash_notice {
+	text-align: center;
+	padding: 20px;
+	background: #fff1ba;
+	border: 1px solid #e9b36d;
+	@include border-radius(2px);
+	margin-bottom: 20px;
 }
 
 header {
@@ -111,7 +125,10 @@ header {
 		line-height: 60px;
 
 		.user {
-			font-size: 10px;
+			font-size: 12px;
+			margin-right: 10px;
+			font-family: arial;
+			color: #ccc;
 		}
 
 		a {
@@ -143,4 +160,18 @@ header {
 			}
 		}
 	}
+}
+
+#footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding:10px 20px;
+	text-align: center;
+	display: inline-block;
+	font-size: 13px;
+	font-family: arial;
+	color: #ccc;
+	background: #222;
 }
