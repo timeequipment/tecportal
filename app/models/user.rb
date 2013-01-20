@@ -4,7 +4,8 @@ class User
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :rememberable,
-         :timeoutable, :trackable, :validatable, :authentication_keys => [:username] 
+         :confirmable, :timeoutable, :trackable, :validatable,
+         :authentication_keys => [:username] 
 
   ## Database authenticatable
   field :username,           :type => String, :default => ""
@@ -15,9 +16,9 @@ class User
   validates_presence_of :email
   validates_presence_of :encrypted_password
   
-  ## Recoverable 
-  # field :reset_password_token,   :type => String
-  # field :reset_password_sent_at, :type => Time
+  # Recoverable 
+  field :reset_password_token,   :type => String
+  field :reset_password_sent_at, :type => Time
 
   ## Rememberable
   field :remember_created_at, :type => Time
@@ -29,11 +30,11 @@ class User
   field :current_sign_in_ip, :type => String
   field :last_sign_in_ip,    :type => String
 
-  ## Confirmable
-  # field :confirmation_token,   :type => String
-  # field :confirmed_at,         :type => Time
-  # field :confirmation_sent_at, :type => Time
-  # field :unconfirmed_email,    :type => String # Only if using reconfirmable
+  # Confirmable
+  field :confirmation_token,   :type => String
+  field :confirmed_at,         :type => Time
+  field :confirmation_sent_at, :type => Time
+  field :unconfirmed_email,    :type => String # Only if using reconfirmable
 
   ## Lockable
   # field :failed_attempts, :type => Integer, :default => 0 # Only if lock strategy is :failed_attempts
@@ -44,7 +45,7 @@ class User
   # field :authentication_token, :type => String
 
   def email_required?
-    false
+    true
   end
 end
 
