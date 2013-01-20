@@ -50,11 +50,22 @@ Then run the following to create your MongoDB database:
 $ rake db:migrate
 ```
 
+Then run the following to create your initial users, including the admin user:
+
+```
+$ rake db:seed
+```
+
 Finally, test the application:
 
 ```
 $ rails server
 ```
+
+## Administration
+
+NewAuth uses [RailsAdmin](https://github.com/sferik/rails_admin) to manage the website.  To access it, navigate to /admin and you will be prompted for an admin login.  Admin users cannot be created online for security purposes.  They must be created via command-line.  See the db/seeds.rb file for the initial admin login (assuming you ran ```$ rake db:seed``` above).
+
 
 ## Information
 
