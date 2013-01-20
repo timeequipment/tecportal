@@ -4,6 +4,7 @@ ruby '1.9.3'
 gem 'rails', '3.2.11'
 gem 'mongoid'
 gem 'devise'
+gem 'rails_admin'
 
 # Gems used only for assets and not required
 # in production environments by default.
