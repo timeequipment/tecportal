@@ -42,9 +42,21 @@ Then install the gems:
 $ bundle install
 ```
 
-Then perform a search-and-replace to change the project name _NewAuth_ throughout the application. 
+Then you will want to change the application name from NewAuth to a new name.  There is a handy shell script provided which will perform all the tedious find-and-replace for you.  
 
-Then run the following to create your MongoDB database:
+First, from the root of the app directory, run the following to ensure the script is executable:
+
+```
+$ chmod +x change_name.sh
+```
+
+Then run the script:
+
+```
+$ ./change_name.sh
+```
+
+After that is done, run the following to create your MongoDB database:
 
 ```
 $ rake db:migrate
