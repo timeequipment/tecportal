@@ -3,8 +3,5 @@
 #
 
 User.create!(:username => 'admin', :email => 'asdf@asdf.com',
-             :password => 'password', :password_confirmation => 'password')
-
-Admin.create!(:username => 'admin', :email => 'asdf@asdf.com',
-              :password => 'password', :password_confirmation => 'password',
-              :god_mode => true, :reports_only => false)
+             :password => 'password', :password_confirmation => 'password', 
+             :is_admin = true)
