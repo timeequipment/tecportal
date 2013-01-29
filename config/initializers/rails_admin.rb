@@ -12,7 +12,14 @@ RailsAdmin.config do |config|
   # config.main_app_name = Proc.new { |controller| [Rails.application.engine_name.titleize, controller.params['action'].titleize] }
 
   # RailsAdmin may need a way to know who the current user is]
-  config.current_user_method { current_admin } # auto-generated
+  config.current_user_method { current_user } # auto-generated
+
+  # Limit access to Rails Admin to only users with is_admin = true 
+  RailsAdmin.config do |config|
+    config.authorize_with do |controller|
+      redirect_to main_app.root_path unless current_user.try(:is_admin?)
+    end
+  end
 
   # If you want to track changes on your models:
   # config.audit_with :history, 'Admin'
