@@ -6,8 +6,6 @@ NewAuth is a barebones Ruby on Rails web application with user authentication bu
 
 * Users can login with a username and password, instead of an email and password.
 
-* 'Forgot your password' links have been disabled.  If you want to utilize 'Forgot your password' links, then edit /app/models/user.rb.  Add ```:recoverable``` to the list of devise modules at the top of the file, uncomment the ```## Recoverable``` section, and then run ```$ rake db:migrate```  Also, you'll have to ensure that ActionMailer is setup and working, which has been set up in the app to use gmail. You'll have to identify an email service and an email address with which to send the 'Forgot your password' emails to the users.  See:  /config/environment/development.rb for email setup.
-
 
 ## Dependencies
 

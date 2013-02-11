@@ -5,7 +5,7 @@ class User
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :rememberable,
          :confirmable, :timeoutable, :trackable, :validatable,
-         :authentication_keys => [:username] 
+         :recoverable, :authentication_keys => [:username] 
 
   ## Database authenticatable
   field :username,           :type => String, :default => ""
