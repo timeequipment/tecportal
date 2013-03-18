@@ -4,4 +4,4 @@
 
 User.create!(:username => 'admin', :email => 'asdf@asdf.com',
              :password => 'password', :password_confirmation => 'password', 
-             :is_admin = true)
+             :is_admin => true)
