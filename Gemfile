@@ -6,6 +6,7 @@ gem 'mongoid'
 gem 'devise'
 gem "rails_admin"
 gem "omniauth", "~> 1.1.4"
+gem "sqlite3"
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
