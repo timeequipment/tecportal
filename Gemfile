@@ -20,3 +20,4 @@ group :assets do
   # Use Uglifier as compressor for JavaScript assets
   gem 'uglifier', '>= 1.3.0'
 end
+
