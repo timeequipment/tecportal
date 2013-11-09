@@ -1,6 +1,6 @@
-# NewAuth
+# TecPortal
 
-NewAuth is a barebones Ruby on Rails web application with user authentication built in.  It uses Devise to provide authentication, and a SqlLite3 database to store the users.  It incorporates several features:
+TecPortal is a Ruby on Rails web application which hosts many smaller applications which interact with Attendance on Demand (AoD), and allows users to access different applications depending on their user permissions.  It uses Devise to provide authentication, and a SqlLite3 database to store the users.  It incorporates several features:
 
 * There is a landing (home) page for all visitors initially.  Once logged in as a user, each user has their own dashboard, and during their session this becomes their home page.  
 
@@ -16,7 +16,7 @@ Before creating the application, you will need:
 First, clone the GitHub repo:
 
 ```
-$ git clone https://github.com/lanebuckingham/newauth-sql.git
+$ git clone https://github.com/lanebuckingham/tecportal.git
 ```
 
 Then install the gems:
@@ -25,21 +25,7 @@ Then install the gems:
 $ bundle install
 ```
 
-Then you will want to change the application name from NewAuth to a new name.  There is a handy shell script provided which will perform all the tedious find-and-replace for you.  
-
-First, from the root of the app directory, run the following to ensure the script is executable:
-
-```
-$ chmod +x change_name.sh
-```
-
-Then run the script:
-
-```
-$ ./change_name.sh
-```
-
-After that is done, run the following to re-create your database:
+Run the following to re-create your database:
 
 ```
 $ rake db:migrate VERSION=0
@@ -60,11 +46,11 @@ $ rails server
 
 ## Administration
 
-NewAuth uses [RailsAdmin](https://github.com/sferik/rails_admin) to manage the website.  To access it, navigate to /admin and you will be prompted for an admin login.  Admin users cannot be created online for security purposes.  They must be created via command-line.  See the db/seeds.rb file for the initial admin login (assuming you ran ```$ rake db:seed``` above).
+TecPortal uses [RailsAdmin](https://github.com/sferik/rails_admin) to manage the website.  To access it, navigate to /admin and you will be prompted for an admin login.  Admin users cannot be created online for security purposes.  They must be created via command-line.  See the db/seeds.rb file for the initial admin login (assuming you ran ```$ rake db:seed``` above).
 
 
 ## Information
 
 #### Devise
 
-NewAuth relies heavily on the Devise gem to perform user authentication.  For more information, see the [documentation](http://devise.plataformatec.com.br/) for Devise or the [GitHub repo](https://github.com/plataformatec/devise).
+TecPortal relies heavily on the Devise gem to perform user authentication.  For more information, see the [documentation](http://devise.plataformatec.com.br/) for Devise or the [GitHub repo](https://github.com/plataformatec/devise).

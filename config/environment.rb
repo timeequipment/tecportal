@@ -8,4 +8,4 @@ env_vars = File.join(Rails.root, 'config', 'env_vars_hidden.rb')
 load(env_vars) if File.exists?(env_vars)
 
 # Initialize the rails application
-Newauth::Application.initialize!
+Tecportal::Application.initialize!

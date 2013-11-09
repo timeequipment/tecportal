@@ -1,4 +1,4 @@
-Newauth::Application.routes.draw do
+Tecportal::Application.routes.draw do
 
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
 

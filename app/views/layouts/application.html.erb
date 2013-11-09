@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NewAuth</title>
+  <title>TecPortal</title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
@@ -10,7 +10,7 @@
 
 <header>
 	<div class="wrapper">
-	<h3><%= link_to "NewAuth", root_path, id: "logo" %></h3>
+	<h3><%= link_to "TecPortal", root_path, id: "logo" %></h3>
 	<nav class="nav">
 		<% if user_signed_in? %>
 		  <% if current_user.is_admin? %>

@@ -1,4 +1,4 @@
-Newauth::Application.configure do
+Tecportal::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
   # Code is not reloaded between requests
@@ -70,7 +70,7 @@ Newauth::Application.configure do
   config.active_support.deprecation = :notify
 
   #Missing host to link to! Please provide the :host parameter, set default_url_options[:host], or set :only_path to true
-  config.action_mailer.default_url_options = { :host => 'newauth.herokuapp.com' }
+  config.action_mailer.default_url_options = { :host => 'tecportal.herokuapp.com' }
 
   config.action_mailer.smtp_settings = {
     address: "smtp.gmail.com",

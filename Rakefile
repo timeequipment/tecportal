@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-Newauth::Application.load_tasks
+Tecportal::Application.load_tasks
