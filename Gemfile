@@ -4,7 +4,7 @@ gem 'rails', '3.2.11'
 gem 'devise'
 gem "rails_admin"
 gem "omniauth", "~> 1.1.4"
-gem "sqlite3"
+gem "pg"
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'

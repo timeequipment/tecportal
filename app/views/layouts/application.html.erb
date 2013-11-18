@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>TecPortal</title>
-  <%= stylesheet_link_tag    "application", :media => "all" %>
-  <%= javascript_include_tag "application" %>
-  <%= csrf_meta_tags %>
+	<title>Time Equipment Company | Portal</title>
+	<%= stylesheet_link_tag    "application", :media => "all" %>
+	<%= javascript_include_tag "application" %>
+	<%= csrf_meta_tags %>
 </head>
 <body>
 
+<div class="logo"></div>
+
 <header>
-	<div class="wrapper">
-	<h3><%= link_to "TecPortal", root_path, id: "logo" %></h3>
-	<nav class="nav">
-		<% if user_signed_in? %>
-		  <% if current_user.is_admin? %>
-		    <%= link_to "Sign out", destroy_user_session_path, :method => :delete %><%= link_to "Edit profile", edit_user_registration_path %><%= link_to "Admin", rails_admin_path %>
+	<div class="wrapper3">
+		<h2><%= link_to "Portal", root_path, id: "title" %></h2>
+		<nav class="nav">
+			<% if user_signed_in? %>
+				<% if current_user.is_admin? %>
+					<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+					<%= link_to "Edit profile", edit_user_registration_path %>
+					<%= link_to "Admin", rails_admin_path %>
+				<% else %>
+					<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+					<%= link_to "Edit profile", edit_user_registration_path %>
+				<% end %>
 			<% else %>
-			  <%= link_to "Sign out", destroy_user_session_path, :method => :delete %><%= link_to "Edit profile", edit_user_registration_path %>
+				<%= link_to "Sign up", new_user_registration_path %>
+				<%= link_to "Sign in", new_user_session_path %>
 			<% end %>
-		<% else %>
-			<%= link_to "Sign up", new_user_registration_path %><%= link_to "Sign in", new_user_session_path %>
-		<% end %>
-	</nav>
+		</nav>
 	</div>
 </header>
+
+<div class="plugin-nav">
+</div>
 
 <div class="flash wrapper">
 	<% flash.each do |name, msg| %>
@@ -34,10 +43,12 @@
 <div class="content wrapper">
 	<%= yield %>
 </div>
-	<% if user_signed_in? %>
-	<div id="footer"
+
+<% if user_signed_in? %>
+	<div id="footer">
 		<span class="user">You are signed in as <a href="#"><%= current_user.name %></a>.  Not you? <%= link_to "Sign out", destroy_user_session_path, :method => :delete %></span>
 	</div>
-	<% end %>
+<% end %>
+
 </body>
 </html>
