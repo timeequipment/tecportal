@@ -41,4 +41,7 @@ Tecportal::Application.configure do
     password: ENV["GMAIL_PASSWORD"]
   }
 
+  # Load assets from app/assets instead of public/assets
+  # config.serve_static_assets = false
+
 end
