@@ -10,6 +10,7 @@
   font-family: arial;
   color: #222;
   background: #d8d8d8;
-  @include background-image(linear-gradient(top, rgba(#f2f2f2, 1), rgba(#cfcfcf, 1)));
+  @include filter-gradient(#f2f2f2, #cfcfcf, vertical);
+  @include background-image(linear-gradient(#f2f2f2, #cfcfcf));
   border-top: solid 1px #666
 }
