@@ -62,6 +62,10 @@ module Tecportal
     # Enable the asset pipeline
     config.assets.enabled = true
 
+    # Forces application to not load models or access the DB when precompiling
+    # assets
+    config.assets.initialize_on_precompile = false
+
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
   end

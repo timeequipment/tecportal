@@ -19,11 +19,11 @@ Tecportal::Application.configure do
   #   Set this to false
   #   Set the Bundler.require lines in application.rb to precompile
   #   Run this before every git push: bundle exec rake assets:precompile 
-  config.assets.compile = true
+  config.assets.compile = false
 
   # Specify the default JavaScript compressor
   config.assets.js_compressor  = :uglifier
-  config.assets.css_compressor = :scss
+  #config.assets.css_compressor = :scss
 
   # Generate digests for assets URLs
   config.assets.digest = true
