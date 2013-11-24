@@ -63,7 +63,7 @@ module Tecportal
     config.assets.enabled = true
 
     # Forces application to not load models or access the DB when precompiling
-    # assets
+    # assets.  *** Heroku requires this to be false ***
     config.assets.initialize_on_precompile = false
 
     # Version of your assets, change this if you want to expire all your assets
