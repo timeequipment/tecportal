@@ -1,0 +1,2 @@
+RewriteCond %{HTTP_USER_AGENT} ^.*iPad.*$
+RewriteRule ^(.*)$ http://www.yahoo.com [R=301]

@@ -34,15 +34,19 @@
 </header>
 
 <div class="plugin-nav">
-</div>
-
-<div class="flash wrapper">
-	<% flash.each do |name, msg| %>
-		<%= content_tag :div, msg, :id => "flash_#{name}" %>
+	<% if user_signed_in? %>
+		<%= render template: "tec_plugins/index" %>
 	<% end %>
 </div>
 
 <div class="content wrapper">
+	
+	<div class="flash">
+		<% flash.each do |name, msg| %>
+			<%= content_tag :div, msg, :id => "flash_#{name}" %>
+		<% end %>
+	</div>
+
 	<%= yield %>
 </div>
 

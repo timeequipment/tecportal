@@ -12,4 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require tecportal
+//= require chosen.jquery.min
 //= require_tree .

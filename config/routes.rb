@@ -1,12 +1,26 @@
 Tecportal::Application.routes.draw do
 
-  mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
-
   devise_for :users
+  
+  get "tec_plugins/index" 
+
+  get "plugin_aod_time_entry/index"
+
+  get "plugin_aod_time_entry/settings"
+
+  get "plugin_aod_time_entry/start"
+
+  get "plugin_aod_time_entry/end"
+
+  # match 'plugins_list', to: 'tecplugins#index', via: [:get]
+  
+  mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
 
   resources :dashboard
 
   root :to => 'home#index'
+
+  # aod_time_entry :to => 'plugins#aod_time_entry'
 
   # match '/login', to: 'pages#login'
 
