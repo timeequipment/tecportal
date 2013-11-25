@@ -72,7 +72,7 @@ i {
     @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
     transition: all .4s ease;
 
-    &:hover{
+    &:hover {
       background: #ddd;
       // @include background-image(linear-gradient(top, rgba(#ddd, 1), rgba(#eee, 1)));
       // @include filter-gradient(rgb(78, 78, 78), rgb(30, 30, 30), vertical);
