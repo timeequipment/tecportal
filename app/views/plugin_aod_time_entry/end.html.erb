@@ -1,2 +1,17 @@
-<h1>PluginAodTimeEntry#end</h1>
-<p>Find me in app/views/plugin_aod_time_entry/end.html.erb</p>
+<div class="plugin-aod-time-entry">
+
+	<div class="label">Quantity Run</div>
+	<input type="text"><br>
+
+	<div class="label">Scrapped</div>
+	<input type="text"><br>
+
+	<div class="label">Total</div>
+	<input type="text"><br>
+
+	<br>
+	<%= link_to "Submit", 
+		{ :controller => "plugin_aod_time_entry", 
+		  :action => "index" },
+		{ :class => "submit-button" } %>
+</div>

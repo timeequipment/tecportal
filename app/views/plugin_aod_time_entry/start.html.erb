@@ -1,2 +1,39 @@
-<h1>PluginAodTimeEntry#start</h1>
-<p>Find me in app/views/plugin_aod_time_entry/start.html.erb</p>
+<div class="plugin-aod-time-entry">
+
+	<div class="label">Employee ID</div>
+	<input type="text"><br>
+	<div class="v-spacer"></div>
+
+	<div class="label">Work Order</div>
+	<select>
+		<option value="1">Work Order #1</option>
+		<option value="2">Work Order #2</option>
+		<option value="3">Work Order #3</option>
+		<option value="4">Work Order #4</option>
+		<option value="5">Work Order #5</option>
+		<option value="6">Work Order #6</option>
+		<option value="7">Work Order #7</option>
+		<option value="8">Work Order #8</option>
+		<option value="9">Work Order #9</option>
+	</select>
+	<div class="v-spacer"></div>
+	<div class="label">Sequence</div>
+	<select>
+		<option value="1">Sequence #1</option>
+		<option value="2">Sequence #2</option>
+		<option value="3">Sequence #3</option>
+		<option value="4">Sequence #4</option>
+		<option value="5">Sequence #5</option>
+		<option value="6">Sequence #6</option>
+		<option value="7">Sequence #7</option>
+		<option value="8">Sequence #8</option>
+		<option value="9">Sequence #9</option>
+	</select>
+	<div class="v-spacer"></div>
+	<div class="v-spacer"></div>
+
+	<%= link_to "Submit", 
+		{ :controller => "plugin_aod_time_entry", 
+		  :action => "index" },
+		{ :class => "submit-button" } %>
+</div>

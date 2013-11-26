@@ -8,87 +8,78 @@
 		position: relative;
 	}
 
-	section {
-		margin: auto 0;
-	}
-
-	.column-1 {
+	select {
 		display: inline-block;
-		vertical-align: text-top;
-		width: 300px;
-		padding: 15px 0;
+		width: 140px;
 	}
-	
-	.column-2 {
+
+	input {
 		display: inline-block;
-		vertical-align: text-top;
-		width: 170px;
-		padding: 15px 0;
+		width: 123px;
+		font-size: 15px;
 	}
 
-  select {
-    display: inline-block;
-    width: 140px;
-  }
-
-  input {
-  	display: inline-block;
-  	width: 123px;
-  	font-size: 15px;
-  }
-
-  .start-button {
+	.button-base {
+		display: inline-block;
+		padding: 10px 14px;
+		width: 222px;
+		border-radius: 2px;
+		text-align: center;
+		font-family: arial;
+		font-size: 22px;
+		color: #000;
 		cursor: default;
-    text-align: center;
-    color: #000;
-    font-family: arial;
-    font-size: 22px;
-    padding: 10px 14px;
-    background: #0c0;
-    border-radius: 2px;
-    @include filter-gradient(#9f9, #090, vertical);
-    @include background-image(linear-gradient(#9f9, #090));
-    @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#bfb,1));
-    transition: all .4s ease;
+	}
 
-    &:hover, &:focus, &:active {
-      background: #0a0;
-      // @include background-image(linear-gradient(top, rgba(#ddd, 1), rgba(#eee, 1)));
-      // @include filter-gradient(rgb(78, 78, 78), rgb(30, 30, 30), vertical);
-    }
-  }
+	.start-button {
+		@extend .button-base;
+		background: #0c0;
+		@include filter-gradient(#9f9, #090, vertical);
+		@include background-image(linear-gradient(#9f9, #090));
+		@include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#bfb,1));
+		transition: all .4s ease;
 
-  .end-button {
-		cursor: default;
-    text-align: center;
-    color: #000;
-    font-family: arial;
-    font-size: 22px;
-    padding: 10px 14px;
-    background: #e66;
-    border-radius: 2px;
-    @include filter-gradient(#f88, #c00, vertical);
-    @include background-image(linear-gradient(#f88, #c00));
-    @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fcc,1));
-    transition: all .4s ease;
+		&:hover, &:focus, &:active {
+			background: #0a0;
+		}
+	}
 
-    &:hover, &:focus, &:active {
-      background: #d00;
-      // @include background-image(linear-gradient(top, rgba(#ddd, 1), rgba(#eee, 1)));
-      // @include filter-gradient(rgb(78, 78, 78), rgb(30, 30, 30), vertical);
-    }
-  }  
+	.end-button {
+		@extend .button-base;
+		background: #e66;
+		@include filter-gradient(#f88, #c00, vertical);
+		@include background-image(linear-gradient(#f88, #c00));
+		@include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fcc,1));
+		transition: all .4s ease;
 
-  .label {
-  	display: inline-block;
-  	width: 108px;
-  }
+		&:hover, &:focus, &:active {
+			background: #d00;
+		}
+	}  
 
-  .v-spacer {
-  	height: 12px;
-  }
+	.submit-button {
+		@extend .button-base;
+		background: #f3f3f3;
+		@include filter-gradient(#fff, #c2c2c2, vertical);
+		@include background-image(linear-gradient(#fff, #c2c2c2));
+		@include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+		transition: all .4s ease;
 
-  .v-spacer-big {
-  	height: 60px;
-  }
+		&:hover, &:focus, &:active {
+			background: #ddd;
+		}
+	}
+
+	.label {
+		display: inline-block;
+		width: 108px;
+	}
+
+	.v-spacer {
+		height: 16px;
+	}
+
+	.v-spacer-big {
+		height: 60px;
+	}
 }

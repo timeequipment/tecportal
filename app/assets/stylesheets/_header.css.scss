@@ -24,10 +24,10 @@ header {
   color: #222;
 
   h2 {
-    font-size: 32px;
-    margin-top: 16px;
-    display: inline-block;
     float: left;
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 32px;
 
     a {
       color: #222;
@@ -39,18 +39,18 @@ header {
     line-height: 60px;
 
     .user {
-      font-size: 12px;
       margin-right: 10px;
+      font-size: 12px;
       font-family: arial;
       color: #ccc;
     }
 
     a {
       margin-right: -3px;
-      color: #333;
+      padding: 10px 14px;
       font-family: arial;
       font-size: 13px;
-      padding: 10px 14px;
+      color: #333;
       background: #f3f3f3;
       @include filter-gradient(#fff, #c2c2c2, vertical);
       @include background-image(linear-gradient(#fff, #c2c2c2));
