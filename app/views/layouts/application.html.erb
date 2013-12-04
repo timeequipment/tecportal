@@ -1,60 +1,59 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Time Equipment Company | Portal</title>
-	<%= stylesheet_link_tag    "application", :media => "all" %>
-	<%= javascript_include_tag "application" %>
-	<%= csrf_meta_tags %>
-</head>
-<body>
+	<head>
+		<title>Time Equipment Company | Portal</title>
+		<%= stylesheet_link_tag    "application", :media => "all" %>
+		<%= javascript_include_tag "application" %>
+		<%= csrf_meta_tags %>
+	</head>
+	<body>
+		<div class="logo">
+			<%= link_to(image_tag("TE_Logo_wTag_trans2.png", size: "170x85", alt: "Time Equipment Company"), root_path) %>
+		</div>
 
-<div class="logo">
-	<%= link_to(image_tag("TE_Logo_wTag_trans2.png", size: "170x85", alt: "Time Equipment Company"), root_path) %>
-</div>
+		<header>
+			<div class="wrapper3">
+				<h2><%= link_to "Portal", root_path, id: "title" %></h2>
+				<nav class="nav">
+					<!-- User Sign in -->
+					<% if user_signed_in? %>
+						<% if current_user.is_admin? %>
+							<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+							<%= link_to "Edit profile", edit_user_registration_path %>
+							<%= link_to "Admin", rails_admin_path %>
+						<% else %>
+							<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+							<%= link_to "Edit profile", edit_user_registration_path %>
+						<% end %>
+					<% else %>
+						<%= link_to "Sign up", new_user_registration_path %>
+						<%= link_to "Sign in", new_user_session_path %>
+					<% end %>
+				</nav>
+			</div>
+			<div class="start-button"></div>
+		</header>
 
-<header>
-	<div class="wrapper3">
-		<h2><%= link_to "Portal", root_path, id: "title" %></h2>
-		<nav class="nav">
+		<div class="plugin-nav">
 			<% if user_signed_in? %>
-				<% if current_user.is_admin? %>
-					<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
-					<%= link_to "Edit profile", edit_user_registration_path %>
-					<%= link_to "Admin", rails_admin_path %>
-				<% else %>
-					<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
-					<%= link_to "Edit profile", edit_user_registration_path %>
-				<% end %>
-			<% else %>
-				<%= link_to "Sign up", new_user_registration_path %>
-				<%= link_to "Sign in", new_user_session_path %>
+				<%= render template: "tec_plugins/index" %>
 			<% end %>
-		</nav>
-	</div>
-</header>
+		</div>
 
-<div class="plugin-nav">
-	<% if user_signed_in? %>
-		<%= render template: "tec_plugins/index" %>
-	<% end %>
-</div>
+		<div class="content wrapper">
+			<div class="flash">
+				<% flash.each do |name, msg| %>
+					<%= content_tag :div, msg, :id => "flash_#{name}" %>
+				<% end %>
+			</div>
+			<%= yield %>
+		</div>
 
-<div class="content wrapper">
-	
-	<div class="flash">
-		<% flash.each do |name, msg| %>
-			<%= content_tag :div, msg, :id => "flash_#{name}" %>
+		<% if user_signed_in? %>
+			<div id="footer">
+				<span class="user">You are signed in as <a href="#"><%= current_user.name %></a>.  Not you? <%= link_to "Sign out", destroy_user_session_path, :method => :delete %></span>
+			</div>
 		<% end %>
-	</div>
 
-	<%= yield %>
-</div>
-
-<% if user_signed_in? %>
-	<div id="footer">
-		<span class="user">You are signed in as <a href="#"><%= current_user.name %></a>.  Not you? <%= link_to "Sign out", destroy_user_session_path, :method => :delete %></span>
-	</div>
-<% end %>
-
-</body>
+	</body>
 </html>
