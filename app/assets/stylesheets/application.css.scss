@@ -1,15 +1,25 @@
+/* See https://github.com/joliss/jquery-ui-rails 
+ * about requiring only what jquery you need, for production
+ *
+ *= require jquery.ui.all
+ */
+
 @charset "UTF-8";
 
 @import "compass/css3";
 @import "compass/reset";
 @include reset-html5;
 
-@import "base";
-@import "header";
-@import "footer";
-@import "forms";
-@import "chosen";
+// Importing * should import base, header, footer, all plugin css, etc
 @import "*";
+// @import "base";
+// @import "header";
+// @import "footer";
+// @import "forms";
 
+// Import vendor css
+@import "chosen";
+
+// Import web fonts
 @import url(http://fonts.googleapis.com/css?family=Donegal+One);
 

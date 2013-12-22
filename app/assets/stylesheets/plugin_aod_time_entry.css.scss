@@ -4,82 +4,53 @@
 
 .plugin-aod-time-entry {
 
-	* {
-		position: relative;
-	}
+  select {
+    display: inline-block;
+    width: 140px;
+  }
 
-	select {
-		display: inline-block;
-		width: 140px;
-	}
+  input {
+    display: inline-block;
+    width: 123px;
+    font-size: 15px;
+  }
 
-	input {
-		display: inline-block;
-		width: 123px;
-		font-size: 15px;
-	}
+  .start-button {
+    @extend .button-base;
+    background: #0c0;
+    @include filter-gradient(#9f9, #090, vertical);
+    @include background-image(linear-gradient(#9f9, #090));
+    @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#bfb,1));
+    transition: all .4s ease;
 
-	.button-base {
-		display: inline-block;
-		padding: 10px 14px;
-		width: 222px;
-		border-radius: 2px;
-		text-align: center;
-		font-family: arial;
-		font-size: 22px;
-		color: #000;
-		cursor: default;
-	}
+    &:hover, &:focus, &:active {
+      background: #0a0;
+    }
+  }
 
-	.start-button {
-		@extend .button-base;
-		background: #0c0;
-		@include filter-gradient(#9f9, #090, vertical);
-		@include background-image(linear-gradient(#9f9, #090));
-		@include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#bfb,1));
-		transition: all .4s ease;
+  .end-button {
+    @extend .button-base;
+    background: #e66;
+    @include filter-gradient(#f88, #c00, vertical);
+    @include background-image(linear-gradient(#f88, #c00));
+    @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fcc,1));
+    transition: all .4s ease;
 
-		&:hover, &:focus, &:active {
-			background: #0a0;
-		}
-	}
+    &:hover, &:focus, &:active {
+      background: #d00;
+    }
+  }  
 
-	.end-button {
-		@extend .button-base;
-		background: #e66;
-		@include filter-gradient(#f88, #c00, vertical);
-		@include background-image(linear-gradient(#f88, #c00));
-		@include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fcc,1));
-		transition: all .4s ease;
+  .label {
+    display: inline-block;
+    width: 108px;
+  }
 
-		&:hover, &:focus, &:active {
-			background: #d00;
-		}
-	}  
+  .v-spacer {
+    height: 16px;
+  }
 
-	.submit-button {
-		@extend .button-base;
-		background: #f3f3f3;
-		@include filter-gradient(#fff, #c2c2c2, vertical);
-		@include background-image(linear-gradient(#fff, #c2c2c2));
-		@include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
-		transition: all .4s ease;
-
-		&:hover, &:focus, &:active {
-			background: #ddd;
-		}
-	}
-
-	.label {
-		display: inline-block;
-		width: 108px;
-	}
-
-	.v-spacer {
-		height: 16px;
-	}
-
-	.v-spacer-big {
-		height: 60px;
-	}
+  .v-spacer-big {
+    height: 60px;
+  }
 }

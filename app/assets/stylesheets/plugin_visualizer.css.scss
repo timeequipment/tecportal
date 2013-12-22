@@ -1,0 +1,28 @@
+// Place all the styles related to the PluginVisualizer controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.plugin-visualizer {
+
+  select {
+    width: 120px;
+  }
+
+  .label1 {
+    display: inline-block;
+    height: 22px;
+    width: 100px;
+  }
+
+  #spinner-container {
+    position: absolute;
+    top: 14px;
+    left: 420px;
+    height: 100px;
+    width: 100px;
+  }
+
+  #spinner {
+    display: none;
+  }
+}

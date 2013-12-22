@@ -1,5 +1,13 @@
 Tecportal::Application.routes.draw do
 
+  get "plugin_visualizer/index"
+
+  get "plugin_visualizer/settings"
+
+  get "plugin_visualizer/create_report"
+
+  get "plugin_visualizer/download_report"
+
   devise_for :users
   
   get "tec_plugins/index" 

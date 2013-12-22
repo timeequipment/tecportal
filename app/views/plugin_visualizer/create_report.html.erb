@@ -1,0 +1,15 @@
+
+<div style="display: inline-block; width: 600px">
+  <h3>Schedule Report</h3> 
+  <%= link_to "Save to File", 
+      { :controller => "plugin_visualizer", 
+        :action => "download_report" },
+      { :class => "sample-button",
+        :style => "float: right; font-size: 14px; width: 140px" } %>
+</div>
+<br>
+
+<textarea style="margin-bottom: 60px; height: 500px; width: 600px; ">
+<%= h(session[:schedfile].to_s) %>
+</textarea>
+

@@ -1,6 +1,6 @@
 # TecPortal
 
-TecPortal is a Ruby on Rails web application which hosts many smaller applications which interact with Attendance on Demand (AoD), and allows users to access different applications depending on their user permissions.  It uses Devise to provide authentication, and a SqlLite3 database to store the users.  It incorporates several features:
+TecPortal is a Ruby on Rails web application which hosts many smaller applications which interact with Attendance on Demand (AoD), and allows users to access different applications depending on their user permissions.  It uses Devise to provide authentication, and a Postgres database to store the users, permissions, and plugin data.  It incorporates several features:
 
 * There is a landing (home) page for all visitors initially.  Once logged in as a user, each user has their own dashboard, and during their session this becomes their home page.  
 

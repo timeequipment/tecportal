@@ -6,10 +6,11 @@ gem 'devise'
 gem "rails_admin"
 gem "omniauth", "~> 1.1.4"
 gem "pg"
-gem 'savon', '~> 2.3.0'
+gem 'savon', '2.2.0'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
 
 # Gems used only for assets and not required
 # in production environments by default.

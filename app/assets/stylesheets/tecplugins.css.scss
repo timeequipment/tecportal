@@ -1,3 +1,28 @@
 // Place all the styles related to the Tecplugins controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.button-base {
+  display: inline-block;
+  padding: 10px 14px;
+  width: 222px;
+  border-radius: 2px;
+  text-align: center;
+  font-family: arial;
+  font-size: 22px;
+  color: #000;
+  cursor: default;
+}
+
+.sample-button {
+  @extend .button-base;
+  background: #f3f3f3;
+  @include filter-gradient(#fff, #c2c2c2, vertical);
+  @include background-image(linear-gradient(#fff, #c2c2c2));
+  @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+  transition: all .4s ease;
+
+    &:hover, &:focus, &:active {
+      background: #ddd;
+  }
+}

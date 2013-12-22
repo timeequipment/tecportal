@@ -1,0 +1,140 @@
+<div class="plugin-visualizer">
+  <h2>Visualizer Interface to AoD</h2>
+
+  <div>
+    <form action="create_report" method="get">
+      <div class="label1">Pay Period:</div>
+      <select name="payperiod" id="payperiod">
+        <option value="0" selected="selected">Previous</option>
+        <option value="1">Current</option>
+      </select>
+      <br>
+      <br>
+      <div class="label1">Period Start: </div>
+      <div class="label1" id="period-start"></div>
+      <br>
+      <div class="label1">Period End: </div>
+      <div class="label1" id="period-end"></div>
+      <br>
+      <br>
+      <input id="createreport" type="submit" value="Create Report">
+    </form>  
+  </div>
+
+  <div id="spinner-container">
+    <div id="spinner"></div>
+  </div>
+</div>
+
+<script>
+
+  // Spin.js   
+  // http://fgnass.github.io/spin.js/
+
+  // // Big spinner
+  // var options = {
+  //   lines: 11, // The number of lines to draw
+  //   length: 18, // The length of each line
+  //   width: 5, // The line thickness
+  //   radius: 19, // The radius of the inner circle
+  //   corners: 1, // Corner roundness (0..1)
+  //   rotate: 0, // The rotation offset
+  //   direction: 1, // 1: clockwise, -1: counterclockwise
+  //   color: '#000', // #rgb or #rrggbb or array of colors
+  //   speed: 1.2, // Rounds per second
+  //   trail: 54, // Afterglow percentage
+  //   shadow: false, // Whether to render a shadow
+  //   hwaccel: false, // Whether to use hardware acceleration
+  //   className: 'spinner', // The CSS class to assign to the spinner
+  //   zIndex: 2e9, // The z-index (defaults to 2000000000)
+  //   top: 'auto', // Top position relative to parent in px
+  //   left: 'auto' // Left position relative to parent in px
+  // };
+
+    // Smaller spinner
+  var options = {
+    lines: 11, // The number of lines to draw
+    length: 12, // The length of each line
+    width: 4, // The line thickness
+    radius: 11, // The radius of the inner circle
+    corners: 1, // Corner roundness (0..1)
+    rotate: 0, // The rotation offset
+    direction: 1, // 1: clockwise, -1: counterclockwise
+    color: '#000', // #rgb or #rrggbb or array of colors
+    speed: 1.2, // Rounds per second
+    trail: 54, // Afterglow percentage
+    shadow: false, // Whether to render a shadow
+    hwaccel: false, // Whether to use hardware acceleration
+    className: 'spinner', // The CSS class to assign to the spinner
+    zIndex: 2e9, // The z-index (defaults to 2000000000)
+    top: 'auto', // Top position relative to parent in px
+    left: 'auto' // Left position relative to parent in px
+  };
+
+//   // Thin spinner
+//     var options = {
+//   lines: 7, // The number of lines to draw
+//   length: 17, // The length of each line
+//   width: 2, // The line thickness
+//   radius: 14, // The radius of the inner circle
+//   corners: 1, // Corner roundness (0..1)
+//   rotate: 0, // The rotation offset
+//   direction: 1, // 1: clockwise, -1: counterclockwise
+//   color: '#000', // #rgb or #rrggbb or array of colors
+//   speed: 1.4, // Rounds per second
+//   trail: 53, // Afterglow percentage
+//   shadow: false, // Whether to render a shadow
+//   hwaccel: false, // Whether to use hardware acceleration
+//   className: 'spinner', // The CSS class to assign to the spinner
+//   zIndex: 2e9, // The z-index (defaults to 2000000000)
+//   top: 'auto', // Top position relative to parent in px
+//   left: 'auto' // Left position relative to parent in px
+// };
+
+// // Dots spinner
+// var options = {
+//   lines: 11, // The number of lines to draw
+//   length: 0, // The length of each line
+//   width: 6, // The line thickness
+//   radius: 27, // The radius of the inner circle
+//   corners: 1, // Corner roundness (0..1)
+//   rotate: 0, // The rotation offset
+//   direction: 1, // 1: clockwise, -1: counterclockwise
+//   color: '#000', // #rgb or #rrggbb or array of colors
+//   speed: 1.4, // Rounds per second
+//   trail: 53, // Afterglow percentage
+//   shadow: false, // Whether to render a shadow
+//   hwaccel: false, // Whether to use hardware acceleration
+//   className: 'spinner', // The CSS class to assign to the spinner
+//   zIndex: 2e9, // The z-index (defaults to 2000000000)
+//   top: 'auto', // Top position relative to parent in px
+//   left: 'auto' // Left position relative to parent in px
+// };
+
+  var target = document.getElementById('spinner');
+  var spinner = new Spinner(options).spin(target);
+
+  // Show the spinner when you click 'Create Report'
+  $('#createreport').click(function() {
+    $('#spinner').show();
+  });
+
+  // Default to showing previous period dates
+  $('#period-start').html('<%= @prevstart %>');
+  $('#period-end').html('<%= @prevend %>');
+
+  // Change the period dates when the user selects a period
+  $('#payperiod').change(function() {
+    if ($(this).val() === "0")
+    {
+      $('#period-start').html('<%= @prevstart %>');
+      $('#period-end').html('<%= @prevend %>');
+    }
+    else
+    {
+      $('#period-start').html('<%= @currstart %>');
+      $('#period-end').html('<%= @currend %>'); 
+    }
+  });
+
+</script>
