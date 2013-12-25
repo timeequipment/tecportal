@@ -14,10 +14,10 @@ RailsAdmin.config do |config|
   # RailsAdmin may need a way to know who the current user is]
   config.current_user_method { current_user } # auto-generated
 
-  # Limit access to Rails Admin to only users with is_admin = true 
+  # Limit access to Rails Admin to only users with sys_admin = true 
   RailsAdmin.config do |config|
     config.authorize_with do |controller|
-      redirect_to main_app.root_path unless current_user.try(:is_admin?)
+      redirect_to main_app.root_path unless current_user.try(:sys_admin?)
     end
   end
 

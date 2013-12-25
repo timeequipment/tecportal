@@ -1,0 +1,86 @@
+body {
+  font-family: 'Arial', serif;
+  background: #efefef;
+
+  * {
+    position: relative;
+    box-sizing: border-box; } }
+
+p {
+  margin: 10px 0;
+  line-height: 20px; }
+
+a {
+  color: #03a;
+  text-decoration: none; }
+
+h1 {
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 36px; }
+
+h2 {
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 28px; }
+
+h3 {
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 22px; }
+
+i {
+  font-size: 12px;
+  color: #666; }
+
+#flash_alert {
+  margin-bottom: 30px;
+  padding: 20px;
+  text-align: center;
+  background: #ffc4ba;
+  border: 1px solid #ff817b;
+  @include border-radius(2px); }
+
+#flash_notice {
+  margin-bottom: 30px;
+  padding: 20px;
+  text-align: center;
+  background: #fff1ba;
+  border: 1px solid #e9b36d;
+  @include border-radius(2px); }
+
+#flash_timedout {
+  display: none; } // eliminates 'true' msg under flash on session expire
+
+.shrink-wrap {
+  display: block;
+  margin: 0 auto; }
+
+.wrapper {
+  margin-left: 240px;
+  padding:  0 20px; }
+
+.content {
+  margin-top: 119px; }
+
+.button-base {
+  display: inline-block;
+  padding: 10px 14px;
+  width: 222px;
+  border-radius: 2px;
+  text-align: center;
+  font-family: arial;
+  font-size: 22px;
+  color: #000;
+  cursor: default; }
+
+.sample-button {
+  @extend .button-base;
+  background: #f3f3f3;
+  @include filter-gradient(#fff, #c2c2c2, vertical);
+  @include background-image(linear-gradient(#fff, #c2c2c2));
+  @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+  transition: all .4s ease;
+
+    &:hover, &:focus, &:active {
+      background: #ddd; } }

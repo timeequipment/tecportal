@@ -1,11 +1,14 @@
 class DeviseCreateUsers < ActiveRecord::Migration
   def change
     create_table(:users) do |t|
+      t.integer :customer_id
+      
       ## Database authenticatable
       t.string   :name,               :null => false, :default => ""
       t.string   :email,              :null => false, :default => ""
       t.string   :encrypted_password, :null => false, :default => ""
-      t.boolean  :is_admin,           :null => false, :default => false
+      t.boolean  :sys_admin,          :null => false, :default => false
+      t.boolean  :customer_admin,     :null => false, :default => false
 
       ## Recoverable
       t.string   :reset_password_token
@@ -37,7 +40,6 @@ class DeviseCreateUsers < ActiveRecord::Migration
 
       ## Token authenticatable
       t.string :authentication_token
-
 
       t.timestamps
     end

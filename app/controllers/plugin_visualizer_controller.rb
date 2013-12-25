@@ -1,16 +1,22 @@
 class PluginVisualizerController < ApplicationController
   before_filter :authenticate_user!
 
-  account = ""
-  username = ""
-  password = ""
-
   # Get User Settings
 
   # Get Customer Settings
 
+  # Create dummy customer settings
+  settings = PluginVisualizer::Settings.new(
+    '', '', '')
+
   # Create interface to AoD
-  @@aod = PluginsHelper::AodInterface.new(account, username, password)
+  @@aod = PluginsHelper::AodInterface.new(
+    settings.account, 
+    settings.username, 
+    settings.password)
+
+  # Save settings to db
+  CustomerSettings.create(:customer_id => 1, :plugin_id => 1, :data => YAML::dump(settings))
 
   def index
     # Get pay periods from AoD

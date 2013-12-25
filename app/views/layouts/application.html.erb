@@ -7,39 +7,40 @@
 		<%= csrf_meta_tags %>
 	</head>
 	<body>
+
+		<!-- Logo -->
 		<div class="logo">
 			<%= link_to(image_tag("TE_Logo_wTag_trans2.png", size: "170x85", alt: "Time Equipment Company"), root_path) %>
 		</div>
 
-		<header>
-			<div class="wrapper3">
-				<h2><%= link_to "Portal", root_path, id: "title" %></h2>
-				<nav class="nav">
-					<!-- User Sign in -->
-					<% if user_signed_in? %>
-						<% if current_user.is_admin? %>
-							<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
-							<%= link_to "Edit profile", edit_user_registration_path %>
-							<%= link_to "Admin", rails_admin_path %>
-						<% else %>
-							<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
-							<%= link_to "Edit profile", edit_user_registration_path %>
-						<% end %>
+		<!-- Header -->
+		<div class="header">
+			<h2><%= link_to "Portal", root_path, id: "title" %></h2>
+			<nav>
+				<% if user_signed_in? %>
+					<% if current_user.sys_admin? %>
+						<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+						<%= link_to "Edit profile", edit_user_registration_path %>
+						<%= link_to "Admin", rails_admin_path %>
 					<% else %>
-						<%= link_to "Sign up", new_user_registration_path %>
-						<%= link_to "Sign in", new_user_session_path %>
+						<%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+						<%= link_to "Edit profile", edit_user_registration_path %>
 					<% end %>
-				</nav>
-			</div>
-			<div class="start-button"></div>
-		</header>
+				<% else %>
+					<%= link_to "Sign up", new_user_registration_path %>
+					<%= link_to "Sign in", new_user_session_path %>
+				<% end %>
+			</nav>
+		</div>
 
-		<div class="plugin-nav">
+		<!-- Left Nav -->
+		<div class="left-nav">
 			<% if user_signed_in? %>
 				<%= render template: "tec_plugins/index" %>
 			<% end %>
 		</div>
 
+		<!-- Content -->
 		<div class="content wrapper">
 			<div class="flash">
 				<% flash.each do |name, msg| %>
@@ -49,6 +50,7 @@
 			<%= yield %>
 		</div>
 
+		<!-- Footer -->
 		<% if user_signed_in? %>
 			<div id="footer">
 				<span class="user">You are signed in as <a href="#"><%= current_user.name %></a>.  Not you? <%= link_to "Sign out", destroy_user_session_path, :method => :delete %></span>

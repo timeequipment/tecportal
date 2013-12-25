@@ -1,0 +1,15 @@
+#footer {
+  position: fixed;
+  display: inline-block;
+  padding:10px 20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  font-family: arial;
+  color: #222;
+  background: #d8d8d8;
+  border-top: solid 1px #666;
+  @include filter-gradient(#f2f2f2, #cfcfcf, vertical);
+  @include background-image(linear-gradient(#f2f2f2, #cfcfcf)); }

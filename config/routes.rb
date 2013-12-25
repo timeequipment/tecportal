@@ -7,8 +7,6 @@ Tecportal::Application.routes.draw do
   get "plugin_visualizer/create_report"
 
   get "plugin_visualizer/download_report"
-
-  devise_for :users
   
   get "tec_plugins/index" 
 
@@ -19,6 +17,8 @@ Tecportal::Application.routes.draw do
   get "plugin_aod_time_entry/start"
 
   get "plugin_aod_time_entry/end"
+
+  devise_for :users
 
   # match 'plugins_list', to: 'tecplugins#index', via: [:get]
   

@@ -11,7 +11,50 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131217020028) do
+ActiveRecord::Schema.define(:version => 20131222153847) do
+
+  create_table "customer_settings", :id => false, :force => true do |t|
+    t.integer  "customer_id"
+    t.integer  "plugin_id"
+    t.string   "data"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "customer_settings", ["customer_id", "plugin_id"], :name => "index_customer_settings_on_customer_id_and_plugin_id"
+
+  create_table "customers", :force => true do |t|
+    t.string   "name"
+    t.string   "description"
+    t.integer  "status"
+    t.string   "website"
+    t.string   "mainphone"
+    t.string   "fax"
+    t.string   "address1"
+    t.string   "address2"
+    t.string   "city"
+    t.string   "state"
+    t.string   "zip"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "customers", ["id"], :name => "index_customers_on_id", :unique => true
+
+  create_table "customers_plugins", :id => false, :force => true do |t|
+    t.integer "customer_id"
+    t.integer "plugin_id"
+  end
+
+  create_table "plugins", :force => true do |t|
+    t.integer  "type"
+    t.string   "name"
+    t.string   "description"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "plugins", ["id"], :name => "index_plugins_on_id", :unique => true
 
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false
@@ -23,11 +66,23 @@ ActiveRecord::Schema.define(:version => 20131217020028) do
   add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
+  create_table "user_settings", :id => false, :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "plugin_id"
+    t.string   "data"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "user_settings", ["user_id", "plugin_id"], :name => "index_user_settings_on_user_id_and_plugin_id"
+
   create_table "users", :force => true do |t|
+    t.integer  "customer_id"
     t.string   "name",                   :default => "",    :null => false
     t.string   "email",                  :default => "",    :null => false
     t.string   "encrypted_password",     :default => "",    :null => false
-    t.boolean  "is_admin",               :default => false, :null => false
+    t.boolean  "sys_admin",              :default => false, :null => false
+    t.boolean  "customer_admin",         :default => false, :null => false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"

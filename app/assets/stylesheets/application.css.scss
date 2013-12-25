@@ -3,19 +3,16 @@
  *
  *= require jquery.ui.all
  */
-
 @charset "UTF-8";
 
+// Import compass
 @import "compass/css3";
 @import "compass/reset";
 @include reset-html5;
 
-// Importing * should import base, header, footer, all plugin css, etc
+// Import application css
+@import "application/*";
 @import "*";
-// @import "base";
-// @import "header";
-// @import "footer";
-// @import "forms";
 
 // Import vendor css
 @import "chosen";
