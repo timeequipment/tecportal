@@ -1,40 +1,30 @@
 Tecportal::Application.routes.draw do
 
-  get "plugin_visualizer/index"
+  # Visualizer plugin
+  get 'plugin_visualizer/index'
+  get 'plugin_visualizer/settings'
+  post 'plugin_visualizer/save_settings'
+  get 'plugin_visualizer/create_report'
+  get 'plugin_visualizer/download_report'
 
-  get "plugin_visualizer/settings"
+  # AoD Time Entry plugin  
+  get 'plugin_aod_time_entry/index'
+  get 'plugin_aod_time_entry/settings'
+  get 'plugin_aod_time_entry/start'
+  get 'plugin_aod_time_entry/end'
 
-  get "plugin_visualizer/create_report"
+  # Tec Plugins
+  get 'tec_plugins/list' 
 
-  get "plugin_visualizer/download_report"
-  
-  get "tec_plugins/index" 
+  # Devise
+  devise_for :users; 
 
-  get "plugin_aod_time_entry/index"
-
-  get "plugin_aod_time_entry/settings"
-
-  get "plugin_aod_time_entry/start"
-
-  get "plugin_aod_time_entry/end"
-
-  devise_for :users
-
-  # match 'plugins_list', to: 'tecplugins#index', via: [:get]
-  
+  # RailsAdmin
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
 
-  resources :dashboard
-
+  # Home
+  get 'home/dashboard' 
   root :to => 'home#index'
-
-  # aod_time_entry :to => 'plugins#aod_time_entry'
-
-  # match '/login', to: 'pages#login'
-
-  # match '/success', to: 'pages#success'
-  
-  # match '/fail', to: 'pages#fail'
 
   # The priority is based upon order of creation:
   # first created -> highest priority. 

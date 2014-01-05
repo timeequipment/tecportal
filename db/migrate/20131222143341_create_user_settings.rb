@@ -1,6 +1,6 @@
 class CreateUserSettings < ActiveRecord::Migration
   def change
-    create_table :user_settings, :id => false do |t|
+    create_table :user_settings do |t|
       t.integer :user_id
       t.integer :plugin_id
       t.string :data

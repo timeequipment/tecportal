@@ -1,4 +1,4 @@
 class TecPluginsController < ApplicationController
-  def index
+  def list
   end
 end

@@ -1,14 +1,18 @@
-<div style="display: inline-block; width: 600px">
-  <h3>Schedule Report</h3> 
-  <%= link_to "Save to File", 
-      { :controller => "plugin_visualizer", 
-        :action => "download_report" },
-      { :class => "sample-button",
-        :style => "float: right; font-size: 14px; width: 140px" } %>
-</div>
-<br>
+<div class="plugin-visualizer">
 
-<textarea style="margin-bottom: 60px; height: 500px; width: 600px; ">
-<%= h(session[:schedfile].to_s) %>
-</textarea>
+  <!-- Header -->
+  <h3>Visualizer Interface to AoD</h3> 
+  <% if current_user.customer_admin? %>
+    <%= link_to "Settings", plugin_visualizer_settings_path, class: "settings-btn" %>
+  <% end %>
+  
+  <!-- Content -->
+  <br>
+  <%= link_to "Save to File", { action: "download_report" }, class: "button" %>
+  <br>
+  <textarea class="output">
+    <%= h(session[:schedfile].to_s) %>
+  </textarea>
+
+</div>
 

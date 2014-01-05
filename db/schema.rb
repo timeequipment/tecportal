@@ -13,7 +13,7 @@
 
 ActiveRecord::Schema.define(:version => 20131222153847) do
 
-  create_table "customer_settings", :id => false, :force => true do |t|
+  create_table "customer_settings", :force => true do |t|
     t.integer  "customer_id"
     t.integer  "plugin_id"
     t.string   "data"
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(:version => 20131222153847) do
 
   add_index "customers", ["id"], :name => "index_customers_on_id", :unique => true
 
-  create_table "customers_plugins", :id => false, :force => true do |t|
+  create_table "customers_plugins", :force => true do |t|
     t.integer "customer_id"
     t.integer "plugin_id"
   end
@@ -66,7 +66,7 @@ ActiveRecord::Schema.define(:version => 20131222153847) do
   add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
-  create_table "user_settings", :id => false, :force => true do |t|
+  create_table "user_settings", :force => true do |t|
     t.integer  "user_id"
     t.integer  "plugin_id"
     t.string   "data"

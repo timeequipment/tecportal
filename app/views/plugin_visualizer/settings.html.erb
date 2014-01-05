@@ -1,4 +1,33 @@
-<h3>PluginVisualizer#settings</h3>
-<p>
-  Find me in app/views/plugin_visualizer/settings.html.erb
-</p>
+<div class="plugin-visualizer">
+
+  <!-- Header -->
+  <h3>Settings</h3> 
+
+  <!-- Content -->
+  <%= render "shared/spinner" %>
+  <%= form_for @settingsvm, url: {action: "save_settings", method: "post"} do |f| %>
+
+    <div class="entry">
+      <%= label_tag(:owner, "Applies to") %>
+      <%= f.collection_select(:owner, current_user.customer.users, :id, :name, 
+          include_blank: 'Default for all users') %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :account %>
+      <%= f.text_field :account %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :username %>
+      <%= f.text_field :username %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :password %>
+      <%= f.password_field :password %>
+    </div>
+
+    <input type="submit" value="Save Settings">
+  <% end %>
+</div>

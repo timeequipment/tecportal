@@ -1,5 +1,5 @@
 body {
-  font-family: 'Arial', serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: #efefef;
 
   * {
@@ -52,6 +52,16 @@ i {
 #flash_timedout {
   display: none; } // eliminates 'true' msg under flash on session expire
 
+#spinner-container {
+  position: absolute;
+  top: 14px;
+  left: 420px;
+  height: 5px;
+  width: 5px; }
+
+#spinner {
+  display: none; }
+
 .shrink-wrap {
   display: block;
   margin: 0 auto; }
@@ -61,21 +71,18 @@ i {
   padding:  0 20px; }
 
 .content {
-  margin-top: 119px; }
+  margin-top: 119px; 
+  width: 600px; }
 
-.button-base {
+.button {
   display: inline-block;
   padding: 10px 14px;
-  width: 222px;
   border-radius: 2px;
   text-align: center;
   font-family: arial;
-  font-size: 22px;
+  font-size: 14px;
   color: #000;
-  cursor: default; }
-
-.sample-button {
-  @extend .button-base;
+  cursor: default; 
   background: #f3f3f3;
   @include filter-gradient(#fff, #c2c2c2, vertical);
   @include background-image(linear-gradient(#fff, #c2c2c2));
@@ -84,3 +91,6 @@ i {
 
     &:hover, &:focus, &:active {
       background: #ddd; } }
+
+.plugin-content {
+  width: 580px; }

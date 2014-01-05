@@ -1,6 +1,6 @@
 class CreateCustomerSettings < ActiveRecord::Migration
   def change
-    create_table :customer_settings, :id => false do |t|
+    create_table :customer_settings do |t|
       t.integer :customer_id
       t.integer :plugin_id
       t.string :data

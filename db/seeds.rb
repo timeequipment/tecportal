@@ -6,12 +6,44 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-puts 'SETTING UP DEFAULT USER LOGIN'
-user = User.create! :name => 'admin', :email => 'admin@admin.com', :password => 'password', :password_confirmation => 'password', :sys_admin => true
+puts 'CREATING SYSADMIN USER'
+user = User.create!(
+  :id => 1,
+  :name => 'admin', 
+  :email => 'admin@admin.com', 
+  :password => 'password', 
+  :password_confirmation => 'password', 
+  :sys_admin => true,
+  :customer_id => nil )
 puts 'New user created: ' << user.name
 
-puts 'SETTING UP DEFAULT PLUGIN'
-Plugin.create! :name => 'plugin1'
+puts 'CREATING CUSTOMER: Protocall Services'
+cust = Customer.create!(
+  :id => 1,
+  :name => 'Protocall Services' )
+puts 'New customer created: ' << cust.name
 
-puts 'SETTING UP DEFAULT CUSTOMER'
-Customer.create! :name => 'customer1'
+puts 'CREATING PLUGIN: Visualizer'
+plugin = Plugin.create!(
+  :id => 1, 
+  :name => 'Visualizer')
+puts 'New plugin created: ' << plugin.name
+
+puts 'CREATING CUSTOMER ADMIN FOR: Protocall Services'
+user = User.create!(
+  :name => 'psadmin', 
+  :email => 'psadmin@admin.com', 
+  :password => 'password', 
+  :password_confirmation => 'password', 
+  :sys_admin => false,
+  :customer_admin => true,
+  :customer_id => 1 )
+puts 'New user created: ' << user.name
+
+puts 'CREATING CUSTOMER SETTINGS FOR: Protocall Services / Visualizer'
+settings = PluginVisualizer::Settings.new
+CustomerSettings.create!(
+  :customer_id => 1,
+  :plugin_id => 1,
+  :data => settings.to_json)
+puts 'New settings created'

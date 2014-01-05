@@ -1,38 +1,96 @@
 class PluginVisualizerController < ApplicationController
   before_filter :authenticate_user!
+  layout "plugin"  
 
-  # Get User Settings
-
-  # Get Customer Settings
-
-  # Create dummy customer settings
-  settings = PluginVisualizer::Settings.new(
-    '', '', '')
-
-  # Create interface to AoD
-  @@aod = PluginsHelper::AodInterface.new(
-    settings.account, 
-    settings.username, 
-    settings.password)
-
-  # Save settings to db
-  CustomerSettings.create(:customer_id => 1, :plugin_id => 1, :data => YAML::dump(settings))
+  @@plugin_id = 1
 
   def index
-    # Get pay periods from AoD
-    response = @@aod.get_pay_period_class_data(message: { 
-      payPeriodClassNum: 1 })  
-    @payperiods = response.body[:t_ae_pay_period_info]
-    @prevstart = @payperiods[:prev_start].to_datetime.strftime('%-m-%d-%Y')
-    @prevend = @payperiods[:prev_end].to_datetime.strftime('%-m-%d-%Y')
-    @currstart = @payperiods[:curr_start].to_datetime.strftime('%-m-%d-%Y')
-    @currend = @payperiods[:curr_end].to_datetime.strftime('%-m-%d-%Y')
+    begin
+      # Connect to AoD
+      aod = create_conn
+
+      # Get pay periods from AoD
+      response = aod.get_pay_period_class_data(
+        message: { payPeriodClassNum: 1 })  
+      @payperiods = response.body[:t_ae_pay_period_info]
+      @prevstart = @payperiods[:prev_start].to_datetime.strftime('%-m-%d-%Y')
+      @prevend   = @payperiods[:prev_end]  .to_datetime.strftime('%-m-%d-%Y')
+      @currstart = @payperiods[:curr_start].to_datetime.strftime('%-m-%d-%Y')
+      @currend   = @payperiods[:curr_end]  .to_datetime.strftime('%-m-%d-%Y')
+    rescue
+      flash.now[:alert] = 'Unable to connect to AoD.  Please check settings.'
+    end
   end
 
   def settings
+    begin
+      # If we just saved settings for someone
+      if params[:settings_owner] && params[:settings_owner] != ''
+        # Get their settings again
+        settings = get_user_settings(params[:settings_owner])
+      else
+        # Get the current user's settings
+        params[:settings_owner] = current_user.id
+        settings = get_user_settings(params[:settings_owner])  
+      end
+
+      # If we failed to get user settings
+      if settings.nil?
+        # Get customer settings
+        params[:settings_owner] = ''
+        settings = get_customer_settings  
+      end
+
+      # And if we still failed, create new settings for this customer
+      settings ||= PluginVisualizer::Settings.new
+
+      # Make a view model
+      @settingsvm = PluginVisualizer::SettingsVM.new({
+        owner: params[:settings_owner], 
+        account: settings.account,
+        username: settings.username,
+        password: settings.password })
+    rescue Exception => exc
+      flash.now[:alert] = exc.message
+    end
+  end
+
+  def save_settings
+    begin
+      # Get settings for this plugin
+      settingsvm = PluginVisualizer::SettingsVM.new(
+        params[:plugin_visualizer_settings_vm])
+      settings = PluginVisualizer::Settings.new(
+        params[:plugin_visualizer_settings_vm])
+
+      # Save these settings for the customer
+      if settingsvm.owner.blank?
+        s = CustomerSettings.where(
+          customer_id: current_user.customer_id, 
+          plugin_id: @@plugin_id).first_or_initialize
+        s.data = settings.to_json
+        s.save!
+      else
+        # Save these settings for the user
+        s = UserSettings.where(
+          user_id: settingsvm.owner.to_i, 
+          plugin_id: @@plugin_id).first_or_initialize
+        s.data = settings.to_json
+        s.save!
+      end
+
+      params[:settings_owner] = settingsvm.owner
+      flash.now[:message] = "Settings saved."
+    rescue Exception => exc
+      flash.now[:alert] = exc.message
+    end
+    redirect_to action: 'settings'
   end
 
   def create_report
+    # Connect to AoD
+    aod = create_conn()
+    
     # Get pay period chosen
     if params[:payperiod] == "0"
       date_range = "drPrevPeriod" 
@@ -41,11 +99,11 @@ class PluginVisualizerController < ApplicationController
     end
 
     # # Get hyperqueries from AoD
-    # response = @@aod.get_hyper_queries_simple()
+    # response = aod.get_hyper_queries_simple()
     # @hyperqueries = response.body[:get_hyper_queries_simple_response][:return][:item]
 
     # Get schedules from AoD
-    response = @@aod.extract_ranged_schedules_using_hyper_query(message: { 
+    response = aod.extract_ranged_schedules_using_hyper_query(message: { 
       hyperQueryName: "All Employees",
       dateRangeEnum: date_range, 
       minDate: "",
@@ -111,4 +169,41 @@ class PluginVisualizerController < ApplicationController
   def download_report
     send_data session[:schedfile].to_s, :filename => "schedules.csv", :type => "text/plain" 
   end
+
+
+  def create_conn
+    # Get plugin settings
+    settings = get_user_settings(current_user.id) 
+    settings ||= get_customer_settings
+    settings ||= PluginVisualizer::Settings.new
+
+    # Return interface to AoD
+    ApplicationHelper::AodInterface.new(
+      settings.account, 
+      settings.username, 
+      settings.password)
+  end
+
+  def get_user_settings(user_id)
+    s = UserSettings.where(
+      user_id: user_id, 
+      plugin_id: @@plugin_id)
+      .first
+    if s 
+      mysettings = PluginVisualizer::Settings.new.from_json s.data
+    end
+    mysettings 
+  end
+
+  def get_customer_settings
+    s = CustomerSettings.where(
+      customer_id: current_user.customer_id, 
+      plugin_id: @@plugin_id)
+      .first
+    if s
+      mysettings = PluginVisualizer::Settings.new.from_json s.data
+    end
+    mysettings
+  end
+
 end

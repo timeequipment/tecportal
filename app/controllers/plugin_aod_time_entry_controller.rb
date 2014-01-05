@@ -1,6 +1,7 @@
 class PluginAodTimeEntryController < ApplicationController
   before_filter :authenticate_user!
-
+  layout "plugin"
+  
   account = ""
   username = ""
   password = ""
@@ -10,7 +11,7 @@ class PluginAodTimeEntryController < ApplicationController
   # Get Customer Settings
 
   # Create interface to AoD
-  @@aod = PluginsHelper::AodInterface.new(account, username, password)
+  @@aod = ApplicationHelper::AodInterface.new(account, username, password)
 
   def index
   end

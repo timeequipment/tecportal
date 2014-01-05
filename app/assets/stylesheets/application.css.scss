@@ -3,6 +3,7 @@
  *
  *= require jquery.ui.all
  */
+ 
 @charset "UTF-8";
 
 // Import compass
@@ -12,7 +13,8 @@
 
 // Import application css
 @import "application/*";
-@import "*";
+@import "plugin_aod_time_entry";
+@import "plugin_visualizer";
 
 // Import vendor css
 @import "chosen";

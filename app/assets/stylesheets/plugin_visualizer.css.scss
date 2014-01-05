@@ -5,20 +5,24 @@
 .plugin-visualizer {
 
   select {
-    width: 120px; }
-
-  #spinner-container {
-    position: absolute;
-    top: 14px;
-    left: 420px;
-    height: 100px;
+    width: 160px; }
+  
+  .settings-btn {
+    @extend .button;
+    margin-top: -5px;
+    float: right; 
     width: 100px; }
 
-  #spinner {
-    display: none; }
+  .entry {
+    margin-bottom: 10px; }
 
-  .label1 {
+  label, .label {
     display: inline-block;
     height: 22px;
     width: 100px; }
+
+  .output {
+     margin: 20px 0 60px 0; 
+     height: 500px; 
+     width: 580px; }
 }

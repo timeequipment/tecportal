@@ -1,15 +1,31 @@
 module PluginVisualizer
 
   class Settings
-    attr_accessor \
-      :account, 
-      :username, 
-      :password
+    include ActiveModel::Serializers::JSON
+    include ActiveModel::Validations
+    include ActiveModel::Conversion
+    extend ActiveModel::Naming
 
-    def initialize(account, username, password)
-      @account = account
-      @username = username
-      @password = password
+    attr_accessor :account, :username, :password
+
+    def initialize(a = {})
+      @account = a[:account]
+      @username = a[:username]
+      @password = a[:password]
+    end
+
+    def persisted?
+      false
+    end
+
+    # For JSON Serialization
+    def attributes=(hash)
+      hash.each do |key, value|
+        instance_variable_set("@#{key}", value)
+      end
+    end
+    def attributes
+      instance_values
     end
 
   end

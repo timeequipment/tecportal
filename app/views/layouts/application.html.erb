@@ -36,7 +36,7 @@
 		<!-- Left Nav -->
 		<div class="left-nav">
 			<% if user_signed_in? %>
-				<%= render template: "tec_plugins/index" %>
+				<%= render template: "tec_plugins/list" %>
 			<% end %>
 		</div>
 
@@ -53,6 +53,12 @@
 		<!-- Footer -->
 		<% if user_signed_in? %>
 			<div id="footer">
+				<div>
+					<%= $debug_msg %>
+				</div>
+				<div>
+					<%= $debug_hash.to_json %>
+				</div>
 				<span class="user">You are signed in as <a href="#"><%= current_user.name %></a>.  Not you? <%= link_to "Sign out", destroy_user_session_path, :method => :delete %></span>
 			</div>
 		<% end %>
