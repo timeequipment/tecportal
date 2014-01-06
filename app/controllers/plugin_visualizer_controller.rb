@@ -187,7 +187,10 @@ class PluginVisualizerController < ApplicationController
     settings ||= get_customer_settings
     settings ||= PluginVisualizer::Settings.new
     log 'aod settings', settings
-
+    log 'aod account', settings.account
+    log 'aod username', settings.username
+    log 'aod password', settings.password
+    
     # Return interface to AoD
     ApplicationHelper::AodInterface.new(
       settings.account, 
