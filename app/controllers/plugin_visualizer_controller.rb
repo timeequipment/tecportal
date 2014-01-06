@@ -9,7 +9,6 @@ class PluginVisualizerController < ApplicationController
     begin
       # Connect to AoD
       aod = create_conn
-      log 'aod', aod.as_json
 
       # Get pay periods from AoD
       response = aod.get_pay_period_class_data(
@@ -20,8 +19,8 @@ class PluginVisualizerController < ApplicationController
       @currstart = @payperiods[:curr_start].to_datetime.strftime('%-m-%d-%Y')
       @currend   = @payperiods[:curr_end]  .to_datetime.strftime('%-m-%d-%Y')
     rescue Exception => exc
-      log 'exception', exc
-      flash.now[:alert] = 'Unable to connect to AoD.  Please check settings.'
+      log 'exception', exc.message
+      flash.now[:alert] = 'Unable to connect to AoD. Please check settings.'
     end
   end
 
@@ -55,7 +54,7 @@ class PluginVisualizerController < ApplicationController
         username: settings.username,
         password: settings.password })
     rescue Exception => exc
-      log 'exception', exc
+      log 'exception', exc.message
       flash.now[:alert] = exc.message
     end
   end
@@ -88,7 +87,7 @@ class PluginVisualizerController < ApplicationController
       params[:settings_owner] = settingsvm.owner
       flash.now[:message] = "Settings saved."
     rescue Exception => exc
-      log 'exception', exc
+      log 'exception', exc.message
       flash.now[:alert] = exc.message
     end
     redirect_to action: 'settings'
@@ -96,133 +95,153 @@ class PluginVisualizerController < ApplicationController
 
   def create_report
     log 'method', 'create_report', 0
-    # Connect to AoD
-    aod = create_conn()
-    
-    # Get pay period chosen
-    if params[:payperiod] == "0"
-      date_range = "drPrevPeriod" 
-    else
-      date_range = "drCurrPeriod" 
-    end
-
-    # # Get hyperqueries from AoD
-    # response = aod.get_hyper_queries_simple()
-    # @hyperqueries = response.body[:get_hyper_queries_simple_response][:return][:item]
-
-    # Get schedules from AoD
-    response = aod.extract_ranged_schedules_using_hyper_query(message: { 
-      hyperQueryName: "All Employees",
-      dateRangeEnum: date_range, 
-      minDate: "",
-      maxDate: "" })  
-    schedules = response.body[:t_ae_schedule]
-
-    # Make an array of sched records
-    @schedrecords = Array.new
-
-    # Convert the schedules to sched records
-    schedules.each do |schedule|
-      s = PluginVisualizer::SchedRecord.new
-      s.lastname = schedule[:last_name]
-      s.firstname = schedule[:first_name]
-      s.employeeid = "J5X" + schedule[:emp_id].to_s.rjust(6, '0')
-      s.intime = (schedule[:sch_date].to_s + " " + schedule[:sch_start_time].to_s).to_datetime
-      s.outtime = (schedule[:sch_date].to_s + " " + schedule[:sch_end_time].to_s).to_datetime
-      s.hours = schedule[:sch_hours_hund]
-      s.earningscode = ""
-      s.lunchplan = ""
-      s.prepaiddate = ""
-      s.workedflag = "TRUE"
-      s.scheduletype = "Recurring"
-      s.timezone = "PST"  
-
-      # Offset 1 day for 3rd shifters whose end time would be numerically less than their start time
-      if s.outtime <= s.intime
-        s.outtime = s.outtime + 1
+    begin
+      # Connect to AoD
+      aod = create_conn()
+      
+      # Get pay period chosen
+      if params[:payperiod] == "0"
+        date_range = "drPrevPeriod" 
+      else
+        date_range = "drCurrPeriod" 
       end
 
-      # If this is a benefit or planned absence schedule
-      if schedule[:sch_type] == "steAbsPlnBen" || schedule[:sch_type] == "steAbsPlnPayDes"
-        aodnum = schedule[:benefit_id]
-        ispaydes = false
+      # # Get hyperqueries from AoD
+      # response = aod.get_hyper_queries_simple()
+      # @hyper_qs = response.body[:get_hyper_queries_simple_response] \
+      #   [:return][:item]
 
-        if schedule[:sch_type] == "steAbsPlnPayDes"
-          aodnum = schedule[:pay_des_id]
-          ispaydes = true
+      # Get schedules from AoD
+      response = aod.extract_ranged_schedules_using_hyper_query(
+        message: { 
+          hyperQueryName: "All Employees",
+          dateRangeEnum: date_range, 
+          minDate: "",
+          maxDate: "" })  
+      schedules = response.body[:t_ae_schedule]
+
+      # Make an array of sched records
+      @schedrecords = Array.new
+
+      # Convert the schedules to sched records
+      schedules.each do |schedule|
+        s = PluginVisualizer::SchedRecord.new
+        s.lastname = schedule[:last_name]
+        s.firstname = schedule[:first_name]
+        s.employeeid = "J5X" + schedule[:emp_id].to_s.rjust(6, '0')
+        s.intime = (schedule[:sch_date].to_s + " " + 
+          schedule[:sch_start_time].to_s).to_datetime
+        s.outtime = (schedule[:sch_date].to_s + " " + 
+          schedule[:sch_end_time].to_s).to_datetime
+        s.hours = schedule[:sch_hours_hund]
+        s.earningscode = ""
+        s.lunchplan = ""
+        s.prepaiddate = ""
+        s.workedflag = "TRUE"
+        s.scheduletype = "Recurring"
+        s.timezone = "PST"  
+
+        # Offset 1 day for 3rd shifters whose end time would be 
+        # numerically less than their start time
+        if s.outtime <= s.intime
+          s.outtime = s.outtime + 1
         end
 
-        # Set the worked flag and lookup the earnings code for it
-        s.workedflag = "FALSE"
-        #s.earningscode = Helper.LookupBenefitMapping(isPayDes, aodNum);
+        # If this is a benefit or planned absence schedule
+        if schedule[:sch_type] == "steAbsPlnBen" || 
+           schedule[:sch_type] == "steAbsPlnPayDes"
+         
+          aodnum = schedule[:benefit_id]
+          ispaydes = false
+
+          if schedule[:sch_type] == "steAbsPlnPayDes"
+            aodnum = schedule[:pay_des_id]
+            ispaydes = true
+          end
+
+          # Set the worked flag and lookup the earnings code for it
+          s.workedflag = "FALSE"
+          #s.earningscode = Helper.LookupBenefitMapping(isPayDes, aodNum);
+        end
+
+        # If a sched pattern did NOT generate this schedule
+        if schedule[:sch_patt_id] == 0
+          # Set the sched type
+          s.scheduletype = "Deviation"
+        end
+
+        # Add this sched record to our array
+        @schedrecords << s
       end
 
-      # If a sched pattern did NOT generate this schedule
-      if schedule[:sch_patt_id] == 0
-        # Set the sched type
-        s.scheduletype = "Deviation"
-      end
+      # Create header for sched records
+      @schedheader = 'Last Name,First Name,Employee ID,In time,Out time,Hours,Earnings Code,Scheduled Department,Lunch Plan,Pre-Paid Date,Worked Flag,Schedule Type,TimeZone,Department'
 
-      # Add this sched record to our array
-      @schedrecords << s
+      # Create file, from header and sched records
+      session[:schedfile] = 
+        @schedheader + "\n" + @schedrecords.join("\n")
+
+    rescue Exception => exc
+      log 'exception', exc.message
+      flash.now[:alert] = exc.message
     end
-
-    # Create header for sched records
-    @schedheader = 'Last Name,First Name,Employee ID,In time,Out time,Hours,Earnings Code,Scheduled Department,Lunch Plan,Pre-Paid Date,Worked Flag,Schedule Type,TimeZone,Department'
-
-    # Create file, from header and sched records
-    session[:schedfile] = @schedheader + "\n" + @schedrecords.join("\n")
   end
 
   def download_report
-    log 'method', 'download_report', 0
-    send_data session[:schedfile].to_s, :filename => "schedules.csv", :type => "text/plain" 
-  end
-
-
-  def create_conn
-    log 'method', 'create_conn', 0
-    # Get plugin settings
-    settings = get_user_settings(current_user.id) 
-    settings ||= get_customer_settings
-    settings ||= PluginVisualizer::Settings.new
-    log 'aod settings', settings
-    log 'aod account', settings.account
-    log 'aod username', settings.username
-    log 'aod password', settings.password
-    
-    # Return interface to AoD
-    ApplicationHelper::AodInterface.new(
-      settings.account, 
-      settings.username, 
-      settings.password)
-  end
-
-  def get_user_settings(user_id)
-    log 'method', 'get_user_settings', 0
-    s = UserSettings.where(
-      user_id: user_id, 
-      plugin_id: @@plugin_id)
-      .first
-    log 'user_id', user_id
-    if s 
-      log 'usersettings', s
-      mysettings = PluginVisualizer::Settings.new.from_json s.data
+    begin
+      log 'method', 'download_report', 0
+      send_data session[:schedfile].to_s, 
+        :filename => "schedules.csv", 
+        :type => "text/plain" 
+    rescue Exception => exc
+      log 'exception', exc.message
+      flash.now[:alert] = exc.message
     end
-    mysettings 
   end
 
-  def get_customer_settings
-    log 'method', 'get_customer_settings', 0
-    s = CustomerSettings.where(
-      customer_id: current_user.customer_id, 
-      plugin_id: @@plugin_id)
-      .first
-    if s
-      log 'customersettings', s
-      mysettings = PluginVisualizer::Settings.new.from_json s.data
+  private
+
+    def create_conn
+      log 'method', 'create_conn', 0
+      # Get plugin settings
+      settings = get_user_settings(current_user.id) 
+      settings ||= get_customer_settings
+      settings ||= PluginVisualizer::Settings.new
+      log 'aod account', settings.account
+      log 'aod username', settings.username
+      log 'aod password', settings.password
+
+      # Return interface to AoD
+      ApplicationHelper::AodInterface.new(
+        settings.account, 
+        settings.username, 
+        settings.password)
     end
-    mysettings
-  end
+
+    def get_user_settings(user_id)
+      log 'method', 'get_user_settings', 0
+      s = UserSettings.where(
+        user_id: user_id, 
+        plugin_id: @@plugin_id)
+        .first
+      if s 
+        log 'usersettings', s
+        mysettings = PluginVisualizer::Settings.new.from_json s.data
+      end
+      mysettings 
+    end
+
+    def get_customer_settings
+      log 'method', 'get_customer_settings', 0
+      s = CustomerSettings.where(
+        customer_id: current_user.customer_id, 
+        plugin_id: @@plugin_id)
+        .first
+      if s
+        log 'customersettings', s
+        mysettings = PluginVisualizer::Settings.new.from_json s.data
+      end
+      mysettings
+    end
 
 end
