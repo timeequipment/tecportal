@@ -5,9 +5,11 @@ class PluginVisualizerController < ApplicationController
   @@plugin_id = 1
 
   def index
+    log 'method', 'index', 0
     begin
       # Connect to AoD
       aod = create_conn
+      log 'aod', aod.as_json
 
       # Get pay periods from AoD
       response = aod.get_pay_period_class_data(
@@ -17,12 +19,14 @@ class PluginVisualizerController < ApplicationController
       @prevend   = @payperiods[:prev_end]  .to_datetime.strftime('%-m-%d-%Y')
       @currstart = @payperiods[:curr_start].to_datetime.strftime('%-m-%d-%Y')
       @currend   = @payperiods[:curr_end]  .to_datetime.strftime('%-m-%d-%Y')
-    rescue
+    rescue Exception => exc
+      log 'exception', exc
       flash.now[:alert] = 'Unable to connect to AoD.  Please check settings.'
     end
   end
 
   def settings
+    log 'method', 'settings', 0
     begin
       # If we just saved settings for someone
       if params[:settings_owner] && params[:settings_owner] != ''
@@ -51,11 +55,13 @@ class PluginVisualizerController < ApplicationController
         username: settings.username,
         password: settings.password })
     rescue Exception => exc
+      log 'exception', exc
       flash.now[:alert] = exc.message
     end
   end
 
   def save_settings
+    log 'method', 'save_settings', 0
     begin
       # Get settings for this plugin
       settingsvm = PluginVisualizer::SettingsVM.new(
@@ -82,12 +88,14 @@ class PluginVisualizerController < ApplicationController
       params[:settings_owner] = settingsvm.owner
       flash.now[:message] = "Settings saved."
     rescue Exception => exc
+      log 'exception', exc
       flash.now[:alert] = exc.message
     end
     redirect_to action: 'settings'
   end
 
   def create_report
+    log 'method', 'create_report', 0
     # Connect to AoD
     aod = create_conn()
     
@@ -167,15 +175,18 @@ class PluginVisualizerController < ApplicationController
   end
 
   def download_report
+    log 'method', 'download_report', 0
     send_data session[:schedfile].to_s, :filename => "schedules.csv", :type => "text/plain" 
   end
 
 
   def create_conn
+    log 'method', 'create_conn', 0
     # Get plugin settings
     settings = get_user_settings(current_user.id) 
     settings ||= get_customer_settings
     settings ||= PluginVisualizer::Settings.new
+    log 'aod settings', settings
 
     # Return interface to AoD
     ApplicationHelper::AodInterface.new(
@@ -185,22 +196,28 @@ class PluginVisualizerController < ApplicationController
   end
 
   def get_user_settings(user_id)
+    log 'method', 'get_user_settings', 0
     s = UserSettings.where(
       user_id: user_id, 
       plugin_id: @@plugin_id)
       .first
+    log 'user_id', user_id
     if s 
+      log 'usersettings', s
       mysettings = PluginVisualizer::Settings.new.from_json s.data
     end
     mysettings 
   end
 
   def get_customer_settings
+    log 'method', 'get_customer_settings', 0
     s = CustomerSettings.where(
       customer_id: current_user.customer_id, 
       plugin_id: @@plugin_id)
       .first
+    log 'customer_id', customer_id
     if s
+      log 'customersettings', s
       mysettings = PluginVisualizer::Settings.new.from_json s.data
     end
     mysettings

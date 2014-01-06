@@ -33,6 +33,7 @@ GEM
       nokogiri (>= 1.4.0)
     arel (3.0.3)
     atomic (1.1.14)
+    awesome_print (1.2.0)
     bcrypt-ruby (3.1.2)
     bootstrap-sass (2.3.2.2)
       sass (~> 3.2)
@@ -181,6 +182,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   coffee-rails (~> 3.2.1)
   compass-rails (~> 1.0.0.rc.2)
   devise

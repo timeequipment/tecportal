@@ -7,6 +7,7 @@ gem "rails_admin"
 gem "omniauth", "~> 1.1.4"
 gem "pg"
 gem 'savon', '2.2.0'
+gem 'awesome_print'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
