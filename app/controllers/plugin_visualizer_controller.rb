@@ -215,7 +215,6 @@ class PluginVisualizerController < ApplicationController
       customer_id: current_user.customer_id, 
       plugin_id: @@plugin_id)
       .first
-    log 'customer_id', customer_id
     if s
       log 'customersettings', s
       mysettings = PluginVisualizer::Settings.new.from_json s.data
