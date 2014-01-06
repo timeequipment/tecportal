@@ -1,20 +1,21 @@
 Tecportal::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
-  # Code is not reloaded between requests
-  config.cache_classes = true
+  # Reload code between requests
+  config.cache_classes = false
 
-  # Full error reports are disabled and caching is turned on
+  # Show full error reports and disable caching
   config.consider_all_requests_local       = false
-  config.action_controller.perform_caching = true
+  config.action_controller.perform_caching = false
 
-  # Disable Rails's static asset server (Apache or nginx will already do this)
-  config.serve_static_assets = false
+  # Load assets from app/assets instead of public/assets
+  # (Apache or nginx will already do this)
+  config.serve_static_assets = true
 
   # Compress JavaScripts and CSS
   config.assets.compress = true
 
-  # Live compile assets on first request
+  # Don't live compile assets on first request
   # Precompiling assets is more performant, however.  To do so:
   #   Set this to false
   #   Set the Bundler.require lines in application.rb to precompile

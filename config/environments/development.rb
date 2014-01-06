@@ -13,6 +13,13 @@ Tecportal::Application.configure do
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
 
+  # Load assets from app/assets instead of public/assets
+  # (Apache or nginx will already do this)
+  config.serve_static_assets = false
+
+  # Do not compress assets
+  config.assets.compress = false
+
   # Don't care if the mailer can't send
   config.action_mailer.raise_delivery_errors = false
 
@@ -21,9 +28,6 @@ Tecportal::Application.configure do
 
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
-
-  # Do not compress assets
-  config.assets.compress = false
 
   # Expands the lines which load the assets
   # Set this to false to compile and cache assets 
@@ -42,8 +46,5 @@ Tecportal::Application.configure do
     user_name: ENV["GMAIL_USERNAME"],
     password: ENV["GMAIL_PASSWORD"]
   }
-
-  # Load assets from app/assets instead of public/assets
-  config.serve_static_assets = false
 
 end
