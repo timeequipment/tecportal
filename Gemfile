@@ -9,6 +9,11 @@ gem "pg"
 gem 'savon', '2.2.0'
 gem 'awesome_print'
 
+group :development do
+  gem 'disable_assets_logger'
+  gem 'webrick', '~> 1.3.1'
+end
+
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 gem 'jquery-ui-rails'

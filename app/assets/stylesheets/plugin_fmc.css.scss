@@ -1,0 +1,28 @@
+// Place all the styles related to the PluginFMC controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.plugin-fmc {
+
+  select {
+    width: 160px; }
+  
+  .settings-btn {
+    @extend .button;
+    margin-top: -5px;
+    float: right; 
+    width: 100px; }
+
+  .entry {
+    margin-bottom: 10px; }
+
+  label, .label {
+    display: inline-block;
+    height: 22px;
+    width: 100px; }
+
+  .output {
+     margin: 20px 0 60px 0; 
+     height: 500px; 
+     width: 580px; }
+}

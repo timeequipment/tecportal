@@ -1,26 +1,29 @@
-class PluginVisualizerController < ApplicationController
+class PluginFmcController < ApplicationController
   before_filter :authenticate_user!
   layout "plugin"  
 
-  @@plugin_id = 1
+  @@plugin_id = 2
 
   def index
     log "\n\n method", 'index', 0
     begin
       # Connect to AoD
-      aod = create_conn(PluginVisualizer::Settings, 
+      aod = create_conn(PluginFMC::Settings, 
         current_user.id, 
         current_user.customer_id, 
         @@plugin_id)
 
       # Get pay periods from AoD
-      response = aod.call(:get_pay_period_class_data,
-        message: { payPeriodClassNum: 1 })  
+      response = aod.call(
+        :get_pay_period_class_data, message: { 
+          payPeriodClassNum: 1 })  
       @payperiods = response.body[:t_ae_pay_period_info]
       @prevstart = @payperiods[:prev_start].to_datetime.strftime('%-m-%d-%Y')
       @prevend   = @payperiods[:prev_end]  .to_datetime.strftime('%-m-%d-%Y')
       @currstart = @payperiods[:curr_start].to_datetime.strftime('%-m-%d-%Y')
       @currend   = @payperiods[:curr_end]  .to_datetime.strftime('%-m-%d-%Y')
+      session[:prevend] = @prevend
+      session[:currend] = @currend
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -40,9 +43,9 @@ class PluginVisualizerController < ApplicationController
       else
         # Get the current user's settings
         params[:settings_owner] = current_user.id
-        settings = get_user_settings(PluginFMC::Settings,
+        settings = get_user_settings(PluginFMC::Settings, 
           params[:settings_owner],
-          @@plugin_id)
+          @@plugin_id)  
       end
 
       # If we failed to get user settings
@@ -55,10 +58,10 @@ class PluginVisualizerController < ApplicationController
       end
 
       # And if we still failed, create new settings for this customer
-      settings ||= PluginVisualizer::Settings.new
+      settings ||= PluginFMC::Settings.new
 
       # Make a view model
-      @settingsvm = PluginVisualizer::SettingsVM.new({
+      @settingsvm = PluginFMC::SettingsVM.new({
         owner: params[:settings_owner], 
         account: settings.account,
         username: settings.username,
@@ -74,10 +77,10 @@ class PluginVisualizerController < ApplicationController
     log "\n\n method", 'save_settings', 0
     begin
       # Get settings for this plugin
-      settingsvm = PluginVisualizer::SettingsVM.new(
-        params[:plugin_visualizer_settings_vm])
-      settings = PluginVisualizer::Settings.new(
-        params[:plugin_visualizer_settings_vm])
+      settingsvm = PluginFMC::SettingsVM.new(
+        params[:plugin_fmc_settings_vm])
+      settings = PluginFMC::Settings.new(
+        params[:plugin_fmc_settings_vm])
 
       # Save these settings for the customer
       if settingsvm.owner.blank?
@@ -105,20 +108,20 @@ class PluginVisualizerController < ApplicationController
     redirect_to action: 'settings'
   end
 
-  def create_report
-    log "\n\n method", 'create_report', 0
+  def create_export
+    log "\n\n method", 'create_export', 0
     begin
       # Connect to AoD
-      aod = create_conn(PluginVisualizer::Settings, 
+      aod = create_conn(PluginFMC::Settings, 
         current_user.id, 
         current_user.customer_id, 
         @@plugin_id)
       
       # Get pay period chosen
       if params[:payperiod] == "0"
-        date_range = "drPrevPeriod" 
+        pay_period = "ppePrevious" 
       else
-        date_range = "drCurrPeriod" 
+        pay_period = "ppeCurrent" 
       end
 
       # # Get hyperqueries from AoD
@@ -126,75 +129,41 @@ class PluginVisualizerController < ApplicationController
       # @hyper_qs = response.body[:get_hyper_queries_simple_response] \
       #   [:return][:item]
 
-      # Get schedules from AoD
-      response = aod.call(:extract_ranged_schedules_using_hyper_query, 
-        message: { 
-          hyperQueryName: "All Employees",
-          dateRangeEnum: date_range, 
-          minDate: "",
-          maxDate: "" })  
-      schedules = response.body[:t_ae_schedule]
+      # Get pay period summaries from AoD
+      response = aod.call(
+        :extract_pay_period_summaries, message: { 
+          payPeriodEnum: pay_period,
+          payLineStatEnum: "plsCalculated", 
+          calcedDataTypeEnum: "cdtNormal",
+          noActivityInclusion: "naiSkip" })  
+      paylines = response.body[:t_ae_pay_line]
 
-      # Make an array of sched records
-      @schedrecords = Array.new
+      # Make an array of payroll records
+      @payrecords = Array.new
 
-      # Convert the schedules to sched records
-      schedules.each do |schedule|
-        s = PluginVisualizer::SchedRecord.new
-        s.lastname = schedule[:last_name]
-        s.firstname = schedule[:first_name]
-        s.employeeid = "J5X" + schedule[:emp_id].to_s.rjust(6, '0')
-        s.intime = (schedule[:sch_date].to_s + " " + 
-          schedule[:sch_start_time].to_s).to_datetime
-        s.outtime = (schedule[:sch_date].to_s + " " + 
-          schedule[:sch_end_time].to_s).to_datetime
-        s.hours = schedule[:sch_hours_hund]
-        s.earningscode = ""
-        s.lunchplan = ""
-        s.prepaiddate = ""
-        s.workedflag = "TRUE"
-        s.scheduletype = "Recurring"
-        s.timezone = "PST"  
+      # Convert the paylines to payroll records
+      paylines.each do |payline|
+        p = PluginFMC::PayrollRecord.new
+        p.employeeid = payline[:emp_id]
+        p.paycode = payline[:pay_des_name]
+        p.hours = payline[:hours_hund].to_s.to_f
+        p.rate = payline[:wrk_rate].to_s.to_f
+        p.transactiondate = (params[:payperiod] == "0" ? 
+          session[:prevend].to_s :
+          session[:currend].to_s)
+        p.trxnumber = ''
+        p.btnnext = '1'
 
-        # Offset 1 day for 3rd shifters whose end time would be 
-        # numerically less than their start time
-        if s.outtime <= s.intime
-          s.outtime = s.outtime + 1
-        end
-
-        # If this is a benefit or planned absence schedule
-        if schedule[:sch_type] == "steAbsPlnBen" || 
-           schedule[:sch_type] == "steAbsPlnPayDes"
-         
-          aodnum = schedule[:benefit_id]
-          ispaydes = false
-
-          if schedule[:sch_type] == "steAbsPlnPayDes"
-            aodnum = schedule[:pay_des_id]
-            ispaydes = true
-          end
-
-          # Set the worked flag and lookup the earnings code for it
-          s.workedflag = "FALSE"
-          #s.earningscode = Helper.LookupBenefitMapping(isPayDes, aodNum);
-        end
-
-        # If a sched pattern did NOT generate this schedule
-        if schedule[:sch_patt_id] == 0
-          # Set the sched type
-          s.scheduletype = "Deviation"
-        end
-
-        # Add this sched record to our array
-        @schedrecords << s
+        # Add this payroll record to our array
+        @payrecords << p
       end
 
-      # Create header for sched records
-      @schedheader = 'Last Name,First Name,Employee ID,In time,Out time,Hours,Earnings Code,Scheduled Department,Lunch Plan,Pre-Paid Date,Worked Flag,Schedule Type,TimeZone,Department'
+      # Create header for payroll records
+      @header = 'Employee ID,Pay Code,Hours,Rate,Transaction Date,Trx Number,Btn Next'
 
-      # Create file, from header and sched records
-      session[:schedfile] = 
-        @schedheader + "\n" + @schedrecords.join("\n")
+      # Create file, from header and payroll records
+      session[:fmc_payroll_file] = 
+        @header + "\n" + @payrecords.join("\n")
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -202,13 +171,13 @@ class PluginVisualizerController < ApplicationController
     end
   end
 
-  def download_report
+  def download_file
     begin
-      log "\n\n method", 'download_report', 0
-      send_data session[:schedfile].to_s, 
-        :filename => "schedules.csv", 
+      log "\n\n method", 'download_file', 0
+      send_data session[:fmc_payroll_file].to_s, 
+        :filename => "payroll.csv", 
         :type => "text/plain" 
-        
+
     rescue Exception => exc
       log 'exception', exc.message
       flash.now[:alert] = exc.message

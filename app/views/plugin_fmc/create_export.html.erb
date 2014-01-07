@@ -1,0 +1,17 @@
+<div class="plugin-fmc">
+
+  <!-- Header -->
+  <h3>FMC Payroll Export</h3> 
+  <% if current_user.customer_admin? %>
+    <%= link_to "Settings", plugin_fmc_settings_path, class: "settings-btn" %>
+  <% end %>
+  
+  <!-- Content -->
+  <br>
+  <%= link_to "Save to File", { action: "download_file" }, class: "button" %>
+  <br>
+  <textarea class="output"><%= h(session[:fmc_payroll_file].to_s) %>
+  </textarea>
+
+</div>
+

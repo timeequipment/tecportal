@@ -1,0 +1,2 @@
+module PluginFmcHelper
+end

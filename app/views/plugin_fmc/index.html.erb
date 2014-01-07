@@ -1,0 +1,60 @@
+<div class="plugin-fmc">
+
+  <!-- Header -->
+  <h3>FMC Payroll Export</h3> 
+  <% if current_user.customer_admin? %>
+    <%= link_to "Settings", plugin_fmc_settings_path, class: "settings-btn" %>
+  <% end %>
+  
+  <!-- Content -->
+  <%= render "shared/spinner" %>
+  <%= form_tag("create_export", method: "get") do %>
+
+    <div class="entry">
+      <%= label_tag(:payperiod, "Pay Period:") %>
+      <select id="payperiod" name="payperiod">
+        <option selected value="0">Previous</option>
+        <option          value="1">Current</option>
+      </select>
+    </div>
+    
+    <div class="entry">
+      <div class="label">Period Start: </div>
+      <div class="label" id="period-start"></div>
+    </div>
+    
+    <div class="entry">
+      <div class="label">Period End: </div>
+      <div class="label" id="period-end"></div>
+    </div>
+
+    <br>
+    <input id="createExport" type="submit" value="Create Export">
+  <% end %>
+</div>  
+
+<!-- Scripts -->
+<script>
+  // Show the spinner when you click 'Create Export'
+  $('#createExport').click(function() {
+    $('#spinner').show();
+  });
+
+  // Default to showing previous period dates
+  $('#period-start').html('<%= @prevstart %>');
+  $('#period-end').html('<%= @prevend %>');
+
+  // Change the period dates when the user selects a period
+  $('#payperiod').change(function() {
+    if ($(this).val() === "0")
+    {
+      $('#period-start').html('<%= @prevstart %>');
+      $('#period-end').html('<%= @prevend %>');
+    }
+    else
+    {
+      $('#period-start').html('<%= @currstart %>');
+      $('#period-end').html('<%= @currend %>'); 
+    }
+  });
+</script>
