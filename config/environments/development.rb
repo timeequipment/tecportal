@@ -32,7 +32,7 @@ Tecportal::Application.configure do
   # Expands the lines which load the assets
   # Set this to false to compile and cache assets 
   # on first request after server is started
-  config.assets.debug = false;
+  config.assets.debug = true;
 
   #Missing host to link to! Please provide the :host parameter, set default_url_options[:host], or set :only_path to true
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }

@@ -1,16 +1,12 @@
 <div class="plugin-aod-time-entry">
 
-	<%= link_to "Start", 
-		{ :controller => 'plugin_aod_time_entry', 
-		  :action =>'start' }, 
-        { :class => "start-button" } %>
-
+  <!-- Header -->
+  <h3>AoD Time Entry</h3> 
+  <br>
+  
+  <!-- Content -->
+	<%= link_to "Start", plugin_aod_time_entry_start_path, class: "start-button" %>
 	<div class="v-spacer"></div>
-	<div class="v-spacer"></div>
-
-	<%= link_to "End", 
-		{ :controller => 'plugin_aod_time_entry', 
-		  :action =>'end' }, 
-        { :class => "end-button" } %>
+	<%= link_to "End", plugin_aod_time_entry_end_path, class: "end-button" %>
 
 </div>

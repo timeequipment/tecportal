@@ -14,7 +14,8 @@
     font-size: 15px; }
 
   .start-button {
-    @extend .button-base;
+    @extend .button;
+    width: 140px; 
     background: #0c0;
     @include filter-gradient(#9f9, #090, vertical);
     @include background-image(linear-gradient(#9f9, #090));
@@ -25,7 +26,8 @@
       background: #0a0; } }
 
   .end-button {
-    @extend .button-base;
+    @extend .button;
+    width: 140px; 
     background: #e66;
     @include filter-gradient(#f88, #c00, vertical);
     @include background-image(linear-gradient(#f88, #c00));
@@ -34,6 +36,10 @@
 
     &:hover, &:focus, &:active {
       background: #d00; } }  
+
+  .submit-button {
+    @extend .button;
+    width: 140px; }
 
   .label {
     display: inline-block;
