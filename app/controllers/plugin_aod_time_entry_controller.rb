@@ -11,7 +11,7 @@ class PluginAodTimeEntryController < ApplicationController
   # Get Customer Settings
 
   # Create interface to AoD
-  @@aod = ApplicationHelper::AodInterface.new(account, username, password)
+  # @@aod = ApplicationHelper::AodInterface.new(account, username, password)
 
   def index
   end
