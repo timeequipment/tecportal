@@ -212,10 +212,11 @@ class PluginVisualizerController < ApplicationController
       log 'aod password', settings.password
 
       # Return interface to AoD
-      ApplicationHelper::AodInterface.new(
+      a = ApplicationHelper::AodInterface.new(
         settings.account, 
         settings.username, 
         settings.password)
+      a
     end
 
     def get_user_settings(user_id)
