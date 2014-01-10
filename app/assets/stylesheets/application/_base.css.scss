@@ -92,5 +92,12 @@ i {
     &:hover, &:focus, &:active {
       background: #ddd; } }
 
+.disabled-button {
+  @extend .button;
+  color: #999;
+
+    &:hover, &:focus, &:active {
+    background: #f3f3f3; } }
+
 .plugin-content {
   width: 580px; }

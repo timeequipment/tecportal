@@ -76,6 +76,8 @@ $(document).ready(function() {
     "sScrollX": "100%",
     "bScrollCollapse": true,
     "bPaginate": false,
+    "sLength": false,
+    "bFilter": false,
     "bJQueryUI": true,
     "aoColumns": [
         { "sWidth": "25%" },
@@ -87,7 +89,7 @@ $(document).ready(function() {
     "bAutoWidth": false
   });
 
- function editRow ( oTable, nRow )
+  function editRow ( oTable, nRow )
   {
     var aData = oTable.fnGetData(nRow);
     var jqTds = $('>td', nRow);
@@ -95,6 +97,7 @@ $(document).ready(function() {
     jqTds[1].innerHTML = '<input type="text" value="'+aData[1]+'">';
     jqTds[2].innerHTML = '<input type="text" value="'+aData[2]+'">';
     jqTds[3].innerHTML = '<a class="button edit" href="">Save</a>';
+    jqTds[4].innerHTML = '<div class="disabled-button delete" href="">Delete</div>';
   }
 
   function saveRow ( oTable, nRow )
@@ -104,7 +107,8 @@ $(document).ready(function() {
     oTable.fnUpdate( jqInputs[1].value, nRow, 1, false );
     oTable.fnUpdate( jqInputs[2].value, nRow, 2, false );
     oTable.fnUpdate( '<a class="button edit" href="">Edit</a>', nRow, 3, false );
-    oTable.fnDraw();
+    oTable.fnUpdate( '<a class="button delete" href="">Delete</a>', nRow, 4, false );
+    // oTable.fnDraw();  // Uncomment if you want rows sorted again after save
   }
   
   // Serialize the pay code mappings table to settingsvm.paycodemappings
@@ -133,8 +137,8 @@ $(document).ready(function() {
      
     if ( nEditing !== null && nEditing != nRow ) {
         /* A different row is being edited - the edit should be 
-           cancelled and this row edited */
-        restoreRow( oTable, nEditing );
+           saved and this row edited */
+        saveRow( oTable, nEditing );
         editRow( oTable, nRow );
         nEditing = nRow;
     }
@@ -167,12 +171,24 @@ $(document).ready(function() {
 
   $('#newRowBtn').click( function (e) {
     e.preventDefault();
-     
-    var aiNew = oTable.fnAddData( [ '1', '2', '3', 
-        '<a class="button edit" href="">Edit</a>', '<a class="button delete" href="">Delete</a>' ] );
+
+    // If we're editing a row, save it
+    if ( nEditing !== null ) {
+        saveRow( oTable, nEditing );
+        nEditing = null; }
+
+    // Create a new row with default data in it
+    var aiNew = oTable.fnAddData( [ 
+        '1', 
+        '2', 
+        '3', 
+        '<a class="button edit" href="">Edit</a>', 
+        '<a class="button delete" href="">Delete</a>' ] );
     var nRow = oTable.fnGetNodes( aiNew[0] );
     editRow( oTable, nRow );
     nEditing = nRow;
+
+    $(".dataTables_scrollBody").animate({scrollTop: $("tr").last().offset().top},0);
   });
 
 });
