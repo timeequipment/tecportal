@@ -25,9 +25,155 @@
 
     <div class="entry">
       <%= label_tag :password %>
-      <%= f.password_field :password %>
+      <%= f.password_field :password, value: @settingsvm.password %>
     </div>
 
-    <input type="submit" value="Save Settings">
+    <div class="entry">
+      <span>Include unmapped pay designations</span>&nbsp;
+      <%= f.check_box :includeunmapped %>
+    </div>
+
+    <br>
+    <div class="entry">
+      <%= f.hidden_field :paycodemappings %>
+      <table id="payCodeMappings" class="pay-code-mappings">
+        <thead>
+          <tr>
+            <th>Pay Des. Num</th>
+            <th>Wg3</th>
+            <th>Pay Code</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% JSON.parse(@settingsvm.paycodemappings ||= '[]').each do |mapping| %>
+            <tr>
+              <td><%= mapping[0] %></td>
+              <td><%= mapping[1] %></td>
+              <td><%= mapping[2] %></td>
+              <td><a class="button edit" href="">Edit</a></td>
+              <td><a class="button delete" href="">Delete</a></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+    <div id="saveButton" class="save-button" value="Save Settings">
+      Save Settings
+    </div>
   <% end %>
 </div>
+
+<script>
+  
+$(document).ready(function() {
+  var nEditing = null;
+  var oTable = $('#payCodeMappings').dataTable({
+    "sPaginationType": "full_numbers",
+    "sLength": false,
+    "bJQueryUI": true,
+    "bFilter": false,
+    "aoColumns": [
+        { "sWidth": "25%" },
+        { "sWidth": "25%" },
+        { "sWidth": "25%" },
+        { "sWidth": "12%", "sClass": "column-header", "bSortable": false },
+        { "sWidth": "12%", "sClass": "column-header", "bSortable": false },
+    ],
+    "bAutoWidth": false
+  });
+
+ function editRow ( oTable, nRow )
+  {
+    var aData = oTable.fnGetData(nRow);
+    var jqTds = $('>td', nRow);
+    jqTds[0].innerHTML = '<input type="text" value="'+aData[0]+'">';
+    jqTds[1].innerHTML = '<input type="text" value="'+aData[1]+'">';
+    jqTds[2].innerHTML = '<input type="text" value="'+aData[2]+'">';
+    jqTds[3].innerHTML = '<a class="button edit" href="">Save</a>';
+  }
+
+  function saveRow ( oTable, nRow )
+  {
+    var jqInputs = $('input', nRow);
+    oTable.fnUpdate( jqInputs[0].value, nRow, 0, false );
+    oTable.fnUpdate( jqInputs[1].value, nRow, 1, false );
+    oTable.fnUpdate( jqInputs[2].value, nRow, 2, false );
+    oTable.fnUpdate( '<a class="button edit" href="">Edit</a>', nRow, 3, false );
+    oTable.fnDraw();
+  }
+  
+  // Serialize the pay code mappings table to settingsvm.paycodemappings
+  // then submit form
+  $('#saveButton').click(function() {
+    var data = oTable.fnGetData();
+    for (var i = 0; i < data.length; i++)
+    {
+      // Remove last two columns from row (html- edit and delete cols)
+      var row = data[i];
+      if (row.length >= 5)
+      {
+        row.pop();
+        row.pop();
+      }
+    }
+    $('#plugin_fmc_settings_vm_paycodemappings').val(JSON.stringify(data));
+    $('#new_plugin_fmc_settings_vm').submit();
+  });
+
+  $(document).on( "click", "#payCodeMappings a.edit", function (e) {
+    e.preventDefault();
+     
+    /* Get the row as a parent of the link that was clicked on */
+    var nRow = $(this).parents('tr')[0];
+     
+    if ( nEditing !== null && nEditing != nRow ) {
+        /* A different row is being edited - the edit should be 
+           cancelled and this row edited */
+        restoreRow( oTable, nEditing );
+        editRow( oTable, nRow );
+        nEditing = nRow;
+    }
+    else if ( nEditing == nRow && this.innerHTML == "Save" ) {
+        /* This row is being edited and should be saved */
+        saveRow( oTable, nEditing );
+        nEditing = null;
+    }
+    else {
+        /* No row currently being edited */
+        editRow( oTable, nRow );
+        nEditing = nRow;
+    }
+  });
+
+  $(document).on( "click", "#payCodeMappings a.delete", function (e) {
+    e.preventDefault();
+     
+    var nRow = $(this).parents('tr')[0];
+    oTable.fnDeleteRow( nRow );
+  });
+
+  // Create your own pay code mappings header
+  $('#payCodeMappings_length').html(
+    'Pay Code Mappings' + 
+    '<div class="right-group">' + 
+    '  <div id="newRowBtn" class="button">Add Mapping</div>' + 
+    '</div>'
+    );
+
+  $('#newRowBtn').click( function (e) {
+    e.preventDefault();
+     
+    var aiNew = oTable.fnAddData( [ '1', '2', '3', 
+        '<a class="button edit" href="">Edit</a>', '<a class="button delete" href="">Delete</a>' ] );
+    var nRow = oTable.fnGetNodes( aiNew[0] );
+    editRow( oTable, nRow );
+    nEditing = nRow;
+  });
+
+});
+
+</script>

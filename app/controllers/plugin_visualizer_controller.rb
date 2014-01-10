@@ -5,13 +5,17 @@ class PluginVisualizerController < ApplicationController
   @@plugin_id = 1
 
   def index
-    log "\n\n method", 'index', 0
+    log "\n\nmethod", 'index', 0
     begin
-      # Connect to AoD
-      aod = create_conn(PluginVisualizer::Settings, 
+      # Get plugin settings for this user
+      get_settings(PluginFMC::Settings, 
         current_user.id, 
         current_user.customer_id, 
         @@plugin_id)
+      session[:settings] = settings
+
+      # Connect to AoD
+      aod = create_conn(settings)
 
       # Get pay periods from AoD
       response = aod.call(:get_pay_period_class_data,
@@ -29,7 +33,7 @@ class PluginVisualizerController < ApplicationController
   end
 
   def settings
-    log "\n\n method", 'settings', 0
+    log "\n\nmethod", 'settings', 0
     begin
       # If we just saved settings for someone
       if params[:settings_owner] && params[:settings_owner] != ''
@@ -71,7 +75,7 @@ class PluginVisualizerController < ApplicationController
   end
 
   def save_settings
-    log "\n\n method", 'save_settings', 0
+    log "\n\nmethod", 'save_settings', 0
     begin
       # Get settings for this plugin
       settingsvm = PluginVisualizer::SettingsVM.new(
@@ -106,13 +110,10 @@ class PluginVisualizerController < ApplicationController
   end
 
   def create_report
-    log "\n\n method", 'create_report', 0
+    log "\n\nmethod", 'create_report', 0
     begin
       # Connect to AoD
-      aod = create_conn(PluginVisualizer::Settings, 
-        current_user.id, 
-        current_user.customer_id, 
-        @@plugin_id)
+      aod = create_conn(session[:settings])
       
       # Get pay period chosen
       if params[:payperiod] == "0"
@@ -204,7 +205,7 @@ class PluginVisualizerController < ApplicationController
 
   def download_report
     begin
-      log "\n\n method", 'download_report', 0
+      log "\n\nmethod", 'download_report', 0
       send_data session[:schedfile].to_s, 
         :filename => "schedules.csv", 
         :type => "text/plain" 

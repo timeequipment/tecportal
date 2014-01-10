@@ -23,10 +23,22 @@ cust = Customer.create!(
   :name => 'Protocall Services' )
 puts 'New customer created: ' << cust.name
 
+puts 'CREATING CUSTOMER: FMC'
+cust = Customer.create!(
+  :id => 2,
+  :name => 'FMC' )
+puts 'New customer created: ' << cust.name
+
 puts 'CREATING PLUGIN: Visualizer'
 plugin = Plugin.create!(
   :id => 1, 
   :name => 'Visualizer')
+puts 'New plugin created: ' << plugin.name
+
+puts 'CREATING PLUGIN: FMC Payroll Export'
+plugin = Plugin.create!(
+  :id => 2, 
+  :name => 'FMC Payroll Export')
 puts 'New plugin created: ' << plugin.name
 
 puts 'CREATING CUSTOMER ADMIN FOR: Protocall Services'
@@ -40,10 +52,29 @@ user = User.create!(
   :customer_id => 1 )
 puts 'New user created: ' << user.name
 
+puts 'CREATING CUSTOMER ADMIN FOR: FMC'
+user = User.create!(
+  :name => 'fmcadmin', 
+  :email => 'fmcadmin@admin.com', 
+  :password => 'password', 
+  :password_confirmation => 'password', 
+  :sys_admin => false,
+  :customer_admin => true,
+  :customer_id => 2 )
+puts 'New user created: ' << user.name
+
 puts 'CREATING CUSTOMER SETTINGS FOR: Protocall Services / Visualizer'
 settings = PluginVisualizer::Settings.new
 CustomerSettings.create!(
   :customer_id => 1,
   :plugin_id => 1,
+  :data => settings.to_json)
+puts 'New settings created'
+
+puts 'CREATING CUSTOMER SETTINGS FOR: FMC / FMC Payroll Export'
+settings = PluginVisualizer::Settings.new
+CustomerSettings.create!(
+  :customer_id => 2,
+  :plugin_id => 2,
   :data => settings.to_json)
 puts 'New settings created'

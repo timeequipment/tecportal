@@ -32,12 +32,8 @@ class ApplicationController < ActionController::Base
     }
   end
 
-  def create_conn(cls, user_id, customer_id, plugin_id)
+  def create_conn(settings)
     log 'method', 'create_conn', 0
-    # Get plugin settings
-    settings = get_user_settings(cls, user_id, plugin_id) 
-    settings ||= get_customer_settings(cls, customer_id, plugin_id)
-    settings ||= cls.new
     log 'aod account', settings.account
     log 'aod username', settings.username
     log 'aod password', settings.password
@@ -50,6 +46,14 @@ class ApplicationController < ActionController::Base
       log: true,
       log_level: :info, # change to :debug to log HTTP messages
       pretty_print_xml: true)
+  end
+
+  def get_settings(cls, user_id, customer_id, plugin_id)
+    log 'method', 'get_settings', 0
+    settings = get_user_settings(cls, user_id, plugin_id) 
+    settings ||= get_customer_settings(cls, customer_id, plugin_id)
+    settings ||= cls.new
+    settings
   end
 
   def get_user_settings(cls, user_id, plugin_id)

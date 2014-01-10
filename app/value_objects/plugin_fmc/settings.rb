@@ -4,14 +4,16 @@ module PluginFMC
     include ActiveModel::Serializers::JSON
     include ActiveModel::Validations
     include ActiveModel::Conversion
-    extend ActiveModel::Naming
+    extend  ActiveModel::Naming
 
-    attr_accessor :account, :username, :password
+    attr_accessor :account, :username, :password, :includeunmapped, :paycodemappings
 
     def initialize(a = {})
-      @account = a[:account]
-      @username = a[:username]
-      @password = a[:password]
+      @account         = a[:account]
+      @username        = a[:username]
+      @password        = a[:password]
+      @includeunmapped = a[:includeunmapped]
+      @paycodemappings = a[:paycodemappings]
     end
 
     def persisted?

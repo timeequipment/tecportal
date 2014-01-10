@@ -10,8 +10,7 @@
   <br>
   <%= link_to "Save to File", { action: "download_report" }, class: "button" %>
   <br>
-  <textarea class="output">
-    <%= h(session[:schedfile].to_s) %>
+  <textarea class="output"><%= h(session[:schedfile].to_s) %>
   </textarea>
 
 </div>

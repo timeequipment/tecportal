@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(:version => 20131222153847) do
   create_table "customer_settings", :force => true do |t|
     t.integer  "customer_id"
     t.integer  "plugin_id"
-    t.string   "data"
+    t.text     "data"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
   end
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(:version => 20131222153847) do
   create_table "user_settings", :force => true do |t|
     t.integer  "user_id"
     t.integer  "plugin_id"
-    t.string   "data"
+    t.text     "data"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

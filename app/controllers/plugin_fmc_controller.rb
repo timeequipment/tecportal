@@ -5,13 +5,17 @@ class PluginFmcController < ApplicationController
   @@plugin_id = 2
 
   def index
-    log "\n\n method", 'index', 0
+    log "\n\nmethod", 'index', 0
     begin
-      # Connect to AoD
-      aod = create_conn(PluginFMC::Settings, 
+      # Get plugin settings for this user
+      get_settings(PluginFMC::Settings, 
         current_user.id, 
         current_user.customer_id, 
         @@plugin_id)
+      session[:settings] = settings
+
+      # Connect to AoD
+      aod = create_conn(settings)
 
       # Get pay periods from AoD
       response = aod.call(
@@ -32,7 +36,7 @@ class PluginFmcController < ApplicationController
   end
 
   def settings
-    log "\n\n method", 'settings', 0
+    log "\n\nmethod", 'settings', 0
     begin
       # If we just saved settings for someone
       if params[:settings_owner] && params[:settings_owner] != ''
@@ -60,12 +64,21 @@ class PluginFmcController < ApplicationController
       # And if we still failed, create new settings for this customer
       settings ||= PluginFMC::Settings.new
 
+      # Set defaults for pay code mappings
+      if settings.paycodemappings.nil? || 
+         settings.paycodemappings.blank?
+        settings.paycodemappings = '[]'
+      end
+      log 'settings.paycodemappings', JSON.parse(settings.paycodemappings)
+
       # Make a view model
       @settingsvm = PluginFMC::SettingsVM.new({
         owner: params[:settings_owner], 
         account: settings.account,
         username: settings.username,
-        password: settings.password })
+        password: settings.password,
+        includeunmapped: settings.includeunmapped,
+        paycodemappings: settings.paycodemappings })
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -74,13 +87,15 @@ class PluginFmcController < ApplicationController
   end
 
   def save_settings
-    log "\n\n method", 'save_settings', 0
+    log "\n\nmethod", 'save_settings', 0
     begin
       # Get settings for this plugin
       settingsvm = PluginFMC::SettingsVM.new(
         params[:plugin_fmc_settings_vm])
       settings = PluginFMC::Settings.new(
         params[:plugin_fmc_settings_vm])
+
+      log 'settingsvm.paycodemappings', JSON.parse(settingsvm.paycodemappings)
 
       # Save these settings for the customer
       if settingsvm.owner.blank?
@@ -109,13 +124,10 @@ class PluginFmcController < ApplicationController
   end
 
   def create_export
-    log "\n\n method", 'create_export', 0
+    log "\n\nmethod", 'create_export', 0
     begin
       # Connect to AoD
-      aod = create_conn(PluginFMC::Settings, 
-        current_user.id, 
-        current_user.customer_id, 
-        @@plugin_id)
+      aod = create_conn(session[:settings])
       
       # Get pay period chosen
       if params[:payperiod] == "0"
@@ -138,32 +150,74 @@ class PluginFmcController < ApplicationController
           noActivityInclusion: "naiSkip" })  
       paylines = response.body[:t_ae_pay_line]
 
-      # Make an array of payroll records
-      @payrecords = Array.new
+      # Get settings
+      if session[:settings]
 
-      # Convert the paylines to payroll records
-      paylines.each do |payline|
-        p = PluginFMC::PayrollRecord.new
-        p.employeeid = payline[:emp_id]
-        p.paycode = payline[:pay_des_name]
-        p.hours = payline[:hours_hund].to_s.to_f
-        p.rate = payline[:wrk_rate].to_s.to_f
-        p.transactiondate = (params[:payperiod] == "0" ? 
-          session[:prevend].to_s :
-          session[:currend].to_s)
-        p.trxnumber = ''
-        p.btnnext = '1'
+        # Get paycodemappings
+        if session[:settings].paycodemappings
+          mappings = JSON.parse(session[:settings].paycodemappings)
+        end
 
-        # Add this payroll record to our array
-        @payrecords << p
+        # Get includeumapped
+        includeunmapped = true
+        if session[:settings].includeunmapped && 
+           session[:settings].includeunmapped == "0"
+          includeunmapped = false
+        end
+
+        # Convert the paylines to payroll records
+        payrecords = []
+        paylines.each do |payline|
+          # If there is a pay code mapping for this paydesnum
+          paydesnum = payline[:pay_des_num].to_s
+          wg3       = payline[:wrk_wg3].to_s
+          paycode   = lookup_paycode(mappings, paydesnum, wg3)
+
+          if includeunmapped || paycode
+            p = PluginFMC::PayrollRecord.new
+            p.employeeid = payline[:emp_id]
+            p.paycode    = paycode
+            p.hours      = payline[:hours_hund].to_s.to_f
+            p.rate       = payline[:wrk_rate]  .to_s.to_f
+            p.transactiondate = (params[:payperiod] == "0" ? 
+              session[:prevend].to_s :
+              session[:currend].to_s)
+            p.trxnumber  = ''
+            p.btnnext    = '1'
+
+            if p.paycode.nil? 
+              p.paycode = 'Unmapped - PayDes: ' + paydesnum + ' - Wg3: ' + wg3
+            end
+
+            # Add this payroll record to our array
+            payrecords << p
+          end
+        end
+        
+        # Group results by all fields, total up hours
+        results = payrecords.group_by{ |a| [
+          a.employeeid,
+          a.paycode,
+          a.rate,
+          a.transactiondate ] }
+            .map { |p, payrecords|
+              y = PluginFMC::PayrollRecord.new
+              y.employeeid      = p[0].to_s
+              y.paycode         = p[1].to_s
+              y.hours           = payrecords.sum { |b| b.hours.to_f }
+              y.rate            = p[2].to_s.to_f
+              y.transactiondate = p[3].to_s
+              y.trxnumber = ''
+              y.btnnext = '1'
+              y } 
+
+        # Create header for payroll records
+        header = 'Employee ID,Pay Code,Hours,Rate,Transaction Date,Trx Number,Btn Next'
+
+        # Create file, from header and payroll records
+        session[:fmc_payroll_file] = 
+          header + "\n" + results.join("\n")
       end
-
-      # Create header for payroll records
-      @header = 'Employee ID,Pay Code,Hours,Rate,Transaction Date,Trx Number,Btn Next'
-
-      # Create file, from header and payroll records
-      session[:fmc_payroll_file] = 
-        @header + "\n" + @payrecords.join("\n")
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -173,7 +227,7 @@ class PluginFmcController < ApplicationController
 
   def download_file
     begin
-      log "\n\n method", 'download_file', 0
+      log "\n\nmethod", 'download_file', 0
       send_data session[:fmc_payroll_file].to_s, 
         :filename => "payroll.csv", 
         :type => "text/plain" 
@@ -183,5 +237,16 @@ class PluginFmcController < ApplicationController
       flash.now[:alert] = exc.message
     end
   end
+
+  private
+
+    def lookup_paycode(mappings, paydesnum, wg3)
+      mappings.each do |mapping|
+        if mapping[0] == paydesnum && mapping[1] == wg3
+          return mapping[2]
+        end
+      end
+      nil
+    end
 
 end

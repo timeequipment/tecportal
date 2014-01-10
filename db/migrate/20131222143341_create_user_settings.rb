@@ -3,7 +3,7 @@ class CreateUserSettings < ActiveRecord::Migration
     create_table :user_settings do |t|
       t.integer :user_id
       t.integer :plugin_id
-      t.string :data
+      t.text :data
 
       t.timestamps
     end

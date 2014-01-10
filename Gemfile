@@ -24,6 +24,7 @@ group :assets do
   gem 'sass-rails',   '~> 3.2.3'
   gem 'coffee-rails', '~> 3.2.1'
   gem 'compass-rails','~> 1.0.0.rc.2'
+  gem 'jquery-datatables-rails', git: 'git://github.com/rweng/jquery-datatables-rails.git'
 
   # Use Uglifier as compressor for JavaScript assets
   gem 'uglifier', '>= 1.3.0'
