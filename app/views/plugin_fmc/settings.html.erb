@@ -72,10 +72,11 @@
 $(document).ready(function() {
   var nEditing = null;
   var oTable = $('#payCodeMappings').dataTable({
-    "sPaginationType": "full_numbers",
-    "sLength": false,
+    "sScrollY": "300px",
+    "sScrollX": "100%",
+    "bScrollCollapse": true,
+    "bPaginate": false,
     "bJQueryUI": true,
-    "bFilter": false,
     "aoColumns": [
         { "sWidth": "25%" },
         { "sWidth": "25%" },
@@ -157,8 +158,8 @@ $(document).ready(function() {
   });
 
   // Create your own pay code mappings header
-  $('#payCodeMappings_length').html(
-    'Pay Code Mappings' + 
+  $('.fg-toolbar').first().html(
+    '<div class="left-group">Pay Code Mappings</div>' + 
     '<div class="right-group">' + 
     '  <div id="newRowBtn" class="button">Add Mapping</div>' + 
     '</div>'
