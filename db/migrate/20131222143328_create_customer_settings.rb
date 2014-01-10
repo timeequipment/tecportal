@@ -3,7 +3,7 @@ class CreateCustomerSettings < ActiveRecord::Migration
     create_table :customer_settings do |t|
       t.integer :customer_id
       t.integer :plugin_id
-      t.text :data
+      t.string :data
 
       t.timestamps
     end
