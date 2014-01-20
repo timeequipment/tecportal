@@ -408,8 +408,8 @@ class PluginSnohomishController < ApplicationController
         a[:wg1] ] }
           .map { |p, paylines|
             y = {
-              emp_id:        p[0].to_s
-              date:          p[1].to_datetime
+              emp_id:        p[0].to_s,
+              date:          p[1].to_datetime,
               total_minutes: paylines.sum { |b| b[:hours_hund].to_f } } }
     end
 
