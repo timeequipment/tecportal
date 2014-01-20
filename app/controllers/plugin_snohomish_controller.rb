@@ -407,11 +407,10 @@ class PluginSnohomishController < ApplicationController
         a[:date],
         a[:wg1] ] }
           .map { |p, paylines|
-            y = Hash.new
-            y[:emp_id]       = p[0].to_s
-            y[:date]         = p[1].to_datetime
-            y[:total_minutes] = paylines.sum { |b| b[:hours_hund].to_f }
-            y } 
+            y = {
+              emp_id:        p[0].to_s
+              date:          p[1].to_datetime
+              total_minutes: paylines.sum { |b| b[:hours_hund].to_f } } }
     end
 
     def get_last_punches(totals, empids)
@@ -440,7 +439,7 @@ class PluginSnohomishController < ApplicationController
           .map { |p, punches|
             y = {
               emp_id:      p[0].to_s,
-              date: p[1].to_datetime,
+              date:        p[1].to_datetime,
               last_punch:  punches.max { |b| b[:time_stamp].to_date } } }
 
       # Apply the last punch to the totals we've already gotten
