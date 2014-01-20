@@ -8,14 +8,13 @@ class PluginFmcController < ApplicationController
     log "\n\nmethod", 'index', 0
     begin
       # Get plugin settings for this user
-      get_settings(PluginFMC::Settings, 
+      session[:settings] = get_settings(PluginFMC::Settings, 
         current_user.id, 
         current_user.customer_id, 
         @@plugin_id)
-      session[:settings] = settings
 
       # Connect to AoD
-      aod = create_conn(settings)
+      aod = create_conn(session[:settings])
 
       # Get pay periods from AoD
       response = aod.call(
@@ -38,7 +37,7 @@ class PluginFmcController < ApplicationController
   def settings
     log "\n\nmethod", 'settings', 0
     begin
-      # If we just saved settings for someone
+      # If we just saved settings for a user
       if params[:settings_owner] && params[:settings_owner] != ''
         # Get their settings again
         settings = get_user_settings(PluginFMC::Settings,

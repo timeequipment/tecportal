@@ -1,0 +1,13 @@
+<div class="plugin-snohomish">
+
+  <!-- Header -->
+  <h3>Snohomish Timecard Editor</h3> 
+  <% if current_user.customer_admin? %>
+    <%= link_to "Settings", plugin_snohomish_settings_path, class: "settings-btn" %>
+  <% end %>
+  
+  <!-- Content -->
+  <br>
+  <div>Edits completed!</div>
+
+</div>

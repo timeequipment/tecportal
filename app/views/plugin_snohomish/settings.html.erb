@@ -1,0 +1,46 @@
+<div class="plugin-snohomish">
+
+  <!-- Header -->
+  <h3>Settings</h3> 
+
+  <!-- Content -->
+  <%= render "shared/spinner" %>
+  <%= form_for @settingsvm, url: {action: "save_settings", method: "post"} do |f| %>
+
+    <div class="entry">
+      <%= label_tag(:owner, "Applies to") %>
+      <%= f.collection_select(:owner, current_user.customer.users, :id, :name, 
+          include_blank: 'Default for all users') %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :account %>
+      <%= f.text_field :account %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :username %>
+      <%= f.text_field :username %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :password %>
+      <%= f.password_field :password, value: @settingsvm.password %>
+    </div>
+
+    <div class="entry">
+      <div>Type the number for the Reason Code that will identify supervisor edits for "Rounding Daily Hours"</div>
+      <%= label_tag :reasoncode, '' %>
+      <%= f.number_field :reasoncode %>
+    </div>
+
+    <div class="entry">
+      <div>If you would like to test this program on a single employee, type in their AoD employee ID number.  Otherwise, leave this blank.</div>
+      <%= label_tag :testempid, '' %>
+      <%= f.text_field :testempid %>
+    </div>
+
+    <br>
+    <input type="submit" value="Save Settings">
+  <% end %>
+</div>

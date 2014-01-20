@@ -29,6 +29,12 @@ cust = Customer.create!(
   :name => 'FMC' )
 puts 'New customer created: ' << cust.name
 
+puts 'CREATING CUSTOMER: Snohomish'
+cust = Customer.create!(
+  :id => 3,
+  :name => 'Snohomish' )
+puts 'New customer created: ' << cust.name
+
 puts 'CREATING PLUGIN: Visualizer'
 plugin = Plugin.create!(
   :id => 1, 
@@ -39,6 +45,12 @@ puts 'CREATING PLUGIN: FMC Payroll Export'
 plugin = Plugin.create!(
   :id => 2, 
   :name => 'FMC Payroll Export')
+puts 'New plugin created: ' << plugin.name
+
+puts 'CREATING PLUGIN: Snohomish Timecard Editor'
+plugin = Plugin.create!(
+  :id => 3, 
+  :name => 'Snohomish Timecard Editor')
 puts 'New plugin created: ' << plugin.name
 
 puts 'CREATING CUSTOMER ADMIN FOR: Protocall Services'
@@ -63,6 +75,17 @@ user = User.create!(
   :customer_id => 2 )
 puts 'New user created: ' << user.name
 
+puts 'CREATING CUSTOMER ADMIN FOR: Snohomish'
+user = User.create!(
+  :name => 'snoadmin', 
+  :email => 'snoadmin@admin.com', 
+  :password => 'password', 
+  :password_confirmation => 'password', 
+  :sys_admin => false,
+  :customer_admin => true,
+  :customer_id => 3 )
+puts 'New user created: ' << user.name
+
 puts 'CREATING CUSTOMER SETTINGS FOR: Protocall Services / Visualizer'
 settings = PluginVisualizer::Settings.new
 CustomerSettings.create!(
@@ -76,5 +99,13 @@ settings = PluginVisualizer::Settings.new
 CustomerSettings.create!(
   :customer_id => 2,
   :plugin_id => 2,
+  :data => settings.to_json)
+puts 'New settings created'
+
+puts 'CREATING CUSTOMER SETTINGS FOR: Snohomish / Snohomish Timecard Editor'
+settings = PluginVisualizer::Settings.new
+CustomerSettings.create!(
+  :customer_id => 3,
+  :plugin_id => 3,
   :data => settings.to_json)
 puts 'New settings created'

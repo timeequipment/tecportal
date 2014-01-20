@@ -1,5 +1,11 @@
 Tecportal::Application.routes.draw do
 
+  # Snohomish plugin
+  get 'plugin_snohomish/index'
+  get 'plugin_snohomish/settings'
+  post 'plugin_snohomish/save_settings'
+  get 'plugin_snohomish/round_hours'
+
   # FMC plugin
   get 'plugin_fmc/index'
   get 'plugin_fmc/settings'

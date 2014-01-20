@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
       endpoint: "https://#{ settings.account }.attendanceondemand.com:8192/cc1exec.aew/soap/IAeXMLBridge", 
       basic_auth: [settings.username, settings.password],
       log: true,
-      log_level: :info, # change to :debug to log HTTP messages
+      log_level: :info, # use :debug to log HTTP messages or :info to not
       pretty_print_xml: true)
   end
 

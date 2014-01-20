@@ -1,0 +1,41 @@
+<div class="plugin-snohomish">
+
+  <!-- Header -->
+  <h3>Snohomish Timecard Editor</h3> 
+  <% if current_user.customer_admin? %>
+    <%= link_to "Settings", plugin_snohomish_settings_path, class: "settings-btn" %>
+  <% end %>
+  
+  <!-- Content -->
+  <%= render "shared/spinner" %>
+  <%= form_tag("round_hours", method: "get") do %>
+
+    <div class="entry">
+      <%= label_tag :begindate %>
+      <%= text_field_tag :begindate, Date.today.strftime('%D'), class: "date-picker" %>
+    </div>
+
+    <div class="entry">
+      <%= label_tag :enddate %>
+      <%= text_field_tag :enddate, Date.today.strftime('%D'), class: "date-picker" %>
+    </div>
+
+    <div class="entry">
+      <span>Just delete edits previously made by this program; don't create new ones</span>&nbsp;
+      <%= check_box_tag :justdeleteedits %>
+    </div>
+
+    <input id="roundHours" type="submit" value="Round Hours on Timecards">
+  <% end %>
+</div>  
+
+<!-- Scripts -->
+<script>
+  // Show the spinner when you click roundHours button
+  $('#roundHours').click(function() {
+    $('#spinner').show();
+  });
+
+  // Define datepickers
+  $('.date-picker').datepicker();
+</script>
