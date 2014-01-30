@@ -12,12 +12,12 @@
 
     <div class="entry">
       <%= label_tag :begindate %>
-      <%= text_field_tag :begindate, Date.today.strftime('%D'), class: "date-picker" %>
+      <%= text_field_tag :begindate, Date.today.strftime('%m/%d/%Y'), class: "date-picker" %>
     </div>
 
     <div class="entry">
       <%= label_tag :enddate %>
-      <%= text_field_tag :enddate, Date.today.strftime('%D'), class: "date-picker" %>
+      <%= text_field_tag :enddate, Date.today.strftime('%m/%d/%Y'), class: "date-picker" %>
     </div>
 
     <div class="entry">
