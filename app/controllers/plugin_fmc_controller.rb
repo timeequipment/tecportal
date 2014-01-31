@@ -30,6 +30,7 @@ class PluginFmcController < ApplicationController
 
     rescue Exception => exc
       log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
       flash.now[:alert] = 'Unable to connect to AoD. Please check settings.'
     end
   end
@@ -81,6 +82,7 @@ class PluginFmcController < ApplicationController
 
     rescue Exception => exc
       log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
       flash.now[:alert] = exc.message
     end
   end
@@ -117,6 +119,7 @@ class PluginFmcController < ApplicationController
 
     rescue Exception => exc
       log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
       flash.now[:alert] = exc.message
     end
     redirect_to action: 'settings'
@@ -139,6 +142,13 @@ class PluginFmcController < ApplicationController
       # response = aod.get_hyper_queries_simple()
       # @hyper_qs = response.body[:get_hyper_queries_simple_response] \
       #   [:return][:item]
+
+          # mappings = JSON.parse(session[:settings].paycodemappings)
+          # log 's', session[:settings].paycodemappings
+
+          # log 'settings', session[:settings]
+          # return
+
 
       # Get pay period summaries from AoD
       response = aod.call(
@@ -164,25 +174,39 @@ class PluginFmcController < ApplicationController
           includeunmapped = false
         end
 
+        mappings.each do |mapping|
+          log 'mapping', mapping
+          log 'mapping class', mapping.class
+        end
+
         # Convert the paylines to payroll records
         payrecords = []
         paylines.each do |payline|
           # If there is a pay code mapping for this paydesnum
           paydesnum = payline[:pay_des_num].to_s
           wg3       = payline[:wrk_wg3].to_s
-          paycode   = lookup_paycode(mappings, paydesnum, wg3)
+          mapping   = get_paycode_mapping(mappings, paydesnum, wg3)
 
-          if includeunmapped || paycode
+          if includeunmapped 
+            mapping ||= [0, 0, 0, 0]
+          end
+
+          if mapping
             p = PluginFMC::PayrollRecord.new
             p.employeeid = payline[:emp_id]
-            p.paycode    = paycode
+            p.paycode    = mapping[2]
             p.hours      = payline[:hours_hund].to_s.to_f
+            p.dollars    = payline[:dollars].to_s.to_f
             p.rate       = payline[:wrk_rate]  .to_s.to_f
             p.transactiondate = (params[:payperiod] == "0" ? 
               session[:prevend].to_s :
               session[:currend].to_s)
             p.trxnumber  = ''
             p.btnnext    = '1'
+
+            if p.hours + p.dollars == 0 
+              next
+            end
 
             if p.paycode.nil? 
               p.paycode = 'Unmapped - PayDes: ' + paydesnum + ' - Wg3: ' + wg3
@@ -204,6 +228,7 @@ class PluginFmcController < ApplicationController
               y.employeeid      = p[0].to_s
               y.paycode         = p[1].to_s
               y.hours           = payrecords.sum { |b| b.hours.to_f }
+              y.dollars         = payrecords.sum { |b| b.dollars.to_f }
               y.rate            = p[2].to_s.to_f
               y.transactiondate = p[3].to_s
               y.trxnumber = ''
@@ -211,7 +236,7 @@ class PluginFmcController < ApplicationController
               y } 
 
         # Create header for payroll records
-        header = 'Employee ID,Pay Code,Hours,Rate,Transaction Date,Trx Number,Btn Next'
+        header = 'Employee ID,Pay Code,Hours,Dollars,Rate,Transaction Date,Trx Number,Btn Next'
 
         # Create file, from header and payroll records
         session[:fmc_payroll_file] = 
@@ -220,6 +245,7 @@ class PluginFmcController < ApplicationController
 
     rescue Exception => exc
       log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
       flash.now[:alert] = exc.message
     end
   end
@@ -233,16 +259,17 @@ class PluginFmcController < ApplicationController
 
     rescue Exception => exc
       log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
       flash.now[:alert] = exc.message
     end
   end
 
   private
 
-    def lookup_paycode(mappings, paydesnum, wg3)
+    def get_paycode_mapping(mappings, paydesnum, wg3)
       mappings.each do |mapping|
         if mapping[0] == paydesnum && mapping[1] == wg3
-          return mapping[2]
+          return mapping
         end
       end
       nil

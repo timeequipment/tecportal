@@ -9,6 +9,7 @@ module PluginFMC
       :employeeid,
       :paycode,
       :hours,
+      :dollars,
       :rate,
       :transactiondate,
       :trxnumber,

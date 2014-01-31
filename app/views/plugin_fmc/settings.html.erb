@@ -42,6 +42,7 @@
             <th>Pay Des. Num</th>
             <th>Wg3</th>
             <th>Pay Code</th>
+            <th>Is Dollars?</th>
             <th>Edit</th>
             <th>Delete</th>
           </tr>
@@ -52,6 +53,7 @@
               <td><%= mapping[0] %></td>
               <td><%= mapping[1] %></td>
               <td><%= mapping[2] %></td>
+              <td><%= mapping[3] %></td>
               <td><a class="button edit" href="">Edit</a></td>
               <td><a class="button delete" href="">Delete</a></td>
             </tr>
@@ -80,11 +82,12 @@ $(document).ready(function() {
     "bFilter": false,
     "bJQueryUI": true,
     "aoColumns": [
-        { "sWidth": "25%" },
-        { "sWidth": "25%" },
-        { "sWidth": "25%" },
-        { "sWidth": "12%", "sClass": "column-header", "bSortable": false },
-        { "sWidth": "12%", "sClass": "column-header", "bSortable": false },
+        { "sWidth": "20%" },
+        { "sWidth": "20%" },
+        { "sWidth": "20%" },
+        { "sWidth": "20%" },
+        { "sWidth": "10%", "sClass": "column-header", "bSortable": false },
+        { "sWidth": "10%", "sClass": "column-header", "bSortable": false },
     ],
     "bAutoWidth": false
   });
@@ -96,8 +99,9 @@ $(document).ready(function() {
     jqTds[0].innerHTML = '<input type="text" value="'+aData[0]+'">';
     jqTds[1].innerHTML = '<input type="text" value="'+aData[1]+'">';
     jqTds[2].innerHTML = '<input type="text" value="'+aData[2]+'">';
-    jqTds[3].innerHTML = '<a class="button edit" href="">Save</a>';
-    jqTds[4].innerHTML = '<div class="disabled-button delete" href="">Delete</div>';
+    jqTds[3].innerHTML = '<input type="checkbox" value="'+aData[3]+'">';
+    jqTds[4].innerHTML = '<a class="button edit" href="">Save</a>';
+    jqTds[5].innerHTML = '<div class="disabled-button delete" href="">Delete</div>';
   }
 
   function saveRow ( oTable, nRow )
@@ -106,8 +110,9 @@ $(document).ready(function() {
     oTable.fnUpdate( jqInputs[0].value, nRow, 0, false );
     oTable.fnUpdate( jqInputs[1].value, nRow, 1, false );
     oTable.fnUpdate( jqInputs[2].value, nRow, 2, false );
-    oTable.fnUpdate( '<a class="button edit" href="">Edit</a>', nRow, 3, false );
-    oTable.fnUpdate( '<a class="button delete" href="">Delete</a>', nRow, 4, false );
+    oTable.fnUpdate( jqInputs[3].value, nRow, 3, false );
+    oTable.fnUpdate( '<a class="button edit" href="">Edit</a>', nRow, 4, false );
+    oTable.fnUpdate( '<a class="button delete" href="">Delete</a>', nRow, 5, false );
     // oTable.fnDraw();  // Uncomment if you want rows sorted again after save
   }
   
@@ -182,6 +187,7 @@ $(document).ready(function() {
         '1', 
         '2', 
         '3', 
+        '0',
         '<a class="button edit" href="">Edit</a>', 
         '<a class="button delete" href="">Delete</a>' ] );
     var nRow = oTable.fnGetNodes( aiNew[0] );
