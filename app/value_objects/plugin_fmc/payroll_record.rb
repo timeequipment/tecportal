@@ -19,6 +19,7 @@ module PluginFMC
       @employeeid.to_s.gsub(",", "") + "," +
       @paycode.to_s.gsub(",", "") + "," +
       @hours.round(2).to_s + "," +
+      @dollars.round(2).to_s + "," +
       @rate.round(2).to_s + "," +
       @transactiondate.to_s + "," +
       @trxnumber.to_s + "," +
