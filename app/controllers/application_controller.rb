@@ -73,6 +73,8 @@ class ApplicationController < ActionController::Base
       wsdl: "https://#{ settings.account }.attendanceondemand.com:8192/cc1.aew/wsdl/IAeXMLBridge", 
       endpoint: "https://#{ settings.account }.attendanceondemand.com:8192/cc1exec.aew/soap/IAeXMLBridge", 
       basic_auth: [settings.username, settings.password],
+      open_timeout: 300,
+      read_timeout: 300,
       log: true,
       log_level: :debug, # use :debug to log HTTP messages or :info to not
       pretty_print_xml: true,
