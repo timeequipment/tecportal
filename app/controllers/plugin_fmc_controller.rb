@@ -69,7 +69,6 @@ class PluginFmcController < ApplicationController
          settings.paycodemappings.blank?
         settings.paycodemappings = '[]'
       end
-      log 'settings.paycodemappings', JSON.parse(settings.paycodemappings)
 
       # Make a view model
       @settingsvm = PluginFMC::SettingsVM.new({
@@ -95,8 +94,6 @@ class PluginFmcController < ApplicationController
         params[:plugin_fmc_settings_vm])
       settings = PluginFMC::Settings.new(
         params[:plugin_fmc_settings_vm])
-
-      log 'settingsvm.paycodemappings', JSON.parse(settingsvm.paycodemappings)
 
       # Save these settings for the customer
       if settingsvm.owner.blank?
@@ -172,11 +169,6 @@ class PluginFmcController < ApplicationController
         if session[:settings].includeunmapped && 
            session[:settings].includeunmapped == "0"
           includeunmapped = false
-        end
-
-        mappings.each do |mapping|
-          log 'mapping', mapping
-          log 'mapping class', mapping.class
         end
 
         # Convert the paylines to payroll records
