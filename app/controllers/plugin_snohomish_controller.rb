@@ -347,9 +347,6 @@ class PluginSnohomishController < ApplicationController
     daterange = "custom{fs}" + @begindate.strftime('%m/%d/%Y') + 
                       "{fs}" + @enddate.strftime('%m/%d/%Y')
 
-    ## THE FOLLOWING WAS RECEIVED FINE, BUT WOULDN'T RESPOND WITH ANY PAYLINES
-    ## SO I MADE THE REQUEST BY MANUALLY COMPOSING THE XML (BELOW)
-
     # Send request, get response
     log 'Calling AoD',   :get_manually_selected_calculated_data
     response = @aod.call(:get_manually_selected_calculated_data, 

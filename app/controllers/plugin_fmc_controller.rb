@@ -151,7 +151,7 @@ class PluginFmcController < ApplicationController
       response = aod.call(
         :extract_pay_period_summaries, message: { 
           payPeriodEnum: pay_period,
-          payLineStatEnum: "plsCalculated", 
+          payLineStatEnum: "plsAsSaved", 
           calcedDataTypeEnum: "cdtNormal",
           noActivityInclusion: "naiSkip" })  
       paylines = response.body[:t_ae_pay_line]
