@@ -16,10 +16,15 @@ module PluginFMC
       :btnnext
 
     def to_s
+      if @hours > 0.0
+        amount = @hours
+      else
+        amount = @dollars
+      end
+
       @employeeid.to_s.gsub(",", "") + "," +
       @paycode.to_s.gsub(",", "") + "," +
-      @hours.round(2).to_s + "," +
-      @dollars.round(2).to_s + "," +
+      amount.round(2).to_s + "," +
       @rate.round(2).to_s + "," +
       @transactiondate.to_s + "," +
       @trxnumber.to_s + "," +

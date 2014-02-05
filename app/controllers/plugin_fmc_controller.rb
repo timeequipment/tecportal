@@ -236,7 +236,7 @@ class PluginFmcController < ApplicationController
               y } 
 
         # Create header for payroll records
-        header = 'Employee ID,Pay Code,Hours,Dollars,Rate,Transaction Date,Trx Number,Btn Next'
+        header = 'Employee ID,Pay Code,Amount,Rate,Transaction Date,Trx Number,Btn Next'
 
         # Create file, from header and payroll records
         session[:fmc_payroll_file] = 
