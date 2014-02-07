@@ -66,8 +66,6 @@ class ApplicationController < ActionController::Base
       "xmlns:q1" => "urn:AeXMLBridgeIntf-IAeXMLBridge",
     }
 
-    ccased = lambda { |key| key.camelize }
-
     # Return interface to AoD
     Savon.client(
       wsdl: "https://#{ settings.account }.attendanceondemand.com:8192/cc1.aew/wsdl/IAeXMLBridge", 
@@ -104,7 +102,7 @@ class ApplicationController < ActionController::Base
       user_id: user_id, 
       plugin_id: plugin_id)
       .first
-    if s 
+    if s && s.data.present?
       log 'usersettings', s
       mysettings = cls.new.from_json s.data
     end
@@ -117,7 +115,7 @@ class ApplicationController < ActionController::Base
       customer_id: customer_id, 
       plugin_id: plugin_id)
       .first
-    if s
+    if s && s.data.present?
       log 'customersettings', s
       mysettings = cls.new.from_json s.data
     end
