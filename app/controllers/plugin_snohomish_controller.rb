@@ -216,7 +216,7 @@ class PluginSnohomishController < ApplicationController
         #-------------------------------------------
 
         # Progress("Sending edits")
-      log 'settings', session[:settings]
+        log 'settings', session[:settings]
         send_edits totals
       end
     ensure

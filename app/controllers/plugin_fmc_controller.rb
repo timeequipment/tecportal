@@ -135,26 +135,38 @@ class PluginFmcController < ApplicationController
         pay_period = "ppeCurrent" 
       end
 
-      # # Get hyperqueries from AoD
-      # response = aod.get_hyper_queries_simple()
-      # @hyper_qs = response.body[:get_hyper_queries_simple_response] \
-      #   [:return][:item]
-
-          # mappings = JSON.parse(session[:settings].paycodemappings)
-          # log 's', session[:settings].paycodemappings
-
-          # log 'settings', session[:settings]
-          # return
-
-
-      # Get pay period summaries from AoD
+      # Get all payroll employees
       response = aod.call(
-        :extract_pay_period_summaries, message: { 
+        :get_payroll_employees_list, message: { 
+          payPeriodEnum: pay_period })  
+      payrollemps = response.body[:t_ae_employee_basic]
+
+      # For each payroll employee
+      paylines = []
+      payrollemps.each do |emp|
+        # Get their pay period summary
+        response = aod.call(
+        :extract_employee_period_summs_by_filekey, message: { 
+          filekey: emp[:filekey],
           payPeriodEnum: pay_period,
           payLineStatEnum: "plsAsSaved", 
-          calcedDataTypeEnum: "cdtNormal",
-          noActivityInclusion: "naiSkip" })  
-      paylines = response.body[:t_ae_pay_line]
+          calcedDataTypeEnum: "cdtNormal" })  
+        eepaylines = response.body[:t_ae_pay_line]
+        if eepaylines.is_a? Array
+          paylines.concat eepaylines
+        elsif eepaylines.is_a? Hash
+          paylines << eepaylines
+        end
+      end
+
+      # # Get pay period summaries from AoD
+      # response = aod.call(
+      #   :extract_pay_period_summaries, message: { 
+      #     payPeriodEnum: pay_period,
+      #     payLineStatEnum: "plsAsSaved", 
+      #     calcedDataTypeEnum: "cdtNormal",
+      #     noActivityInclusion: "naiSkip" })  
+      # paylines = response.body[:t_ae_pay_line]
 
       # Get settings
       if session[:settings]
