@@ -6,6 +6,3 @@ Delayed::Worker.sleep_delay = 5
 
 # Use the Rails log
 Delayed::Worker.logger = Rails.logger
-
-# Log realtime
-Delayed::Worker.logger.auto_flushing = true
