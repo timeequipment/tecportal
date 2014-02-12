@@ -1,6 +1,9 @@
 Tecportal::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
+  # Don't buffer stdout (for foreman logging)
+  $stdout.sync = true
+
   # Reload code between requests
   config.cache_classes = false
 
