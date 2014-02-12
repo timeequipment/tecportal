@@ -1,5 +1,5 @@
 # Execute all jobs realtime (only in debug env)
-Delayed::Worker.delay_jobs = false # !(Rails.env.test? || Rails.env.development?)
+Delayed::Worker.delay_jobs = Rails.env.production?
 
 # 5 second delay before starting jobs
 Delayed::Worker.sleep_delay = 5
