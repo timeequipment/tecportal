@@ -2,7 +2,7 @@
 Delayed::Worker.delay_jobs = Rails.env.production?
 
 # 5 second delay before starting jobs
-Delayed::Worker.sleep_delay = 5
+# Delayed::Worker.sleep_delay = 5
 
 # Use the Rails log
 Delayed::Worker.logger = Rails.logger
