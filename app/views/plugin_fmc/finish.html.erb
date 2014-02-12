@@ -8,10 +8,9 @@
   
   <!-- Content -->
   <br>
-  asdf asdf asdf
   <%= link_to "Save to File", { action: "download_file" }, class: "button" %>
   <br>
-  <textarea class="output"><%= h(session[:fmc_payroll_file].to_s) %>
+  <textarea class="output"><%= h(session[:fmc_export].to_s) %>
   </textarea>
 
 </div>

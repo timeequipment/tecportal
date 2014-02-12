@@ -59,6 +59,12 @@ GEM
       sass (~> 3.1)
     compass-rails (1.0.3)
       compass (>= 0.12.2, < 0.14)
+    daemons (1.1.9)
+    delayed_job (4.0.0)
+      activesupport (>= 3.0, < 4.1)
+    delayed_job_active_record (4.0.0)
+      activerecord (>= 3.0, < 4.1)
+      delayed_job (>= 3.0, < 4.1)
     devise (3.2.2)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.1)
@@ -194,6 +200,8 @@ DEPENDENCIES
   awesome_print
   coffee-rails (~> 3.2.1)
   compass-rails (~> 1.0.0.rc.2)
+  daemons
+  delayed_job_active_record
   devise
   disable_assets_logger
   jquery-datatables-rails!

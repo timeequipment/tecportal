@@ -8,8 +8,7 @@
   
   <!-- Content -->
   <%= render "shared/spinner" %>
-  <%= form_tag("create_export", method: "get") do %>
-
+  <form id="create-export" action="create_export" method="get">
     <div class="entry">
       <%= label_tag(:payperiod, "Pay Period:") %>
       <select id="payperiod" name="payperiod">
@@ -29,16 +28,14 @@
     </div>
 
     <br>
-    <input id="createExport" type="submit" value="Create Export">
-  <% end %>
+    <input type="submit" value="Create Export">
+  </form>
+
+  <div id="status-msg"><div>
 </div>  
 
 <!-- Scripts -->
 <script>
-  // Show the spinner when you click createExport button
-  $('#createExport').click(function() {
-    $('#spinner').show();
-  });
 
   // Default to showing previous period dates
   $('#period-start').html('<%= @prevstart %>');
@@ -57,4 +54,45 @@
       $('#period-end').html('<%= @currend %>'); 
     }
   });
+
+  // Attach a submit handler to the form
+  $( "#create-export" ).submit(function( event ) {
+   
+    // Stop form from submitting normally
+    event.preventDefault();
+
+    // Show the spinner
+    $('#spinner').show();
+
+    // Periodically check for status
+    setInterval(function() {
+      $.get("status", function(data) {
+        if (data == true)
+        {
+          window.location = "finish";
+        }
+        else
+        {
+          $('#status-msg').html('<div>working...</div>');
+        } 
+      });
+    }, 1000) //Time in milliseconds
+   
+    // Get some values from elements on the page:
+    var $form = $( this ),
+      payPeriod = $form.find( "input[name='payperiod']" ).val(),
+      url = $form.attr( "action" );
+   
+    // Send the data using post
+    $.get( url, { payperiod: payPeriod } );
+    // // Put the results in a div
+    // posting.done(function( data ) {
+    //   window.location = "finish"
+    //   // var content = $( data ).find( "#content" );
+    //   // $( "#result" ).empty().append( content );
+    // });
+
+    
+  });
+
 </script>

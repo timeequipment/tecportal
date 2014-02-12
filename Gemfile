@@ -8,6 +8,8 @@ gem "omniauth", "~> 1.1.4"
 gem "pg"
 gem 'savon', '2.2.0'
 gem 'awesome_print'
+gem 'delayed_job_active_record'
+gem 'daemons'
 
 group :development do
   gem 'disable_assets_logger'

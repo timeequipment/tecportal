@@ -11,6 +11,8 @@ Tecportal::Application.routes.draw do
   get 'plugin_fmc/settings'
   post 'plugin_fmc/save_settings'
   get 'plugin_fmc/create_export'
+  get 'plugin_fmc/status'
+  get 'plugin_fmc/finish'
   get 'plugin_fmc/download_file'
 
   # Visualizer plugin
