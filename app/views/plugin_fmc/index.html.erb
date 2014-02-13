@@ -68,19 +68,16 @@
     // Periodically check for status
     var i = 2.0
     setInterval(function() {
-      $('#status-msg').html(i += 0.1);
       $.get("status", function(data) {
         $('#status-msg').html('3');
         if (data === true)
         {
-          $('#status-msg').html('4');
           // window.location = "finish";
-          $('#status-msg').html('<div>finished</div>');
+          $('#status-msg').html('finished');
         }
         else
         {
-          $('#status-msg').html('5');
-          $('#status-msg').html('<div>working...</div>');
+          $('#status-msg').html(i += 0.1);
         } 
       });
     }, 2000) //Time in milliseconds
