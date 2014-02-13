@@ -37,28 +37,6 @@
 <!-- Scripts -->
 <script>
 
-
-  function poll()
-  {
-      $('#status-msg').html('2.1');
-    $.get("status", function(data) {
-      $('#status-msg').html('3.1');
-      if (data === true)
-      {
-        // window.location = "finish";
-        $('#status-msg').html('finished');
-      }
-      else
-      {
-        $('#status-msg').html('5.1');
-        setTimeout(function() {
-          $('#status-msg').html('6.1');
-          poll();
-        }, 1000); //Time in milliseconds
-      } 
-    });
-  }
-
   // Default to showing previous period dates
   $('#period-start').html('<%= @prevstart %>');
   $('#period-end').html('<%= @prevend %>');
@@ -85,19 +63,38 @@
 
     // Show the spinner
     $('#spinner').show();
+    $('#status-msg').html('1');
 
-    setTimeout(function() {
-      $('#status-msg').html('1.1');
-      poll();
-    }, 1000); //Time in milliseconds
+    // Periodically check for status
+    var i = 2.0
+    setInterval(function() {
+      $('#status-msg').html(i += 0.1);
+      $.get("status", function(data) {
+        $('#status-msg').html('3');
+        if (data === true)
+        {
+          $('#status-msg').html('4');
+          // window.location = "finish";
+          $('#status-msg').html('<div>finished</div>');
+        }
+        else
+        {
+          $('#status-msg').html('5');
+          $('#status-msg').html('<div>working...</div>');
+        } 
+      });
+    }, 2000) //Time in milliseconds
    
+    $('#status-msg').html('6');
     // Get some values from elements on the page:
     var $form = $( this ),
       payPeriod = $form.find( "input[name='payperiod']" ).val(),
       url = $form.attr( "action" );
    
     // Send the data using post
+    $('#status-msg').html('6');
     $.get( url, { payperiod: payPeriod } );
+    $('#status-msg').html('7');
     // // Put the results in a div
     // posting.done(function( data ) {
     //   window.location = "finish"
@@ -107,6 +104,5 @@
 
     
   });
-
 
 </script>
