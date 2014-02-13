@@ -37,6 +37,28 @@
 <!-- Scripts -->
 <script>
 
+
+  function poll()
+  {
+      $('#status-msg').html('2.1');
+    $.get("status", function(data) {
+      $('#status-msg').html('3.1');
+      if (data === true)
+      {
+        // window.location = "finish";
+        $('#status-msg').html('finished');
+      }
+      else
+      {
+        $('#status-msg').html('5.1');
+        setTimeout(function() {
+          $('#status-msg').html('6.1');
+          poll();
+        }, 1000); //Time in milliseconds
+      } 
+    });
+  }
+
   // Default to showing previous period dates
   $('#period-start').html('<%= @prevstart %>');
   $('#period-end').html('<%= @prevend %>');
@@ -64,19 +86,10 @@
     // Show the spinner
     $('#spinner').show();
 
-    // Periodically check for status
-    setInterval(function() {
-      $.get("status", function(data) {
-        if (data == true)
-        {
-          window.location = "finish";
-        }
-        else
-        {
-          $('#status-msg').html('<div>working...</div>');
-        } 
-      });
-    }, 1000) //Time in milliseconds
+    setTimeout(function() {
+      $('#status-msg').html('1.1');
+      poll();
+    }, 1000); //Time in milliseconds
    
     // Get some values from elements on the page:
     var $form = $( this ),
@@ -94,5 +107,6 @@
 
     
   });
+
 
 </script>

@@ -3,71 +3,79 @@ module PluginFMC
   class CreateExport 
     include ApplicationHelper
 
-    attr_accessor :session, :params
-
-    def initialize(session, params)
-      @session = session
-      @params = params
+    attr_accessor :settings, :prevend, :currend, :payperiod
+    def initialize settings,  prevend,  currend,  payperiod
+      @settings = settings
+      @prevend = prevend
+      @currend = currend
+      @payperiod = payperiod
     end
     
     def perform
       log "\n\nasync method", :create_export, 0
+      progress = ProgressCache.new('fmc_progress', 10)
       begin
+
         # Connect to AoD
-        aod = create_conn(@session[:settings])
+        aod = create_conn(@settings)
+        progress.step
         
         # Get pay period chosen
-        if @params[:payperiod] == "0"
+        progress.step
+        if @payperiod == "0"
           pay_period = "ppePrevious" 
         else
           pay_period = "ppeCurrent" 
         end
 
-        # # Get all payroll employees
-        # response = aod.call(
-        #   :get_payroll_employees_list, message: { 
-        #     payPeriodEnum: pay_period })  
-        # payrollemps = response.body[:t_ae_employee_basic]
+        # Get all payroll employees
+        response = aod.call(
+          :get_payroll_employees_list, message: { 
+            payPeriodEnum: pay_period })  
+        payrollemps = response.body[:t_ae_employee_basic]
+        progress.step
 
-        # # For each payroll employee
-        # paylines = []
-        # payrollemps.each do |emp|
-        #   # Get their pay period summary
-        #   response = aod.call(
-        #   :extract_employee_period_summs_by_filekey, message: { 
-        #     filekey: emp[:filekey],
+        # For each payroll employee
+        paylines = []
+        payrollemps[0..2].each do |emp|
+          # Get their pay period summary
+          response = aod.call(
+            :extract_employee_period_summs_by_filekey, message: { 
+              filekey: emp[:filekey],
+              payPeriodEnum: pay_period,
+              payLineStatEnum: "plsAsSaved", 
+              calcedDataTypeEnum: "cdtNormal" })  
+          eepaylines = response.body[:t_ae_pay_line]
+          if eepaylines.is_a? Array
+            paylines.concat eepaylines
+          elsif eepaylines.is_a? Hash
+            paylines << eepaylines
+          end
+        end
+        progress.step
+
+        # # Get pay period summaries from AoD
+        # progress.step
+        # response = aod.call(
+        #   :extract_pay_period_summaries, message: { 
         #     payPeriodEnum: pay_period,
         #     payLineStatEnum: "plsAsSaved", 
-        #     calcedDataTypeEnum: "cdtNormal" })  
-        #   eepaylines = response.body[:t_ae_pay_line]
-        #   if eepaylines.is_a? Array
-        #     paylines.concat eepaylines
-        #   elsif eepaylines.is_a? Hash
-        #     paylines << eepaylines
-        #   end
-        # end
-
-        # Get pay period summaries from AoD
-        response = aod.call(
-          :extract_pay_period_summaries, message: { 
-            payPeriodEnum: pay_period,
-            payLineStatEnum: "plsAsSaved", 
-            calcedDataTypeEnum: "cdtNormal",
-            noActivityInclusion: "naiSkip" })  
-        paylines = response.body[:t_ae_pay_line]
+        #     calcedDataTypeEnum: "cdtNormal",
+        #     noActivityInclusion: "naiSkip" })  
+        # paylines = response.body[:t_ae_pay_line]
 
         # Get settings
-        if @session[:settings]
+        if @settings
 
           # Get paycodemappings
-          if @session[:settings].paycodemappings
-            mappings = JSON.parse(@session[:settings].paycodemappings)
+          if @settings.paycodemappings
+            mappings = JSON.parse(@settings.paycodemappings)
           end
 
           # Get includeumapped
           includeunmapped = true
-          if @session[:settings].includeunmapped && 
-             @session[:settings].includeunmapped == "0"
+          if @settings.includeunmapped && 
+             @settings.includeunmapped == "0"
             includeunmapped = false
           end
 
@@ -90,9 +98,9 @@ module PluginFMC
               p.hours      = payline[:hours_hund].to_s.to_f
               p.dollars    = payline[:dollars].to_s.to_f
               p.rate       = payline[:wrk_rate]  .to_s.to_f
-              p.transactiondate = (@params[:payperiod] == "0" ? 
-                @session[:prevend].to_s :
-                @session[:currend].to_s)
+              p.transactiondate = (@payperiod == "0" ? 
+                @prevend.to_s :
+                @currend.to_s)
               p.trxnumber  = ''
               p.btnnext    = '1'
 
@@ -108,6 +116,7 @@ module PluginFMC
               payrecords << p
             end
           end
+          progress.step
           
           # Group results by all fields, total up hours
           results = payrecords.group_by{ |a| [
@@ -131,18 +140,18 @@ module PluginFMC
           header = 'Employee ID,Pay Code,Amount,Rate,Transaction Date,Trx Number,Btn Next'
 
           # Create file, from header and payroll records
-          @session[:fmc_export] = 
-            header + "\n" + results.join("\n")
+          cache_save 'fmc_export', header + "\n" + results.join("\n")
         end
 
       rescue Exception => exc
         log 'exception', exc.message
         log 'exception backtrace', exc.backtrace
+      ensure
+        progress.complete
       end
     end
 
     def after(job)
-      @session[:fmc_finished] = true
     end
 
     private

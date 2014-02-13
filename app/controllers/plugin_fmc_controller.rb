@@ -126,11 +126,14 @@ class PluginFmcController < ApplicationController
     log "\n\nmethod", 'create_export', 0
     begin
 
-      session[:fmc_export] = nil
-      session[:fmc_finished] = nil
-    log 'before', 'job start'
-      Delayed::Job.enqueue PluginFMC::CreateExport.new(session, params)
-    log 'after', 'job start'
+      cache_save 'fmc_export', ''
+      log 'job', 'before call'
+      Delayed::Job.enqueue PluginFMC::CreateExport.new(
+        session[:settings],
+        session[:prevend],
+        session[:currend],
+        params[:payperiod])
+      log 'job', 'after call'
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -140,11 +143,16 @@ class PluginFmcController < ApplicationController
   end
 
   def status
-    if session[:fmc_finished].nil?
-      render json: false
+    log 'status', 'began'
+    progress = cache_get 'fmc_progress'
+    export   = cache_get 'fmc_export'
+
+    if export.empty?
+      render json: progress.as_json
     else
       render json: true
     end
+    log 'status', 'ended'
   end
 
   def finish

@@ -55,6 +55,19 @@ require 'awesome_print'
     log 'awesome print test', test
   end
 
+  # Caching
+
+  def cache_get(key)
+    c = Cache.where(key: key).first_or_initialize
+    c.value
+  end
+
+  def cache_save(key, value)
+    c = Cache.where(key: key).first_or_initialize
+    c.value = value
+    c.save
+  end
+
   # AoD Web Services
 
   def create_conn(settings)
