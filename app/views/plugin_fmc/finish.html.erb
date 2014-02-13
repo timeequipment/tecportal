@@ -10,7 +10,7 @@
   <br>
   <%= link_to "Save to File", { action: "download_file" }, class: "button" %>
   <br>
-  <textarea class="output"><%= h(cache_get 'fmc_export') %>
+  <textarea class="output"><%= h(cache_get current_user.id, 'fmc_export') %>
   </textarea>
 
 </div>

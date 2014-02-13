@@ -11,13 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140213024821) do
+ActiveRecord::Schema.define(:version => 20140213182244) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
     t.text     "value"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.integer  "user_id"
   end
 
   create_table "customer_settings", :force => true do |t|

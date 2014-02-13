@@ -57,13 +57,13 @@ require 'awesome_print'
 
   # Caching
 
-  def cache_get(key)
-    c = Cache.where(key: key).first_or_initialize
+  def cache_get(user_id, key)
+    c = Cache.where(user_id: user_id, key: key).first_or_initialize
     c.value
   end
 
-  def cache_save(key, value)
-    c = Cache.where(key: key).first_or_initialize
+  def cache_save(user_id, key, value)
+    c = Cache.where(user_id: user_id, key: key).first_or_initialize
     c.value = value
     c.save
   end

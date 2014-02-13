@@ -31,19 +31,27 @@
     <input type="submit" value="Create Export">
   </form>
 
-  <div>a: <span id="a">&nbsp;</span> </div>
-  <div>b: <span id="b">&nbsp;</span> </div>
-  <div>c: <span id="c">&nbsp;</span> </div>
-  <div>d: <span id="d">&nbsp;</span> </div>
-  <div>e: <span id="e">&nbsp;</span> </div>
-  <div>g: <span id="g">&nbsp;</span> </div>
-  <div>h: <span id="h">&nbsp;</span> </div>
-  <div>k: <span id="k">&nbsp;</span> </div>
-  <div>n: <span id="n">&nbsp;</span> </div>
+  <br>
+  <div id="progress-status"></div>
+  <div id="progress-bar"><div id="progress-label"></div></div>
 </div>  
 
 <!-- Scripts -->
 <script>
+
+  // Init progress bar
+  var progressbar = $( "#progress-bar" );
+  var progressLabel = $( "#progress-label" );
+  
+  progressbar.progressbar({
+    value: 0,
+    change: function() {
+      progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+    },
+    complete: function() {
+      progressLabel.text( "Complete!" );
+    }
+  });
 
   // Default to showing previous period dates
   $('#period-start').html('<%= @prevstart %>');
@@ -63,6 +71,33 @@
     }
   });
 
+  function poll()
+  {
+    $.get('progress', function(data) {
+
+      // If job completed
+      if (data === true)
+      {
+        // Show results
+        window.location = "finish";
+      }
+      else if (data.status)
+      {
+        // Show status
+        $('#progress-status').text(data.status)
+        $('#progress-bar').progressbar('value', parseInt(data.progress)); 
+
+        // If job processing
+        if (data.status != '')
+        {
+          // Show spinner and check status again in 2 seconds
+          $('#spinner').show();
+          setTimeout(poll, 2000);
+        }
+      }
+    });
+  }
+
   // Attach a submit handler to the form
   $( "#create-export" ).submit(function( event ) {
    
@@ -71,67 +106,20 @@
 
     // Show the spinner
     $('#spinner').show();
-    $('#status-msg').html('1');
 
-    // Periodically check for status
-    var a = 1.0
-    var b = 1.0
-    var c = 1.0
-    var d = 1.0
-    var e = 1.0
-    var g = 1.0
-    var h = 1.0
-    var k = 1.0
-    var n = 1.0
+    // Get form inputs
+    var payPeriod = $(this).find("input[name='payperiod']" ).val();
 
-    $.get("status", function(data) {
-        $('#h').html(h += 0.1);
-        $('#n').html(data.toString());
-        if (data === true)
-        {
-          // window.location = "finish";
-          $('#k').html(data.toString());
-        }
-        else
-        {
-          $('#n').html(data.toString());
-        } 
-      });
+    // Send inputs and run the export
+    $.get('create_export', { payperiod: payPeriod } );
 
-    setInterval(function() {
-      $('#a').html(a += 0.1);
-      $.get("status", function(data) {
-        $('#b').html(b += 0.1);
-        $('#d').html(data.toString());
-        if (data === true)
-        {
-          // window.location = "finish";
-          $('#c').html(data.toString());
-        }
-        else
-        {
-          $('#d').html(data.toString());
-        } 
-      });
-    }, 1000) //Time in milliseconds
-   
-    $('#e').html(e += 0.1);
-    // Get some values from elements on the page:
-    var $form = $( this ),
-      payPeriod = $form.find( "input[name='payperiod']" ).val(),
-      url = $form.attr( "action" );
-   
-    // Send the data using post
-    $.get( url, { payperiod: payPeriod } );
-    $('#g').html(g += 0.1);
-    // // Put the results in a div
-    // posting.done(function( data ) {
-    //   window.location = "finish"
-    //   // var content = $( data ).find( "#content" );
-    //   // $( "#result" ).empty().append( content );
-    // });
+    // Poll for status
+    setTimeout(poll, 2000);
 
-    
   });
+
+  // Poll for status 
+  // on page load
+  poll();
 
 </script>

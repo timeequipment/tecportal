@@ -101,3 +101,35 @@ i {
 
 .plugin-content {
   width: 580px; }
+
+#progress-bar {
+  width: 400px;
+  height: 25px;
+  -moz-box-sizing: content-box;
+       box-sizing: content-box;
+
+  * {
+    -moz-box-sizing: content-box;
+         box-sizing: content-box; }
+
+  .ui-progressbar-value {
+    background: #282;
+    @include filter-gradient(#2f2, #282, vertical);
+    @include background-image(linear-gradient(#2f2, #282));  } 
+
+  #progress-label {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    right: 0;
+    height: 14px;
+    text-align: center;
+    font-size: 14px;
+    text-shadow: 0 0 5px #fff; 
+    z-index: 1; }
+}
+
+#progress-status {
+  display: inline-block;
+  height: 24px;
+}

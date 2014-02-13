@@ -126,15 +126,16 @@ class PluginFmcController < ApplicationController
     log "\n\nmethod", 'create_export', 0
     begin
 
-      cache_save 'fmc_export', ''
-      log 'job', 'before call'
+      cache_save current_user.id, 'fmc_status', 'Initializing'
+      cache_save current_user.id, 'fmc_progress', '10'
+      sleep 1
+
       Delayed::Job.enqueue PluginFMC::CreateExport.new(
+        current_user.id,
         session[:settings],
         session[:prevend],
         session[:currend],
         params[:payperiod])
-      log 'job', 'after call'
-      render html: '<div>asdf</div>'
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -143,23 +144,21 @@ class PluginFmcController < ApplicationController
     end
   end
 
-  def status
-    log 'status', 'began'
-    progress = cache_get 'fmc_progress'
-    export   = cache_get 'fmc_export'
-    log 'progress', progress
-    log 'export', export
-    if export.blank?
-      log 'render', progress.to_json
-      render json: progress.to_json
+  def progress
+    progress = cache_get current_user.id, 'fmc_progress'
+    status   = cache_get current_user.id, 'fmc_status'
+    export   = cache_get current_user.id, 'fmc_export'
+
+    if progress != '100'
+      render json: { progress: progress, status: status }.to_json
     else
-      log 'render', 'true'
       render json: true
     end
-    log 'status', 'ended'
   end
 
   def finish
+    cache_save current_user.id, 'fmc_progress', '0'
+    cache_save current_user.id, 'fmc_status', ''
   end
 
   def download_file
