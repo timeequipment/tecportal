@@ -1,6 +1,6 @@
 class ProgressCache
   include ApplicationHelper
-  
+
   def initialize(name, steps)
     @name = name
     @steps = steps
@@ -14,7 +14,7 @@ class ProgressCache
   end
 
   def complete
-    @progress = @steps
+    @progress = 0
     save
   end
 

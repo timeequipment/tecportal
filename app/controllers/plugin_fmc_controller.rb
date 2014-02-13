@@ -134,6 +134,7 @@ class PluginFmcController < ApplicationController
         session[:currend],
         params[:payperiod])
       log 'job', 'after call'
+      render html: '<div>asdf</div>'
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -146,10 +147,13 @@ class PluginFmcController < ApplicationController
     log 'status', 'began'
     progress = cache_get 'fmc_progress'
     export   = cache_get 'fmc_export'
-
-    if export.empty?
-      render json: progress.as_json
+    log 'progress', progress
+    log 'export', export
+    if export.blank?
+      log 'render', progress.to_json
+      render json: progress.to_json
     else
+      log 'render', 'true'
       render json: true
     end
     log 'status', 'ended'

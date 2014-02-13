@@ -31,7 +31,15 @@
     <input type="submit" value="Create Export">
   </form>
 
-  <div id="status-msg"><div>
+  <div>a: <span id="a">&nbsp;</span> </div>
+  <div>b: <span id="b">&nbsp;</span> </div>
+  <div>c: <span id="c">&nbsp;</span> </div>
+  <div>d: <span id="d">&nbsp;</span> </div>
+  <div>e: <span id="e">&nbsp;</span> </div>
+  <div>g: <span id="g">&nbsp;</span> </div>
+  <div>h: <span id="h">&nbsp;</span> </div>
+  <div>k: <span id="k">&nbsp;</span> </div>
+  <div>n: <span id="n">&nbsp;</span> </div>
 </div>  
 
 <!-- Scripts -->
@@ -66,32 +74,56 @@
     $('#status-msg').html('1');
 
     // Periodically check for status
-    var i = 2.0
-    setInterval(function() {
-      $.get("status", function(data) {
-        $('#status-msg').html('3');
+    var a = 1.0
+    var b = 1.0
+    var c = 1.0
+    var d = 1.0
+    var e = 1.0
+    var g = 1.0
+    var h = 1.0
+    var k = 1.0
+    var n = 1.0
+
+    $.get("status", function(data) {
+        $('#h').html(h += 0.1);
+        $('#n').html(data.toString());
         if (data === true)
         {
           // window.location = "finish";
-          $('#status-msg').html('finished');
+          $('#k').html(data.toString());
         }
         else
         {
-          $('#status-msg').html(i += 0.1);
+          $('#n').html(data.toString());
         } 
       });
-    }, 2000) //Time in milliseconds
+
+    setInterval(function() {
+      $('#a').html(a += 0.1);
+      $.get("status", function(data) {
+        $('#b').html(b += 0.1);
+        $('#d').html(data.toString());
+        if (data === true)
+        {
+          // window.location = "finish";
+          $('#c').html(data.toString());
+        }
+        else
+        {
+          $('#d').html(data.toString());
+        } 
+      });
+    }, 1000) //Time in milliseconds
    
-    $('#status-msg').html('6');
+    $('#e').html(e += 0.1);
     // Get some values from elements on the page:
     var $form = $( this ),
       payPeriod = $form.find( "input[name='payperiod']" ).val(),
       url = $form.attr( "action" );
    
     // Send the data using post
-    $('#status-msg').html('6');
     $.get( url, { payperiod: payPeriod } );
-    $('#status-msg').html('7');
+    $('#g').html(g += 0.1);
     // // Put the results in a div
     // posting.done(function( data ) {
     //   window.location = "finish"
