@@ -4,47 +4,64 @@
 
 .plugin-service-master {
 
-  select {
-    width: 150px; }
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
 
-  input {
-    width: 150px; }
-
-  input[type="checkbox"] {
-    width: auto; }
-  
   .settings-btn {
     @extend .button;
     margin-top: -5px;
     float: right; 
     width: 100px; }
 
-  .entry {
-    margin-bottom: 10px; }
+  table { 
+    border-collapse: collapse;
+  }
 
-  label, .label {
-    display: inline-block;
-    height: 22px;
-    width: 100px; }
+  tbody tr:nth-child(odd) {
+    background: #eee;
+  }
 
-  .output {
-    margin: 20px 0 60px 0; 
-    height: 500px; 
-    width: 580px; }
+  tr.newemp td { border-top: 2px solid black; }
+  tr.newemp td.outside { border: inherit }
 
-  #payCodeMappings_length {
-    float: none;
-    width: 100%; }  
+  th, td {
+    border: 1px solid black;
+    padding: 3px;
+    margin: 0px;
+    text-align: center;
+    vertical-align: top;
+  }
 
-  .save-button {
-    @extend .button;
-    width: 140px; }
+  th {
+    background-color: #084B8A;
+    color: white;
+    font-weight: normal;
+  }
+  th.outside {
+    background-color: inherit;
+    border: inherit;
+    color: inherit;
+    vertical-align: middle;
+  }
+  td.outside {
+    border: inherit;
+    vertical-align: middle;
+  }
+  th.name { text-align: left; }
+  th.cust { text-align: left; }
 
-  .left-group {
-    float: left; }
+  td.addsched {}
+  td.name { text-align: left; }
+  td.cust { text-align: left; }
+  td.sched { width: 100px; }
+  td.custtotal {}
+  td.emptotal { vertical-align: middle; }
 
-  .right-group {
-    float: right;
-    margin: 0 10px 0 0; }
+  td.overlimit { color: red; }
+  td.transfer { font-style: italic; }
+  td.dayportera { background-color: #BAD2FF; }
+  td.dayporterb { background-color: #E6FFCE; }
+  td.projspec { background-color: #FFDEB9; }
+  td.overlap { font-weight: bold; color: #FF9420; }
 
 }

@@ -6,7 +6,7 @@ module PluginVisualizer
       :firstname, 
       :employeeid, 
       :intime, 
-      :outtime, 
+      :outtime,
       :hours, 
       :earningscode, 
       :lunchplan, 

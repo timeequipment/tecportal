@@ -13,8 +13,7 @@ gem 'daemons'
 
 group :development do
   gem 'disable_assets_logger'
-  gem 'webrick', '~> 1.3.1'
-end
+  gem 'webrick', '~> 1.3.1'end
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'

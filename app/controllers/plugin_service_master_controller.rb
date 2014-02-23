@@ -7,7 +7,15 @@ class PluginServiceMasterController < ApplicationController
   def index
     log "\n\nmethod", 'index', 0
     begin
-      # Do stuff
+      # Get the current week
+      week = get_week
+
+      # Get the current workgroup filters 
+      filters = get_filters
+
+      # Get the schedules from AoD for this week, for these workgroups
+      @scheds = get_scheds
+
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
@@ -27,7 +35,8 @@ class PluginServiceMasterController < ApplicationController
   def load_scheds
     log "\n\nmethod", 'load_scheds', 0
     begin
-      # Do stuff
+      render 'index'
+
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
@@ -92,5 +101,11 @@ class PluginServiceMasterController < ApplicationController
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
     end
+  end
+
+  private
+
+  def get_scheds
+
   end
 end
