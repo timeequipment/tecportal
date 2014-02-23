@@ -143,7 +143,8 @@ ActiveRecord::Schema.define(:version => 20140223155021) do
 
   add_index "psvm_scheds", ["filekey", "sch_date", "sch_start_time"], :name => "psvm_scheds_filekey_sch_date_sch_start_time"
 
-  create_table "psvm_wg3", :force => true do |t|
+  create_table "psvm_workgroups", :force => true do |t|
+    t.integer  "wg_level"
     t.integer  "wg_num"
     t.string   "wg_code"
     t.string   "wg_name"
@@ -151,17 +152,7 @@ ActiveRecord::Schema.define(:version => 20140223155021) do
     t.datetime "updated_at", :null => false
   end
 
-  add_index "psvm_wg3", ["wg_num"], :name => "psvm_wg3_wg_num"
-
-  create_table "psvm_wg5", :force => true do |t|
-    t.integer  "wg_num"
-    t.string   "wg_code"
-    t.string   "wg_name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  add_index "psvm_wg5", ["wg_num"], :name => "psvm_wg5_wg_num"
+  add_index "psvm_workgroups", ["wg_num"], :name => "psvm_workgroups_wg_num"
 
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false

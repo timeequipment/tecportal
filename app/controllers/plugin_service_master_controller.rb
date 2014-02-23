@@ -7,14 +7,20 @@ class PluginServiceMasterController < ApplicationController
   def index
     log "\n\nmethod", 'index', 0
     begin
+      # Get plugin settings for this user
+      session[:settings] = get_settings(PluginServiceMaster::Settings, 
+        current_user.id, 
+        current_user.customer_id, 
+        @@plugin_id)
+
       # Get the current week
-      week = get_week
+      # week = get_week
 
       # Get the current workgroup filters 
-      filters = get_filters
+      # filters = get_filters
 
       # Get the schedules from AoD for this week, for these workgroups
-      @scheds = get_scheds
+      # @scheds = get_scheds
   
     rescue Exception => exc
       log 'exception', exc.message
@@ -39,6 +45,8 @@ class PluginServiceMasterController < ApplicationController
       Delayed::Job.enqueue PluginServiceMaster::LoadEmployees.new(
         current_user.id,
         session[:settings])
+
+      render json: true
 
     rescue Exception => exc
       log 'exception', exc.message

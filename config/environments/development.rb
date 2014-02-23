@@ -38,7 +38,7 @@ Tecportal::Application.configure do
   config.assets.debug = false;
 
   #Missing host to link to! Please provide the :host parameter, set default_url_options[:host], or set :only_path to true
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+  config.action_mailer.default_url_options = { :host => 'localhost:5000' }
 
   config.action_mailer.smtp_settings = {
     address: "smtp.gmail.com",
