@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140213182244) do
+ActiveRecord::Schema.define(:version => 20140223155021) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
@@ -79,6 +79,89 @@ ActiveRecord::Schema.define(:version => 20140213182244) do
   end
 
   add_index "plugins", ["id"], :name => "index_plugins_on_id", :unique => true
+
+  create_table "psvm_emps", :force => true do |t|
+    t.integer  "filekey"
+    t.string   "last_name"
+    t.string   "first_name"
+    t.string   "initial"
+    t.string   "emp_id"
+    t.string   "ssn"
+    t.string   "badge"
+    t.integer  "active_status"
+    t.datetime "hire_date"
+    t.integer  "wg1"
+    t.integer  "wg2"
+    t.integer  "wg3"
+    t.integer  "wg4"
+    t.integer  "wg5"
+    t.integer  "wg6"
+    t.integer  "wg7"
+    t.float    "current_rate"
+    t.integer  "pay_type_id"
+    t.integer  "pay_class_id"
+    t.integer  "sch_patt_id"
+    t.integer  "hourly_status_id"
+    t.integer  "clock_group_id"
+    t.datetime "birth_date"
+    t.string   "custom1"
+    t.string   "custom2"
+    t.string   "custom3"
+    t.string   "custom4"
+    t.string   "custom5"
+    t.string   "custom6"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  add_index "psvm_emps", ["filekey"], :name => "psvm_scheds_filekey"
+
+  create_table "psvm_scheds", :force => true do |t|
+    t.integer  "filekey"
+    t.date     "sch_date"
+    t.datetime "sch_start_time"
+    t.datetime "sch_end_time"
+    t.integer  "sch_hours"
+    t.float    "sch_rate"
+    t.float    "sch_hours_hund"
+    t.integer  "sch_type"
+    t.integer  "sch_style"
+    t.integer  "sch_patt_id"
+    t.integer  "benefit_id"
+    t.integer  "pay_des_id"
+    t.integer  "sch_wg1"
+    t.integer  "sch_wg2"
+    t.integer  "sch_wg3"
+    t.integer  "sch_wg4"
+    t.integer  "sch_wg5"
+    t.integer  "sch_wg6"
+    t.integer  "sch_wg7"
+    t.integer  "unique_id"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+  end
+
+  add_index "psvm_scheds", ["filekey", "sch_date", "sch_start_time"], :name => "psvm_scheds_filekey_sch_date_sch_start_time"
+
+  create_table "psvm_wg3", :force => true do |t|
+    t.integer  "wg_num"
+    t.string   "wg_code"
+    t.string   "wg_name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "psvm_wg3", ["wg_num"], :name => "psvm_wg3_wg_num"
+
+  create_table "psvm_wg5", :force => true do |t|
+    t.integer  "wg_num"
+    t.string   "wg_code"
+    t.string   "wg_name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "psvm_wg5", ["wg_num"], :name => "psvm_wg5_wg_num"
 
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false

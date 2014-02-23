@@ -4,6 +4,7 @@ Tecportal::Application.routes.draw do
   get 'plugin_service_master/index'
   get 'plugin_service_master/settings'
   post 'plugin_service_master/save_settings'
+  get 'plugin_service_master/load_emps'
   get 'plugin_service_master/load_scheds'
   post 'plugin_service_master/save_scheds'
   get 'plugin_service_master/filter'

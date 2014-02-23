@@ -15,7 +15,7 @@ class PluginServiceMasterController < ApplicationController
 
       # Get the schedules from AoD for this week, for these workgroups
       @scheds = get_scheds
-
+  
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
@@ -32,10 +32,23 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
+  def load_emps
+    log "\n\nmethod", 'load_emps', 0
+    begin
+
+      Delayed::Job.enqueue PluginServiceMaster::LoadEmployees.new(
+        current_user.id,
+        session[:settings])
+
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+    end
+  end
+
   def load_scheds
     log "\n\nmethod", 'load_scheds', 0
     begin
-      render 'index'
 
     rescue Exception => exc
       log 'exception', exc.message
