@@ -1,32 +1,45 @@
 <div class="plugin-service-master">  
 
   <!-- Header -->
-  <h3>Service Master</h3> 
-  <% if current_user.customer_admin? %>
-    <%= link_to "Settings", plugin_service_master_settings_path, class: "settings-btn" %>
-  <% end %>
-  
+  <div id="controls-left">
+    <a href="">Prev</a>
+    <%= @startdate.strftime '%mmm %d' %> - <%= @enddate.strftime '%mmm %d' %>
+    <a href="">Next</a>
+  </div>
+  <div id="controls-right">
+    <a href="">Employees</a>
+    <a href="">Customers</a>
+    <% if current_user.customer_admin? %>
+      <%= link_to "AoD", plugin_service_master_settings_path %>
+    <% end %>
+  </div>
+
+  <br>
+  <br>
+
   <!-- Content -->
   <%= render "shared/spinner" %>
   <table>
     <thead>
       <tr> <!-- Table header -->
         <th class="outside"></th>
-        <th class="name">Name</td>
-        <th class="cust">Customer</td>
-        <th class="sched">Monday</br>01/06</td>
-        <th class="sched">Tuesday</br>01/07</td>
-        <th class="sched">Wednesday</br>01/08</td>
-        <th class="sched">Thursday</br>01/09</td>
-        <th class="sched">Friday</br>01/12</td>
-        <th class="sched">Saturday</br>01/11</td>
-        <th class="custtotal">Cust.</br>Total</td>
-        <th class="emptotal">Emp.</br>Total</td>
+        <th class="name">Name</th>
+        <th class="cust">Customer</th>
+        <th class="sched">Monday</br>01/06</th>
+        <th class="sched">Tuesday</br>01/07</th>
+        <th class="sched">Wednesday</br>01/08</th>
+        <th class="sched">Thursday</br>01/09</th>
+        <th class="sched">Friday</br>01/12</th>
+        <th class="sched">Saturday</br>01/11</th>
+        <th class="custtotal">Cust.</br>Total</th>
+        <th class="emptotal">Emp.</br>Total</th>
         <th class="outside"></th>
       </tr>
     </thead>
     <tbody>
-      <tr class="newemp"> <!-- New employee -->
+
+      <!-- New employee -->
+      <tr class="newemp">
         <td class="addsched outside" rowspan=2></td>
         <td class="name" rowspan=2>Fillup Adams</td>
         <td class="cust">FTB Germantown</td>
@@ -50,7 +63,9 @@
         <td class="sched">7:30 - 8:45</td>
         <td class="custtotal">3.75</td>
       </tr>
-      <tr class="newemp"> <!-- New employee -->
+
+      <!-- New employee -->
+      <tr class="newemp">
         <td class="addsched outside" rowspan=4></td>
         <td class="name"rowspan=4>Joseph Adolph</td>
         <td class="cust">TNB Arlington</td>
@@ -129,7 +144,8 @@
         <td class="custtotal">3.75</td>
       </tr>
         
-      <tr class="newemp"> <!-- New employee -->
+      <!-- New employee -->
+      <tr class="newemp">
         <td class="addsched outside" rowspan=4></td>
         <td class="name"rowspan=4>William Alexander</td>
         <td class="cust">FTB Farmington</td>
@@ -300,57 +316,9 @@
     }
   });
 
-  // function poll()
-  // {
-  //   $.get('progress', function(data) {
-
-  //     // If job completed
-  //     if (data === true)
-  //     {
-  //       // Show results
-  //       window.location = "finish";
-  //     }
-  //     else if (data.status)
-  //     {
-  //       // Show status
-  //       $('#progress-status').text(data.status)
-  //       $('#progress-bar').progressbar('value', parseInt(data.progress)); 
-
-  //       // If job processing
-  //       if (data.status != '')
-  //       {
-  //         // Show spinner and check status again in 2 seconds
-  //         $('#spinner').show();
-  //         setTimeout(poll, 2000);
-  //       }
-  //     }
-  //   });
-  // }
-
-  // // Attach a submit handler to the form
-  // $( "#create-export" ).submit(function( event ) {
-   
-  //   // Stop form from submitting normally
-  //   event.preventDefault();
-
-  //   // Show the spinner
-  //   $('#spinner').show();
-
-  //   // Get form inputs
-  //   var payPeriod = $(this).find("input[name='payperiod']" ).val();
-
-  //   // Send inputs and run the export
-  //   $.get('create_export', { payperiod: payPeriod } );
-
-  //   // Poll for status
-  //   setTimeout(poll, 2000);
-
-  // });
-
-  // // Poll for status 
-  // // on page load
-  // poll();
-
-  $.get('load_emps');
+  // // Get the latest employees and workgroups from AoD
+  // // in the background
+  // $.get('load_employees');
+  // $.get('load_workgroups');
 
 </script>

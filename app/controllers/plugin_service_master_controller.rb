@@ -6,122 +6,131 @@ class PluginServiceMasterController < ApplicationController
 
   def index
     log "\n\nmethod", 'index', 0
-    begin
-      # Get plugin settings for this user
-      session[:settings] = get_settings(PluginServiceMaster::Settings, 
-        current_user.id, 
-        current_user.customer_id, 
-        @@plugin_id)
+    
+    # Get plugin settings for this user
+    session[:settings] ||= get_settings(PluginServiceMaster::Settings, 
+      current_user.id, 
+      current_user.customer_id, 
+      @@plugin_id)
+    @settings = session[:settings]
 
-      # Get the current week
-      # week = get_week
+    # Get schedules
+    @scheds = PsvmSched.where(sched_date: startdate..enddate)
 
-      # Get the current workgroup filters 
-      # filters = get_filters
-
-      # Get the schedules from AoD for this week, for these workgroups
-      # @scheds = get_scheds
-  
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def settings
     log "\n\nmethod", 'settings', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
-  def load_emps
-    log "\n\nmethod", 'load_emps', 0
-    begin
+  def load_employees
+    log "\n\nmethod", 'load_employees', 0
+    
 
+      # Request employees from AoD, in the background
       Delayed::Job.enqueue PluginServiceMaster::LoadEmployees.new(
         current_user.id,
         session[:settings])
 
       render json: true
 
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
+  end
+
+  def load_workgroups
+    log "\n\nmethod", 'load_workgroups', 0
+    
+
+      # Request workgroup3 from AoD, in the background
+      Delayed::Job.enqueue PluginServiceMaster::LoadWorkgroups.new(
+        current_user.id,
+        session[:settings],
+        3)
+
+      # Request workgroup5 from AoD, in the background
+      Delayed::Job.enqueue PluginServiceMaster::LoadWorkgroups.new(
+        current_user.id,
+        session[:settings],
+        5)
+
+      render json: true
+
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def load_scheds
     log "\n\nmethod", 'load_scheds', 0
-    begin
+    
 
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def save_scheds
     log "\n\nmethod", 'save_scheds', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def filter
     log "\n\nmethod", 'filter', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def next_week
     log "\n\nmethod", 'next_week', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def prev_week
     log "\n\nmethod", 'prev_week', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def load_customer
     log "\n\nmethod", 'load_customer', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   def save_customer
     log "\n\nmethod", 'save_customer', 0
-    begin
+    
       # Do stuff
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
+  rescue Exception => exc
+    log 'exception', exc.message
+    log 'exception backtrace', exc.backtrace
   end
 
   private

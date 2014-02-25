@@ -7,11 +7,59 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
 
-  .settings-btn {
-    @extend .button;
-    margin-top: -5px;
-    float: right; 
-    width: 100px; }
+  #controls-left {
+    float: left;
+    line-height: 60px;
+
+    a {
+      margin-right: -3px;
+      padding: 10px 14px;
+      font-family: arial;
+      font-size: 13px;
+      color: #333;
+      background: #f3f3f3;
+      @include filter-gradient(#fff, #c2c2c2, vertical);
+      @include background-image(linear-gradient(#fff, #c2c2c2));
+      @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+      transition: all .4s ease;
+
+      &:first-child {
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px; }
+
+      &:last-child {
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px; }
+
+      &:hover{
+        background: #ddd; } } }
+
+  #controls-right {
+    float: right;
+    line-height: 60px;
+
+    a {
+      margin-right: -3px;
+      padding: 10px 14px;
+      font-family: arial;
+      font-size: 13px;
+      color: #333;
+      background: #f3f3f3;
+      @include filter-gradient(#fff, #c2c2c2, vertical);
+      @include background-image(linear-gradient(#fff, #c2c2c2));
+      @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+      transition: all .4s ease;
+
+      &:first-child {
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px; }
+
+      &:last-child {
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px; }
+
+      &:hover{
+        background: #ddd; } } }
 
   table { 
     border-collapse: collapse;
