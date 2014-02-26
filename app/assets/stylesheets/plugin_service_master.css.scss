@@ -3,63 +3,39 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .plugin-service-master {
-
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
 
-  #controls-left {
-    float: left;
+  header {
     line-height: 60px;
+    width: 820px;
 
-    a {
-      margin-right: -3px;
-      padding: 10px 14px;
-      font-family: arial;
-      font-size: 13px;
-      color: #333;
-      background: #f3f3f3;
-      @include filter-gradient(#fff, #c2c2c2, vertical);
-      @include background-image(linear-gradient(#fff, #c2c2c2));
-      @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
-      transition: all .4s ease;
+    a { @extend .button-set } }
 
-      &:first-child {
-        border-top-left-radius: 2px;
-        border-bottom-left-radius: 2px; }
-
-      &:last-child {
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px; }
-
-      &:hover{
-        background: #ddd; } } }
-
-  #controls-right {
+  .links {
     float: right;
     line-height: 60px;
 
-    a {
-      margin-right: -3px;
-      padding: 10px 14px;
-      font-family: arial;
-      font-size: 13px;
-      color: #333;
-      background: #f3f3f3;
-      @include filter-gradient(#fff, #c2c2c2, vertical);
-      @include background-image(linear-gradient(#fff, #c2c2c2));
-      @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
-      transition: all .4s ease;
+    a { @extend .button-set } }
 
-      &:first-child {
-        border-top-left-radius: 2px;
-        border-bottom-left-radius: 2px; }
+  .daterange { 
+    display: inline-block; 
+    margin-left: 14px;
+    width: 100px; }
 
-      &:last-child {
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px; }
+  main {
+    clear: both; }
 
-      &:hover{
-        background: #ddd; } } }
+  #list-wrapper {
+    .column { float: left; margin-right: 20px; }
+    .list-box {
+      height: 600px;
+      width: 220px;
+      font-size: 12px; }
+    .view-btn { @extend .button; } 
+    #emp-wrapper, #cust-wrapper {
+      display: none; 
+      label, input { display: block; } } }
 
   table { 
     border-collapse: collapse;
@@ -111,5 +87,7 @@
   td.dayporterb { background-color: #E6FFCE; }
   td.projspec { background-color: #FFDEB9; }
   td.overlap { font-weight: bold; color: #FF9420; }
+
+
 
 }

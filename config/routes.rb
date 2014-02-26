@@ -1,11 +1,15 @@
 Tecportal::Application.routes.draw do
 
   # ServiceMaster plugin
+  get 'plugin_service_master/employee_list'
+  get 'plugin_service_master/customer_list'
+  get 'plugin_service_master/get_employee'
+  get 'plugin_service_master/get_customer'
   get 'plugin_service_master/index'
   get 'plugin_service_master/settings'
   post 'plugin_service_master/save_settings'
-  get 'plugin_service_master/load_employees'
-  get 'plugin_service_master/load_workgroups'
+  get 'plugin_service_master/import_employees'
+  get 'plugin_service_master/import_workgroups'
   get 'plugin_service_master/load_scheds'
   post 'plugin_service_master/save_scheds'
   get 'plugin_service_master/filter'

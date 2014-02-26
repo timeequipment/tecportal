@@ -1,6 +1,6 @@
 module PluginServiceMaster
 
-  class LoadWorkgroups
+  class ImportWorkgroups
     include ApplicationHelper
 
     attr_accessor :user_id, :settings, :wglevel
@@ -11,7 +11,7 @@ module PluginServiceMaster
     end
     
     def perform
-      log "\n\nasync method", :load_workgroups, 0
+      log "\n\nasync method", :import_workgroups, 0
       begin
 
         # Connect to AoD
@@ -26,8 +26,6 @@ module PluginServiceMaster
 
         wgcount = 0
         wgs.each do |wg|
-
-          log 'wg', wg
 
           # Insert or Update this workgroup
           my_wg = PsvmWorkgroup.where(

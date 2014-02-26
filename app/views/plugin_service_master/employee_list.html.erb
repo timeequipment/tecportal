@@ -1,0 +1,50 @@
+<div class="plugin-service-master">  
+
+  <header>
+    <h1>Employees</h1>
+    <%= render :partial => "links" %>
+  </header>
+
+  <main>
+    <div id="list-wrapper">
+      <%= select_tag "list[]", options_from_collection_for_select(@employees, "emp_id", "fullname"), multiple: true, id: 'employee-list', class: 'list-box column' %>
+      <a class="view-btn column" href="#" onclick="getEmployee()">View Employee</a>
+      <div id="emp-wrapper" class="shrink-wrap login column">
+        <h3 id="emp-name"></h3><br>
+        <form action="save_employee" method="post">
+          <div>
+            <%= label_tag :first_name %>
+            <%= text_field_tag :first_name %>
+          </div>
+          <div>
+            <%= label_tag :last_name %>
+            <%= text_field_tag :last_name %>
+          </div>
+          <input type="submit" value="Save Employee">
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function getEmployee() {
+    // Get selected emp id
+    var select = document.getElementById('employee-list');
+    var id = select.options[select.selectedIndex].value;
+    params = { emp_id : id };
+    
+    // Request this emp
+    $.get('get_employee', params, function(data) {
+      if (data) {
+        var firstname = data.psvm_emp.first_name;
+        var lastname  = data.psvm_emp.last_name;
+
+        $('#emp-name').html(firstname + ' ' + lastname);
+        $('#first_name').val(firstname);
+        $('#last_name') .val(lastname);
+      }
+      $('#emp-wrapper').show();
+    });
+  }
+</script>

@@ -1,0 +1,10 @@
+<div class="links">
+  <%= link_to "Home",      home_dashboard_path %>
+  <%= link_to "Schedules", plugin_service_master_index_path %>
+  <%= link_to "Employees", plugin_service_master_employee_list_path %>
+  <%= link_to "Customers", plugin_service_master_customer_list_path %>
+  <% if current_user.customer_admin? %>
+    <%= link_to "AoD",     plugin_service_master_settings_path %>
+  <% end %>
+</div>
+

@@ -1,0 +1,44 @@
+<div class="plugin-service-master">  
+
+  <header>
+    <h1>Customers</h1>
+    <%= render :partial => "links" %>
+  </header>
+  
+  <main>
+    <div id="list-wrapper">
+      <%= select_tag "list[]", options_from_collection_for_select(@customers, "wg_num", "wg_name"), multiple: true, id: 'customer-list', class: 'list-box column' %>
+      <a class="view-btn column" href="#" onclick="getCustomer()">View Customer</a>
+      <div id="cust-wrapper" class="shrink-wrap login column">
+        <h3 id="cust-name"></h3><br>
+        <form action="save_customer" method="post">
+          <div>
+            <%= label_tag :wg_name, 'Name' %>
+            <%= text_field_tag :wg_name %>
+          </div>
+          <input type="submit" value="Save Customer">
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function getCustomer() {
+    // Get selected customer id
+    var select = document.getElementById('customer-list');
+    var id = select.options[select.selectedIndex].value;
+    params = { wg_num : id };
+    
+    // Request this cust
+    $.get('get_customer', params, function(data) {
+      if (data) {
+        var wgname = data.psvm_workgroup.wg_name;
+
+        $('#cust-name').html(wgname);
+        $('#wg_name').val(wgname);
+      }
+      $('#cust-wrapper').show();
+    });
+  }
+</script>

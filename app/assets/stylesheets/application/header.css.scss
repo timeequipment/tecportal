@@ -1,4 +1,4 @@
-.logo {
+#logo {
   position: absolute;
   top: 12px;
   left: 20px;
@@ -6,7 +6,7 @@
   height: 85px;
   width: 170px; }
 
-.header {
+#header {
   position: absolute;
   top: 0;
   left: 240px;
@@ -41,28 +41,9 @@
       font-family: arial;
       color: #ccc; }
 
-    a {
-      margin-right: -3px;
-      padding: 10px 14px;
-      font-family: arial;
-      font-size: 13px;
-      color: #333;
-      background: #f3f3f3;
-      @include filter-gradient(#fff, #c2c2c2, vertical);
-      @include background-image(linear-gradient(#fff, #c2c2c2));
-      @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
-      transition: all .4s ease;
+    a { @extend .button-set } 
+  }
 
-      &:first-child {
-        border-top-left-radius: 2px;
-        border-bottom-left-radius: 2px; }
-
-      &:last-child {
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px; }
-
-      &:hover{
-        background: #ddd; } } }
         // @include background-image(linear-gradient(top, rgba(#ddd, 1), rgba(#eee, 1)));
         // @include filter-gradient(rgb(78, 78, 78), rgb(30, 30, 30), vertical);
 }

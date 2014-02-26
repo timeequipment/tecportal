@@ -1,0 +1,13 @@
+<style>
+  /* Disable left-nav so this plugin takes up more horiz space */
+  #left-nav { display: none }
+  #content { 
+    margin-left: 0; 
+    width: auto; }
+  #plugin-content { 
+    width: auto; }
+</style>
+
+<%= yield %>
+
+<%= parent_layout 'plugin' %>

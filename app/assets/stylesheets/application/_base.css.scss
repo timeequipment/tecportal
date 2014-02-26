@@ -33,21 +33,27 @@ i {
   font-size: 12px;
   color: #666; }
 
-#flash_alert {
-  margin-bottom: 30px;
-  padding: 20px;
+.flash {
+  position: absolute;
+  left: 240px;
+  top: 72px;
+  width: 600px;
+  padding: 8px;
   text-align: center;
   background: #ffc4ba;
   border: 1px solid #ff817b;
-  @include border-radius(2px); }
+  @include border-radius(2px); 
+  z-index: 90; }
+
+#flash_alert {
+  @extend .flash;
+  background: #ffc4ba;
+  border: 1px solid #ff817b; }
 
 #flash_notice {
-  margin-bottom: 30px;
-  padding: 20px;
-  text-align: center;
+  @extend .flash;
   background: #fff1ba;
-  border: 1px solid #e9b36d;
-  @include border-radius(2px); }
+  border: 1px solid #e9b36d; }
 
 #flash_timedout {
   display: none; } // eliminates 'true' msg under flash on session expire
@@ -66,8 +72,9 @@ i {
   display: block;
   margin: 0 auto; }
 
-.content {
-  margin: 119px 0 50px 0; 
+#content {
+  margin: 119px 0 50px 240px; 
+  padding:  0 20px; 
   width: 600px; }
 
 .wrapper {
@@ -99,7 +106,30 @@ i {
     &:hover, &:focus, &:active {
     background: #f3f3f3; } }
 
-.plugin-content {
+.button-set {
+  margin-right: -3px;
+  padding: 10px 14px;
+  font-family: arial;
+  font-size: 13px;
+  color: #333;
+  background: #f3f3f3;
+  @include filter-gradient(#fff, #c2c2c2, vertical);
+  @include background-image(linear-gradient(#fff, #c2c2c2));
+  @include box-shadow(0 0 0 1px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+  transition: all .4s ease;
+
+  &:first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px; }
+
+  &:last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px; }
+
+  &:hover{
+    background: #ddd; } }
+
+#plugin-content {
   width: 580px; }
 
 #progress-bar {
@@ -133,3 +163,6 @@ i {
   display: inline-block;
   height: 24px;
 }
+
+.left  { float: left }
+.right { float: right }

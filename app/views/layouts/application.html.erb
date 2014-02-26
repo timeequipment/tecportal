@@ -9,12 +9,12 @@
 	<body>
 
 		<!-- Logo -->
-		<div class="logo">
+		<div id="logo">
 			<%= link_to(image_tag("TE_Logo_wTag_trans2.png", size: "170x85", alt: "Time Equipment Company"), root_path) %>
 		</div>
 
 		<!-- Header -->
-		<div class="header">
+		<div id="header">
 			<h2><%= link_to "Portal", root_path, id: "title" %></h2>
 			<nav>
 				<% if user_signed_in? %>
@@ -33,20 +33,20 @@
 			</nav>
 		</div>
 
+		<!-- Flash -->
+		<% flash.each do |name, msg| %>
+			<%= content_tag :div, msg, :id => "flash_#{name}" %>
+		<% end %>
+
 		<!-- Left Nav -->
-		<div class="left-nav">
+		<div id="left-nav">
 			<% if user_signed_in? %>
 				<%= render "shared/pluginlist" %>
 			<% end %>
 		</div>
 
 		<!-- Content -->
-		<div class="content wrapper">
-			<div class="flash">
-				<% flash.each do |name, msg| %>
-					<%= content_tag :div, msg, :id => "flash_#{name}" %>
-				<% end %>
-			</div>
+		<div id="content">
 			<%= yield %>
 		</div>
 

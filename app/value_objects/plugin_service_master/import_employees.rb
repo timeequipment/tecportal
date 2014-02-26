@@ -1,6 +1,6 @@
 module PluginServiceMaster
 
-  class LoadEmployees
+  class ImportEmployees
     include ApplicationHelper
 
     attr_accessor :user_id, :settings
@@ -10,7 +10,7 @@ module PluginServiceMaster
     end
     
     def perform
-      log "\n\nasync method", :load_emps, 0
+      log "\n\nasync method", :import_employees, 0
       begin
 
         # Connect to AoD

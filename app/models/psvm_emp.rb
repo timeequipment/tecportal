@@ -31,4 +31,8 @@ class PsvmEmp < ActiveRecord::Base
     :custom4, 
     :custom5, 
     :custom6
+
+  def fullname 
+    "#{ last_name }, #{ first_name }"
+  end
 end
