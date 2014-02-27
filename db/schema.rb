@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140223155021) do
+ActiveRecord::Schema.define(:version => 20140226023952) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
@@ -79,6 +79,22 @@ ActiveRecord::Schema.define(:version => 20140223155021) do
   end
 
   add_index "plugins", ["id"], :name => "index_plugins_on_id", :unique => true
+
+  create_table "psvm_cust_patterns", :force => true do |t|
+    t.integer  "wg_level"
+    t.integer  "wg_num"
+    t.string   "day1"
+    t.string   "day2"
+    t.string   "day3"
+    t.string   "day4"
+    t.string   "day5"
+    t.string   "day6"
+    t.string   "day7"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "psvm_cust_patterns", ["wg_level", "wg_num"], :name => "psvm_cust_patterns_wg_level_wg_num"
 
   create_table "psvm_emps", :force => true do |t|
     t.integer  "filekey"

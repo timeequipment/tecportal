@@ -2,7 +2,7 @@
 
   <header>
     <h1>Employees</h1>
-    <%= render :partial => "links" %>
+    <%= render partial: 'links' %>
   </header>
 
   <main>
@@ -27,24 +27,4 @@
   </main>
 </div>
 
-<script>
-  function getEmployee() {
-    // Get selected emp id
-    var select = document.getElementById('employee-list');
-    var id = select.options[select.selectedIndex].value;
-    params = { emp_id : id };
-    
-    // Request this emp
-    $.get('get_employee', params, function(data) {
-      if (data) {
-        var firstname = data.psvm_emp.first_name;
-        var lastname  = data.psvm_emp.last_name;
-
-        $('#emp-name').html(firstname + ' ' + lastname);
-        $('#first_name').val(firstname);
-        $('#last_name') .val(lastname);
-      }
-      $('#emp-wrapper').show();
-    });
-  }
-</script>
+<%= render partial: 'scripts' %>

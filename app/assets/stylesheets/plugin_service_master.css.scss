@@ -34,15 +34,12 @@
       font-size: 12px; }
     .view-btn { @extend .button; } 
     #emp-wrapper, #cust-wrapper {
-      display: none; 
+      // display: none; 
       label, input { display: block; } } }
 
   table { 
     border-collapse: collapse;
-  }
-
-  tbody tr:nth-child(odd) {
-    background: #eee;
+    cursor: default;
   }
 
   tr.newemp td { border-top: 2px solid black; }
@@ -50,19 +47,19 @@
 
   th, td {
     border: 1px solid black;
-    padding: 3px;
+    padding: 6px 4px 4px 4px;
     margin: 0px;
     text-align: center;
     vertical-align: top;
   }
 
   th {
-    background-color: #084B8A;
+    background: #084B8A;
     color: white;
     font-weight: normal;
   }
   th.outside {
-    background-color: inherit;
+    background: inherit;
     border: inherit;
     color: inherit;
     vertical-align: middle;
@@ -71,22 +68,48 @@
     border: inherit;
     vertical-align: middle;
   }
-  th.name { text-align: left; }
-  th.cust { text-align: left; }
+  th.name { text-align: left; width: 132px; }
+  th.cust { text-align: left; width: 132px; }
 
   td.addsched {}
   td.name { text-align: left; }
-  td.cust { text-align: left; }
-  td.sched { width: 100px; }
-  td.custtotal {}
-  td.emptotal { vertical-align: middle; }
+  td.cust { text-align: left; vertical-align: middle; }
+  td.sched { 
+    width: 70px; 
+    height: 28px; 
+    vertical-align: middle;
+    cursor: pointer;
+    &:hover {
+      background: #e0e0e0; } }
+  td.custtotal { width: 60px; vertical-align: middle; }
+  td.emptotal { width: 60px; vertical-align: middle; }
 
   td.overlimit { color: red; }
   td.transfer { font-style: italic; }
-  td.dayportera { background-color: #BAD2FF; }
-  td.dayporterb { background-color: #E6FFCE; }
-  td.projspec { background-color: #FFDEB9; }
+  td.dayportera { background: #BAD2FF; 
+    &:hover     { background: #94B5F3; } }
+  td.dayporterb { background: #D7FFB2; 
+    &:hover     { background: #B6EC84; } }
+  td.projspec { background: #FFDEB9; 
+    &:hover     { background: #FFC789; } }
   td.overlap { font-weight: bold; color: #FF9420; }
+
+  #sched-popup {
+    @extend .login;
+    position: absolute;
+    display: none;
+    width: 200px;
+    height: 200px;
+    z-index: 10;
+
+    @include box-shadow(0 0 12px 2px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
+
+    input { 
+      width: 160px; }
+
+    #close-btn { 
+      margin-right: 14px; }
+  }
 
 
 

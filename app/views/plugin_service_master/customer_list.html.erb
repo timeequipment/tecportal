@@ -2,7 +2,7 @@
 
   <header>
     <h1>Customers</h1>
-    <%= render :partial => "links" %>
+    <%= render partial: 'links' %>
   </header>
   
   <main>
@@ -11,34 +11,45 @@
       <a class="view-btn column" href="#" onclick="getCustomer()">View Customer</a>
       <div id="cust-wrapper" class="shrink-wrap login column">
         <h3 id="cust-name"></h3><br>
-        <form action="save_customer" method="post">
+        <form class="popup-owner-js" action="save_customer" method="post">
           <div>
             <%= label_tag :wg_name, 'Name' %>
             <%= text_field_tag :wg_name %>
           </div>
+          <br>
+          <h4>Customer Pattern</h4>
+          <table>
+            <thead>
+              <tr>
+                <th class="sched">Monday</th>
+                <th class="sched">Tuesday</th>
+                <th class="sched">Wednesday</th>
+                <th class="sched">Thursday</th>
+                <th class="sched">Friday</th>
+                <th class="sched">Saturday</th>
+                <th class="custtotal">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="newemp">
+                <td class="sched">&nbsp;</td>
+                <td class="sched">&nbsp;</td>
+                <td class="sched">&nbsp;</td>
+                <td class="sched">&nbsp;</td>
+                <td class="sched">&nbsp;</td>
+                <td class="sched">&nbsp;</td>
+                <td class="custtotal">&nbsp;</td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
           <input type="submit" value="Save Customer">
+
+          <%= render :partial => "sched_popup" %>
         </form>
       </div>
     </div>
   </main>
 </div>
 
-<script>
-  function getCustomer() {
-    // Get selected customer id
-    var select = document.getElementById('customer-list');
-    var id = select.options[select.selectedIndex].value;
-    params = { wg_num : id };
-    
-    // Request this cust
-    $.get('get_customer', params, function(data) {
-      if (data) {
-        var wgname = data.psvm_workgroup.wg_name;
-
-        $('#cust-name').html(wgname);
-        $('#wg_name').val(wgname);
-      }
-      $('#cust-wrapper').show();
-    });
-  }
-</script>
+<%= render :partial => "scripts" %>

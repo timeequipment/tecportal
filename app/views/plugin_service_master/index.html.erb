@@ -7,15 +7,14 @@
       <%= @enddate  .strftime '%b %d' %>
     </div>
     <%= link_to ">", plugin_service_master_next_week_path %>
-    <%= render :partial => "links" %>
+    <%= render partial: 'links' %>
   </header>
 
   <main>
     <%= render "shared/spinner" %>
-    <table>
+    <table class="popup-owner-js">
       <thead>
         <tr> <!-- Table header -->
-          <th class="outside"></th>
           <th class="name">Name</th>
           <th class="cust">Customer</th>
           <th class="sched">Monday</br>01/06</th>
@@ -33,7 +32,6 @@
 
         <!-- New employee -->
         <tr class="newemp">
-          <td class="addsched outside" rowspan=2></td>
           <td class="name" rowspan=2>Fillup Adams</td>
           <td class="cust">FTB Germantown</td>
           <td class="sched">5 - 7:30</td>
@@ -47,7 +45,7 @@
           <td class="overlimit outside" rowspan=2></td>
         </tr>
         <tr>
-          <td class="name">FTB Kirby Woods</td>
+          <td class="cust">FTB Kirby Woods</td>
           <td class="sched">7:30 - 8:45</td>
           <td class="sched"></td>
           <td class="sched">7:30 - 8:45</td>
@@ -59,7 +57,6 @@
 
         <!-- New employee -->
         <tr class="newemp">
-          <td class="addsched outside" rowspan=4></td>
           <td class="name"rowspan=4>Joseph Adolph</td>
           <td class="cust">TNB Arlington</td>
           <td class="sched">4 - 5:15</td>
@@ -103,7 +100,7 @@
           <td class="custtotal">6.25</td>
         </tr>
         <tr>
-          <td class="addsched outside" rowspan=3></td>
+        <!-- New employee -->
           <td class="name" rowspan=3>David Alexander</td>
           <td class="cust">Bank TN W. Poplar</td>
           <td class="sched">4 - 6:30</td>
@@ -117,7 +114,7 @@
           <td class="overlimit outside" rowspan=3></td>
         </tr>
         <tr>
-          <td class="name">FTB Collierville</td>
+          <td class="cust">FTB Collierville</td>
           <td class="sched">6:30 - 8</td>
           <td class="sched"></td>
           <td class="sched">6:30 - 8</td>
@@ -127,7 +124,7 @@
           <td class="custtotal">6.00</td>
         </tr>
         <tr>
-          <td class="name">TNB Lakeland</td>
+          <td class="cust">TNB Lakeland</td>
           <td class="sched">7 - 7:45</td>
           <td class="sched">7 - 7:45</td>
           <td class="sched">7 - 7:45</td>
@@ -139,7 +136,6 @@
           
         <!-- New employee -->
         <tr class="newemp">
-          <td class="addsched outside" rowspan=4></td>
           <td class="name"rowspan=4>William Alexander</td>
           <td class="cust">FTB Farmington</td>
           <td class="sched">4 - 5</td>
@@ -183,15 +179,15 @@
           <td class="custtotal">6.25</td>
         </tr>
           
-        <tr class="newemp"> <!-- New employee -->
-          <td class="addsched outside" rowspan=6></td>
+        <!-- New employee -->
+        <tr class="newemp"> 
           <td class="name" rowspan=6>Andrew Antonyk</td>
           <td class="cust">FTB Bartlett</td>
           <td class="sched dayportera">4 - 5:30</td>
           <td class="sched"></td>
           <td class="sched dayportera">4 - 5:30</td>
           <td class="sched"></td>
-          <td class="sched dayportera">4 - 5:30</td>
+          <td class="sched dayporterb">4 - 5:30</td>
           <td class="sched"></td>
           <td class="custtotal">4.50</td>
           <td class="emptotal" rowspan=6>25.25</td>
@@ -252,7 +248,6 @@
           <td class="outside"></td>
           <td class="outside"></td>
           <td class="outside"></td>
-          <td class="outside"></td>
           <td class="outside overlap">Overlapping</br>Schedules!</td>
           <td class="outside"></td>
           <td class="outside overlap">Overlapping</br>Schedules!</td>
@@ -264,7 +259,6 @@
         </tr>
           
         <tr> <!-- Legend -->
-          <td class="outside name" rowspan=8></td>
           <td class="outside name"><h2>Legend</h2></td>
           <td class="outside name" rowspan=8></td>
           <td class="outside name" rowspan=8></td>
@@ -285,13 +279,15 @@
         <tr><td class="overlap name">Overlapping Schedules</td></tr>
         <tr><td class="overlimit name">Over 29 hrs/wk</td></tr>
       </tbody>
+      <%= render partial: "sched_popup" %>
     </table>
-
     <br>
     <div id="progress-status"></div>
     <div id="progress-bar"><div id="progress-label"></div></div>
   </main>
 </div>  
+
+<%= render partial: "scripts" %>
 
 <!-- Scripts -->
 <script>
@@ -312,7 +308,7 @@
 
   // Get the latest employees and workgroups from AoD
   // in the background
-  $.get('import_employees');
-  $.get('import_workgroups');
+  // $.get('import_employees');
+  // $.get('import_workgroups');
 
 </script>

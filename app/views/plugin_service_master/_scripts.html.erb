@@ -1,0 +1,139 @@
+<script>
+
+  var day_editing = 0;
+  var employee = {};
+  var customer = {};
+  var cust_pattern = {};
+
+  var popup = $('#sched-popup');
+  popup.draggable();
+
+  $('.sched').click(function(e){
+    var offset = $('.popup-owner-js').offset();
+    popup.css("left", e.pageX - offset.left + 'px');
+    popup.css("top",  e.pageY - offset.top + 'px');
+    popup.show();
+  });
+
+  $('#close-btn').click(function(){
+    popup.hide();
+  });
+
+  $('#save-btn').click(function(){
+    var startCheck = checkTime($('#start_time'));
+    var endCheck   = checkTime($('#end_time'));
+    $('#start_time').css("background","#fff");
+    $('#end_time').css("background","#fff");
+    if (startCheck && endCheck) {
+      
+      var sched_edited = { 
+        'start_time' : $('#start_time').val(), 
+        'end_time' : $('#end_time').val(), 
+      };
+
+      $('#start_time').val('');
+      $('#end_time').val('');
+      popup.hide(); 
+    } else {
+      if (!startCheck) {
+        $('#start_time').css("background","#ffc4ba");
+        $('#start_time').focus();
+      }
+      if (!endCheck) {
+        $('#end_time').css("background","#ffc4ba");
+        $('#end_time').focus();
+      }
+    }
+  });
+
+  function checkTime(field) {
+    var valid = true;
+
+    // regular expression to match required time format
+    re = /(\d{1,2}):(\d{2})(:00)?([ap]m)?/;
+    var val = field.val().toString();
+    if(val != '') {
+      regs = val.match(re);
+      if(regs) {
+        if(regs[4]) {
+          // 12-hour time format with am/pm
+          if(regs[1] < 1 || regs[1] > 12) {
+            valid = false;
+          }
+        } else {
+          // 24-hour time format
+          if(regs[1] > 23) {
+            valid = false;
+          }
+        }
+        if(regs[2] > 59) {
+          valid = false;
+        }
+      } else {
+        valid = false;
+      }
+    }
+    else {
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  function getCustomer() {
+    // Get selected customer id
+    var select = document.getElementById('customer-list');
+    var id = select.options[select.selectedIndex].value;
+    var params = { wg_num : id };
+    
+    // Request this customer
+    $.get('get_customer', params, function(data) {
+      if (data) {
+        if (data[0]) customer = data[0].psvm_workgroup;
+        if (data[1]) cust_pattern = data[1].psvm_cust_pattern;
+      }
+      $('#cust-wrapper').show();
+    });
+  }
+
+  function viewCustomer() {
+    if (customer) {
+      $('#cust-name').html(customer.wg_name);
+      $('#wg_name').val(customer.wg_name);  
+    }
+    if (cust_pattern) {
+      var day1_str = cust_pattern.day1;
+      var day2_str = cust_pattern.day2;
+      var day3_str = cust_pattern.day3;
+      var day4_str = cust_pattern.day4;
+      var day5_str = cust_pattern.day5;
+      var day6_str = cust_pattern.day6;
+      var day7_str = cust_pattern.day7;
+      if (day1_str && day1_str.length > 0) {
+        var day1 = JSON.parse(day1_str)
+        $('#day1').html(day1.start_time + ' - ' + day1.end_time);
+      }
+    }
+  }
+
+  function getEmployee() {
+    // Get selected emp id
+    var select = document.getElementById('employee-list');
+    var id = select.options[select.selectedIndex].value;
+    params = { emp_id : id };
+    
+    // Request this emp
+    $.get('get_employee', params, function(data) {
+      if (data) {
+        var firstname = data.psvm_emp.first_name;
+        var lastname  = data.psvm_emp.last_name;
+
+        $('#emp-name').html(firstname + ' ' + lastname);
+        $('#first_name').val(firstname);
+        $('#last_name') .val(lastname);
+      }
+      $('#emp-wrapper').show();
+    });
+  }
+
+</script>
