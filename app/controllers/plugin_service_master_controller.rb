@@ -17,8 +17,12 @@ class PluginServiceMasterController < ApplicationController
       # Get schedules
       @startdate = session[:settings].weekstart
       @startdate ||= Date.today.beginning_of_week
+      log 'startdate', @startdate
       @enddate = @startdate + 6.days
       @scheds = PsvmSched.where(sched_date: @startdate..@enddate)
+
+      # Get activities
+      @activities = PsvmWorkgroup.where('wg_level = 5').select('wg_num, wg_name').order('wg_name')
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -40,7 +44,8 @@ class PluginServiceMasterController < ApplicationController
     begin
       log "\n\nmethod", 'get_employee', 0
       @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
-      render json: @employee.to_json
+      @workgroups = @employee.psvm_workgroups.order('wg_name')
+      render json: [ @employee, @workgroups ].to_json
       
     rescue Exception => exc
       log 'exception', exc.message
@@ -53,7 +58,53 @@ class PluginServiceMasterController < ApplicationController
       log "\n\nmethod", 'get_customer', 0
       @customer      = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
       @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
-      render json: [ @customer, @custpattern ].to_json
+      render json: [ @customer, @custpattern, @activities ].to_json
+    
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+    end
+  end
+
+  def save_customer
+    begin
+      log "\n\nmethod", 'save_customer', 0
+      @customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
+      @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first_or_initialize
+      @customer.wg_name = params[:wg_name]
+      @custpattern.day1 = params[:day_field1]
+      @custpattern.day2 = params[:day_field2]
+      @custpattern.day3 = params[:day_field3]
+      @custpattern.day4 = params[:day_field4]
+      @custpattern.day5 = params[:day_field5]
+      @custpattern.day6 = params[:day_field6]
+      @custpattern.day7 = params[:day_field7]
+      log 'custpattern', @custpattern
+      log 'customer', @customer
+      @custpattern.save
+      @customer.save
+      render json: true
+    
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+    end
+  end
+
+  def save_employee
+    begin
+      log "\n\nmethod", 'save_employee', 0
+      log 'params:emp_id', params[:emp_id]
+      log 'params:first_name', params[:first_name]
+      log 'params:last_name', params[:last_name]
+      log 'params:psvm_workgroups', params[:psvm_workgroup_ids]
+      @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
+      @employee.first_name = params[:first_name]
+      @employee.last_name = params[:last_name]
+      @employee.psvm_workgroups.clear
+      @employee.psvm_workgroup_ids = params[:psvm_workgroup_ids].to_a
+      @employee.save
+      render json: true
     
     rescue Exception => exc
       log 'exception', exc.message
@@ -64,7 +115,7 @@ class PluginServiceMasterController < ApplicationController
   def employee_list
     begin
       log "\n\nmethod", 'employee_list', 0
-      @employees = PsvmEmp.all
+      @employees = PsvmEmp.order('last_name, first_name')
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -75,7 +126,8 @@ class PluginServiceMasterController < ApplicationController
   def customer_list
     begin
       log "\n\nmethod", 'customer_list', 0
-      @customers = PsvmWorkgroup.where(wg_level: 3)
+      @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
+      @activities = PsvmWorkgroup.where('wg_level = 5').select('wg_num, wg_name').order('wg_name')
       if params[:wg_num]
         @customer    = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
         @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
@@ -181,29 +233,4 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
-  def load_customer
-    begin
-      log "\n\nmethod", 'load_customer', 0
-    
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
-  end
-
-  def save_customer
-    begin
-      log "\n\nmethod", 'save_customer', 0
-    
-    rescue Exception => exc
-      log 'exception', exc.message
-      log 'exception backtrace', exc.backtrace
-    end
-  end
-
-  private
-
-  def get_scheds
-
-  end
 end

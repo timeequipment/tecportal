@@ -1,39 +1,303 @@
 <script>
 
+  //--------------- Variables ---------------
+  
   var day_editing = 0;
-  var employee = {};
   var customer = {};
+  var employee = {};
+  var workgroups = {};
   var cust_pattern = {};
+  
+  // Popup is draggable
+  var popup = $('#sched-popup').draggable();
 
-  var popup = $('#sched-popup');
-  popup.draggable();
+  //--------------- Functions ---------------
 
-  $('.sched').click(function(e){
+  function getCustomer() {
+    customer = {};
+    cust_pattern = {};
+    
+    // Get selected customer id
+    var params = { wg_num : $('#customer-list').val() };
+    
+    // Ajax - get this customer
+    $.get('get_customer', params, function(data) {
+      if (data) {
+        if (data[0]) customer     = data[0].psvm_workgroup;
+        if (data[1]) cust_pattern = data[1].psvm_cust_pattern;
+        deserializeCustPattern();
+        viewCustomer();
+      }
+      $('#cust-wrapper').show();
+    });
+  }
+
+  function getEmployee() {
+    employee = {};
+    workgroups = {};
+
+    // Get selected emp id
+    var select = document.getElementById('employee-list');
+    var id = select.options[select.selectedIndex].value;
+    var params = { emp_id : id };
+    
+    // Request this emp
+    $.get('get_employee', params, function(data) {
+      if (data) {
+        if (data[0]) employee   = data[0].psvm_emp;
+        if (data[1]) workgroups = data[1];
+        viewEmployee();
+      }
+      $('#emp-wrapper').show();
+    });
+  }
+
+  function viewCustomer() {
+    // If we recieved a customer object from the server
+    if (customer) {
+      $('#cust-name').html(customer.wg_name);
+      $('#wg_name').val(customer.wg_name);  
+      $('#wg_num').val(customer.wg_num);  
+    }
+  
+    // If this customer has a pattern defined
+    if (cust_pattern) {
+      // Load the days
+      var day1 = cust_pattern.day1;
+      var day2 = cust_pattern.day2;
+      var day3 = cust_pattern.day3;
+      var day4 = cust_pattern.day4;
+      var day5 = cust_pattern.day5;
+      var day6 = cust_pattern.day6;
+      var day7 = cust_pattern.day7;
+      // Clear day boxes
+      $('#day1').html('');
+      $('#day2').html('');
+      $('#day3').html('');
+      $('#day4').html('');
+      $('#day5').html('');
+      $('#day6').html('');
+      $('#day7').html('');
+      var total = 0.0;
+      // View info for days that have schedules defined
+      if (day1) {
+        $('#day1').html(
+          day1.start_time.format("HH:mm") + ' - ' + 
+          day1.end_time.format("HH:mm"));
+        total += day1.hours;
+      }
+      if (day2) {
+        $('#day2').html(
+          day2.start_time.format("HH:mm") + ' - ' + 
+          day2.end_time.format("HH:mm"));
+        total += day2.hours;
+      }
+      if (day3) {
+        $('#day3').html(
+          day3.start_time.format("HH:mm") + ' - ' + 
+          day3.end_time.format("HH:mm"));
+        total += day3.hours;
+      }
+      if (day4) {
+        $('#day4').html(
+          day4.start_time.format("HH:mm") + ' - ' + 
+          day4.end_time.format("HH:mm"));
+        total += day4.hours;
+      }
+      if (day5) {
+        $('#day5').html(
+          day5.start_time.format("HH:mm") + ' - ' + 
+          day5.end_time.format("HH:mm"));
+        total += day5.hours;
+      }
+      if (day6) {
+        $('#day6').html(
+          day6.start_time.format("HH:mm") + ' - ' + 
+          day6.end_time.format("HH:mm"));
+        total += day6.hours;
+      }
+      if (day7) {
+        $('#day7').html(
+          day7.start_time.format("HH:mm") + ' - ' + 
+          day7.end_time.format("HH:mm"));
+        total += day7.hours;
+      }
+      $('#total').html(total.toFixed(2));
+    }
+  }
+
+  function viewEmployee() {
+    // Reset all checkboxes, etc.
+    $('input[type="checkbox"]').prop('checked', false);
+    $('#customers-assigned').html('<label>(None)</label>');
+
+    // If we received an employee object from the server
+    if (employee) {
+      var empid     = employee.emp_id;
+      var firstname = employee.first_name;
+      var lastname  = employee.last_name;
+
+      // View employee's name and id #
+      $('#emp-name').html(firstname + ' ' + lastname);
+      $('#emp_id').val(empid);
+      $('#first_name').val(firstname);
+      $('#last_name') .val(lastname);
+    }
+
+    // If this employee is assigned to customers
+    if (workgroups && workgroups.length > 0) {
+      // Check all the customers assigned to this employee and list their names
+      var container = $('<div />');
+      for (var i = 0; i < workgroups.length; i++) {
+        $('#psvm_workgroup_' + workgroups[i].psvm_workgroup.id).prop('checked', true);
+        $('<label />', {
+          html: workgroups[i].psvm_workgroup.wg_name
+        }).appendTo(container);
+      }
+      $('#customers-assigned').html(container);
+    }
+  }
+
+  function deserializeCustPattern() {
+    var day1_str = cust_pattern.day1 || "";
+    var day2_str = cust_pattern.day2 || "";
+    var day3_str = cust_pattern.day3 || "";
+    var day4_str = cust_pattern.day4 || "";
+    var day5_str = cust_pattern.day5 || "";
+    var day6_str = cust_pattern.day6 || "";
+    var day7_str = cust_pattern.day7 || "";
+    if (day1_str.length > 0) {
+      cust_pattern.day1 = JSON.parse(day1_str);
+      cust_pattern.day1.start_time = moment(cust_pattern.day1.start_time)
+      cust_pattern.day1.end_time = moment(cust_pattern.day1.end_time)
+    } 
+    if (day2_str.length > 0) {
+      cust_pattern.day2 = JSON.parse(day2_str);
+      cust_pattern.day2.start_time = moment(cust_pattern.day2.start_time)
+      cust_pattern.day2.end_time = moment(cust_pattern.day2.end_time)
+    } 
+    if (day3_str.length > 0) {
+      cust_pattern.day3 = JSON.parse(day3_str);
+      cust_pattern.day3.start_time = moment(cust_pattern.day3.start_time)
+      cust_pattern.day3.end_time = moment(cust_pattern.day3.end_time)
+    } 
+    if (day4_str.length > 0) {
+      cust_pattern.day4 = JSON.parse(day4_str);
+      cust_pattern.day4.start_time = moment(cust_pattern.day4.start_time)
+      cust_pattern.day4.end_time = moment(cust_pattern.day4.end_time)
+    } 
+    if (day5_str.length > 0) {
+      cust_pattern.day5 = JSON.parse(day5_str);
+      cust_pattern.day5.start_time = moment(cust_pattern.day5.start_time)
+      cust_pattern.day5.end_time = moment(cust_pattern.day5.end_time)
+    } 
+    if (day6_str.length > 0) {
+      cust_pattern.day6 = JSON.parse(day6_str);
+      cust_pattern.day6.start_time = moment(cust_pattern.day6.start_time)
+      cust_pattern.day6.end_time = moment(cust_pattern.day6.end_time)
+    } 
+    if (day7_str.length > 0) {
+      cust_pattern.day7 = JSON.parse(day7_str);
+      cust_pattern.day7.start_time = moment(cust_pattern.day7.start_time)
+      cust_pattern.day7.end_time = moment(cust_pattern.day7.end_time)
+    } 
+  }
+
+  function editSchedule(td, e) {
+    resetSchedForm();
+    // Find the day it references
+    day_editing = td.attr('daynum');
+    // Load the values into the schedule popup
+    if (day_editing === '1' && cust_pattern.day1) {
+      $('#start_time').val(cust_pattern.day1.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day1.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day1.activity);
+    }
+    if (day_editing === '2' && cust_pattern.day2) {
+      $('#start_time').val(cust_pattern.day2.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day2.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day2.activity);
+    }
+    if (day_editing === '3' && cust_pattern.day3) {
+      $('#start_time').val(cust_pattern.day3.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day3.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day3.activity);
+    }
+    if (day_editing === '4' && cust_pattern.day4) {
+      $('#start_time').val(cust_pattern.day4.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day4.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day4.activity);
+    }
+    if (day_editing === '5' && cust_pattern.day5) {
+      $('#start_time').val(cust_pattern.day5.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day5.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day5.activity);
+    }
+    if (day_editing === '6' && cust_pattern.day6) {
+      $('#start_time').val(cust_pattern.day6.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day6.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day6.activity);
+    }
+    if (day_editing === '7' && cust_pattern.day7) {
+      $('#start_time').val(cust_pattern.day7.start_time.format('HH:mm')); 
+      $('#end_time')  .val(cust_pattern.day7.end_time.format('HH:mm')); 
+      $('#activity')  .val(cust_pattern.day7.activity);
+    }
+    // Show the schedule popup
     var offset = $('.popup-owner-js').offset();
     popup.css("left", e.pageX - offset.left + 'px');
     popup.css("top",  e.pageY - offset.top + 'px');
     popup.show();
-  });
+    $('#start_time').focus();
+  }
 
-  $('#close-btn').click(function(){
-    popup.hide();
-  });
+  function resetSchedForm() {
+    $('#start_time').css("background","#fff");
+    $('#end_time').css("background","#fff");
+    $('#start_time').val('');
+    $('#end_time').val('');
+    $('#activity').val('');
+  }
 
-  $('#save-btn').click(function(){
+  function cancelSchedule() {
+    resetSchedForm();
+    popup.hide(); 
+  }
+
+  function updateSchedule() {
+    // Validate times
     var startCheck = checkTime($('#start_time'));
     var endCheck   = checkTime($('#end_time'));
     $('#start_time').css("background","#fff");
     $('#end_time').css("background","#fff");
-    if (startCheck && endCheck) {
-      
-      var sched_edited = { 
-        'start_time' : $('#start_time').val(), 
-        'end_time' : $('#end_time').val(), 
-      };
 
-      $('#start_time').val('');
-      $('#end_time').val('');
+    // If they pass
+    if (startCheck && endCheck) {
+      // Make moment objects to contain sched info
+      var start_time = parseTime($('#start_time').val());
+      var end_time   = parseTime($('#end_time').val());
+      if (start_time.isAfter(end_time)) end_time.add('days', 1);
+      s = {
+        'start_time' : start_time, 
+        'end_time' : end_time,
+        'hours' : end_time.diff(start_time, 'hours', true), // end_time - start_time,
+        'activity' : $('#activity').val(), 
+      };
+      // Save in memory
+      if (day_editing === '1') cust_pattern.day1 = s;
+      if (day_editing === '2') cust_pattern.day2 = s;
+      if (day_editing === '3') cust_pattern.day3 = s;
+      if (day_editing === '4') cust_pattern.day4 = s;
+      if (day_editing === '5') cust_pattern.day5 = s;
+      if (day_editing === '6') cust_pattern.day6 = s;
+      if (day_editing === '7') cust_pattern.day7 = s;
+
+      // Clear inputs, exit popup, refresh customer
+      resetSchedForm();
       popup.hide(); 
+      viewCustomer();
+
+    // If they didn't pass make them red
     } else {
       if (!startCheck) {
         $('#start_time').css("background","#ffc4ba");
@@ -44,28 +308,33 @@
         $('#end_time').focus();
       }
     }
-  });
+  }
 
+  // Check if input has a valid time
   function checkTime(field) {
     var valid = true;
 
-    // regular expression to match required time format
+    // Regex for valid time format
     re = /(\d{1,2}):(\d{2})(:00)?([ap]m)?/;
     var val = field.val().toString();
+
+    // If there's input
     if(val != '') {
       regs = val.match(re);
+      // And it passes regex
       if(regs) {
         if(regs[4]) {
-          // 12-hour time format with am/pm
+          // Check:  12-hour time format with am/pm
           if(regs[1] < 1 || regs[1] > 12) {
             valid = false;
           }
         } else {
-          // 24-hour time format
+          // Check:  24-hour time format
           if(regs[1] > 23) {
             valid = false;
           }
         }
+        // Check:  Minutes
         if(regs[2] > 59) {
           valid = false;
         }
@@ -80,60 +349,129 @@
     return valid;
   }
 
-  function getCustomer() {
-    // Get selected customer id
-    var select = document.getElementById('customer-list');
-    var id = select.options[select.selectedIndex].value;
-    var params = { wg_num : id };
-    
-    // Request this customer
-    $.get('get_customer', params, function(data) {
-      if (data) {
-        if (data[0]) customer = data[0].psvm_workgroup;
-        if (data[1]) cust_pattern = data[1].psvm_cust_pattern;
-      }
-      $('#cust-wrapper').show();
-    });
-  }
+  function parseTime(timeStr, dt) {
+    // This function takes a string and outputs a moment obj.
+    // The moment obj can parse, but you have to specify the time format.
+    // Here, we can't be sure what format the user will input,
+    // so a regex is the next best choice
 
-  function viewCustomer() {
-    if (customer) {
-      $('#cust-name').html(customer.wg_name);
-      $('#wg_name').val(customer.wg_name);  
+    if (!dt) {
+      dt = moment("1-1-1900", "M-D-YYYY");
     }
-    if (cust_pattern) {
-      var day1_str = cust_pattern.day1;
-      var day2_str = cust_pattern.day2;
-      var day3_str = cust_pattern.day3;
-      var day4_str = cust_pattern.day4;
-      var day5_str = cust_pattern.day5;
-      var day6_str = cust_pattern.day6;
-      var day7_str = cust_pattern.day7;
-      if (day1_str && day1_str.length > 0) {
-        var day1 = JSON.parse(day1_str)
-        $('#day1').html(day1.start_time + ' - ' + day1.end_time);
-      }
+ 
+    var time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/i);
+    if (!time) {
+      return dt;
     }
+    var hours = parseInt(time[1], 10);
+    if (hours == 12 && !time[3]) {
+      hours = 0;
+    }
+    else {
+      hours += (hours < 12 && time[3]) ? 12 : 0;
+    }
+ 
+    dt.hours(hours);
+    dt.minutes(parseInt(time[2], 10) || 0);
+    dt.seconds(0);
+    return dt;
   }
 
-  function getEmployee() {
-    // Get selected emp id
-    var select = document.getElementById('employee-list');
-    var id = select.options[select.selectedIndex].value;
-    params = { emp_id : id };
-    
-    // Request this emp
-    $.get('get_employee', params, function(data) {
-      if (data) {
-        var firstname = data.psvm_emp.first_name;
-        var lastname  = data.psvm_emp.last_name;
+  //--------------- Events ---------------
 
-        $('#emp-name').html(firstname + ' ' + lastname);
-        $('#first_name').val(firstname);
-        $('#last_name') .val(lastname);
-      }
-      $('#emp-wrapper').show();
+  // View customer button gets customer
+  $('#view-cust-btn').click(function(){
+    getCustomer();
+  });
+
+  // View employee button gets employee
+  $('#view-emp-btn').click(function(){
+    getEmployee();
+  });
+
+  // Close button hides popup
+  $('#close-btn').click(function(){
+    cancelSchedule();
+  });
+
+  // OK button updates sched
+  $('#ok-btn').click(function(){
+    updateSchedule();
+  });
+
+  // When user clicks on a schedule
+  $('.sched').click(function(e){
+    editSchedule($(this), e);
+  });
+
+  // Attach a submit handler to the customer form
+  $("#cust-form").submit(function( event ) {
+   
+    // Stop form from submitting normally
+    event.preventDefault();
+   
+    // Get some values from elements on the page:
+    var url        = $(this).attr("action");
+    var wg_num     = $('#wg_num').val();
+    var wg_name    = $('#wg_name').val();
+    var day_field1 = null;
+    var day_field2 = null;
+    var day_field3 = null;
+    var day_field4 = null;
+    var day_field5 = null;
+    var day_field6 = null;
+    var day_field7 = null;
+
+    if (cust_pattern.day1) day_field1 = JSON.stringify(cust_pattern.day1);
+    if (cust_pattern.day2) day_field2 = JSON.stringify(cust_pattern.day2);
+    if (cust_pattern.day3) day_field3 = JSON.stringify(cust_pattern.day3);
+    if (cust_pattern.day4) day_field4 = JSON.stringify(cust_pattern.day4);
+    if (cust_pattern.day5) day_field5 = JSON.stringify(cust_pattern.day5);
+    if (cust_pattern.day6) day_field6 = JSON.stringify(cust_pattern.day6);
+    if (cust_pattern.day7) day_field7 = JSON.stringify(cust_pattern.day7);
+   
+    // Send the data using post
+    var posting = $.post( url, {
+      wg_num:     wg_num, 
+      wg_name:    wg_name, 
+      day_field1: day_field1, 
+      day_field2: day_field2, 
+      day_field3: day_field3, 
+      day_field4: day_field4, 
+      day_field5: day_field5, 
+      day_field6: day_field6, 
+      day_field7: day_field7, 
     });
-  }
+   
+    // Put the results in a div
+    posting.done(function( data ) {
+      $('#save-btn').val('Saved!');
+      window.setTimeout(function() {
+        $('#save-btn').val('Save Customer');
+      }, 2000);
+    });
+  });
+
+  // Attach a submit handler to the employee form
+  $("#emp-form").submit(function( event ) {
+   
+    // Stop form from submitting normally
+    event.preventDefault();
+   
+    // Get some values from elements on the page:
+    var url = $(this).attr("action");
+
+    // Send the data using post
+    var posting = $.post( url, $("#emp-form").serialize() );
+   
+    // Put the results in a div
+    posting.done(function( data ) {
+      $('#save-btn').val('Saved!');
+      getEmployee();
+      window.setTimeout(function() {
+        $('#save-btn').val('Save Employee');
+      }, 2000);
+    });
+  });
 
 </script>

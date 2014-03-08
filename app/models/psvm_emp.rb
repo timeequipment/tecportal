@@ -1,5 +1,7 @@
 class PsvmEmp < ActiveRecord::Base
   has_many :psvm_scheds
+  has_many :psvm_emp_workgroups
+  has_many :psvm_workgroups, through: :psvm_emp_workgroups
 
   attr_accessible \
     :filekey, 

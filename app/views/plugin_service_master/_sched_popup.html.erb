@@ -7,7 +7,11 @@
     <%= label_tag :end_time %>
     <%= text_field_tag :end_time %>
   </div>
+  <div>
+    <%= label_tag :activity %><br>
+    <%= select_tag :activity, options_for_select(@activities.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Activity" %>
+  </div>
   <br>
-  <div id='save-btn' class="button right">Save</div>
-  <div id='close-btn' class="button right">Cancel</div>
+  <div id='ok-btn' class="button right">OK</div>
+  <div id='close-btn' class="button left">Cancel</div>
 </div>

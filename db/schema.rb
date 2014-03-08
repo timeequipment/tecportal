@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140226023952) do
+ActiveRecord::Schema.define(:version => 20140306015422) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
@@ -95,6 +95,21 @@ ActiveRecord::Schema.define(:version => 20140226023952) do
   end
 
   add_index "psvm_cust_patterns", ["wg_level", "wg_num"], :name => "psvm_cust_patterns_wg_level_wg_num"
+
+  create_table "psvm_emp_customers", :force => true do |t|
+    t.string  "emp_id"
+    t.integer "wg_level"
+    t.integer "wg_num"
+  end
+
+  add_index "psvm_emp_customers", ["emp_id", "wg_level", "wg_num"], :name => "index_psvm_emp_customers_on_emp_id_and_wg_level_and_wg_num"
+
+  create_table "psvm_emp_workgroups", :force => true do |t|
+    t.integer "psvm_emp_id"
+    t.integer "psvm_workgroup_id"
+  end
+
+  add_index "psvm_emp_workgroups", ["psvm_emp_id", "psvm_workgroup_id"], :name => "index_psvm_emp_workgroups_on_psvm_emp_id_and_psvm_workgroup_id"
 
   create_table "psvm_emps", :force => true do |t|
     t.integer  "filekey"

@@ -8,19 +8,33 @@
   <main>
     <div id="list-wrapper">
       <%= select_tag "list[]", options_from_collection_for_select(@employees, "emp_id", "fullname"), multiple: true, id: 'employee-list', class: 'list-box column' %>
-      <a class="view-btn column" href="#" onclick="getEmployee()">View Employee</a>
+      <div id="view-emp-btn" class="column">View Employee</div>
       <div id="emp-wrapper" class="shrink-wrap login column">
         <h3 id="emp-name"></h3><br>
-        <form action="save_employee" method="post">
+        <form id="emp-form" action="save_employee" method="post">
+          <%= hidden_field_tag :emp_id %>
           <div>
-            <%= label_tag :first_name %>
+            <%= label_tag :first_name %> &nbsp;
             <%= text_field_tag :first_name %>
           </div>
           <div>
-            <%= label_tag :last_name %>
+            <%= label_tag :last_name %> &nbsp;
             <%= text_field_tag :last_name %>
           </div>
-          <input type="submit" value="Save Employee">
+          <label>Customers Assigned To:</label>
+          <div id="customers-assigned">
+            <label>(None)</label>
+          </div>
+          <div id="cust-scroll-box">
+            <% PsvmWorkgroup.where("wg_level = 3").order("wg_name").each do |workgroup| %>
+              <div class="checkbox-wrapper">
+                <%= check_box_tag "[psvm_workgroup_ids][]", workgroup.id, false, id: dom_id(workgroup) %>
+                <%= label_tag dom_id(workgroup), workgroup.wg_name %>
+              </div>
+            <% end %>
+          </div>
+          <br>
+          <input id="save-btn" type="submit" value="Save Employee">
         </form>
       </div>
     </div>

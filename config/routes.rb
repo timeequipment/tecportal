@@ -4,7 +4,9 @@ Tecportal::Application.routes.draw do
   get 'plugin_service_master/employee_list'
   get 'plugin_service_master/customer_list'
   get 'plugin_service_master/get_employee'
+  post 'plugin_service_master/save_employee'
   get 'plugin_service_master/get_customer'
+  post 'plugin_service_master/save_customer'
   get 'plugin_service_master/index'
   get 'plugin_service_master/settings'
   post 'plugin_service_master/save_settings'
@@ -15,8 +17,6 @@ Tecportal::Application.routes.draw do
   get 'plugin_service_master/filter'
   get 'plugin_service_master/next_week'
   get 'plugin_service_master/prev_week'
-  get 'plugin_service_master/load_customer'
-  post 'plugin_service_master/save_customer'
 
   # Snohomish plugin
   get 'plugin_snohomish/index'

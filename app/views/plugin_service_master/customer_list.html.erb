@@ -8,45 +8,54 @@
   <main>
     <div id="list-wrapper">
       <%= select_tag "list[]", options_from_collection_for_select(@customers, "wg_num", "wg_name"), multiple: true, id: 'customer-list', class: 'list-box column' %>
-      <a class="view-btn column" href="#" onclick="getCustomer()">View Customer</a>
-      <div id="cust-wrapper" class="shrink-wrap login column">
+      <div id="view-cust-btn" class="column">View Customer</div>
+      <div id="cust-wrapper" class="shrink-wrap login column popup-owner-js">
         <h3 id="cust-name"></h3><br>
-        <form class="popup-owner-js" action="save_customer" method="post">
+        <form id="cust-form" action="save_customer" method="post">
           <div>
             <%= label_tag :wg_name, 'Name' %>
             <%= text_field_tag :wg_name %>
+            <%= hidden_field_tag :wg_num %>
+            <%= hidden_field_tag :day_field1 %>
+            <%= hidden_field_tag :day_field2 %>
+            <%= hidden_field_tag :day_field3 %>
+            <%= hidden_field_tag :day_field4 %>
+            <%= hidden_field_tag :day_field5 %>
+            <%= hidden_field_tag :day_field6 %>
+            <%= hidden_field_tag :day_field7 %>
           </div>
           <br>
           <h4>Customer Pattern</h4>
           <table>
             <thead>
               <tr>
-                <th class="sched">Monday</th>
-                <th class="sched">Tuesday</th>
-                <th class="sched">Wednesday</th>
-                <th class="sched">Thursday</th>
-                <th class="sched">Friday</th>
-                <th class="sched">Saturday</th>
-                <th class="custtotal">Total</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+                <th>Sunday</th>
+                <th>Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="newemp">
-                <td class="sched">&nbsp;</td>
-                <td class="sched">&nbsp;</td>
-                <td class="sched">&nbsp;</td>
-                <td class="sched">&nbsp;</td>
-                <td class="sched">&nbsp;</td>
-                <td class="sched">&nbsp;</td>
-                <td class="custtotal">&nbsp;</td>
+              <tr>
+                <td id="day1" daynum="1" class="sched">&nbsp;</td>
+                <td id="day2" daynum="2" class="sched">&nbsp;</td>
+                <td id="day3" daynum="3" class="sched">&nbsp;</td>
+                <td id="day4" daynum="4" class="sched">&nbsp;</td>
+                <td id="day5" daynum="5" class="sched">&nbsp;</td>
+                <td id="day6" daynum="6" class="sched">&nbsp;</td>
+                <td id="day6" daynum="7" class="sched">&nbsp;</td>
+                <td id="total" class="custtotal">&nbsp;</td>
               </tr>
             </tbody>
           </table>
           <br>
-          <input type="submit" value="Save Customer">
-
-          <%= render :partial => "sched_popup" %>
+          <input id='save-btn' type="submit" value="Save Customer">
         </form>
+        <%= render :partial => "sched_popup" %>
       </div>
     </div>
   </main>
