@@ -8,42 +8,41 @@ class PluginServiceMasterController < ApplicationController
     begin
       log "\n\nmethod", 'index', 0
       
-      # Get plugin settings for this user
-      session[:settings] ||= get_settings(PluginServiceMaster::Settings, 
-        current_user.id, 
-        current_user.customer_id, 
-        @@plugin_id)
+      construct_view
 
-      # Get the dates for the week we're viewing
-      @startdate = session[:settings].weekstart
-      @startdate ||= Date.today.beginning_of_week
-      log 'startdate', @startdate
-      @enddate = @startdate + 6.days
-
-      # Get customers and activities
-      @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
-      @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_name')
-
-      # Get all employees
-      @employees = PsvmEmp.where(filekey: 183).order('last_name')
-
-      # Make a view week
-      @v = PluginServiceMaster::ViewWeek.new
-      @v.start_date = @startdate
-      @v.end_date = @enddate
-      @v.emp_weeks = get_emp_weeks(@employees, @startdate, @enddate)
-      log 'v', @v
-
-      # # Get employees that are assigned to customers
-      # @employees = []
-      # PsvmEmp.order('last_name').each do |emp|
-      #   @employees << emp if emp.customers.any?
-      # end
-      
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
     end
+  end
+
+  def construct_view
+
+    # Get plugin settings for this user
+    session[:settings] ||= get_settings(PluginServiceMaster::Settings, 
+      current_user.id, 
+      current_user.customer_id, 
+      @@plugin_id)
+
+    # Get the dates for the week we're viewing
+    @startdate = session[:settings].weekstart
+    @startdate ||= Date.today.beginning_of_week
+    @enddate = @startdate + 6.days
+
+    # Get customers and activities
+    @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
+    @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_num')
+
+    # Get employees that are assigned to customers
+    @employees = PsvmEmp.where(id: 380..400).order('last_name')
+
+    # Make a view week
+    @v = PluginServiceMaster::ViewWeek.new
+    @v.start_date = @startdate
+    @v.end_date = @enddate
+    @v.emp_weeks = get_emp_weeks(@employees, @startdate, @enddate)
+
+    @v
   end
 
   def get_emp_weeks employees, startdate, enddate
@@ -78,6 +77,9 @@ class PluginServiceMasterController < ApplicationController
     # Get the customers this employee is assigned to
     assigned_custs = employee.customers.map {|c| c.wg_num }
 
+    # And the home customer
+    assigned_custs << employee.wg3
+
     # Get the customers this employee is scheduled for
     scheduled_custs = PsvmSched.where(sch_date: @startdate..@enddate, filekey: employee.filekey)
       .select(:sch_wg3)
@@ -109,18 +111,67 @@ class PluginServiceMasterController < ApplicationController
       scheds.each do |sched|
         
         # Plug it into a day on the custweek
-        cw.day1 = sched if sched.sch_date.strftime('%A') == 'Monday'
-        cw.day2 = sched if sched.sch_date.strftime('%A') == 'Tuesday'
-        cw.day3 = sched if sched.sch_date.strftime('%A') == 'Wednesday'
-        cw.day4 = sched if sched.sch_date.strftime('%A') == 'Thursday'
-        cw.day5 = sched if sched.sch_date.strftime('%A') == 'Friday'
-        cw.day6 = sched if sched.sch_date.strftime('%A') == 'Saturday'
-        cw.day7 = sched if sched.sch_date.strftime('%A') == 'Sunday'
+        cw.day1 = sched if sched.sch_date.monday?
+        cw.day2 = sched if sched.sch_date.tuesday?
+        cw.day3 = sched if sched.sch_date.wednesday?
+        cw.day4 = sched if sched.sch_date.thursday?
+        cw.day5 = sched if sched.sch_date.friday?
+        cw.day6 = sched if sched.sch_date.saturday?
 
         # Tally hours
         cw.total_hours += sched.sch_hours_hund
       end
 
+      # Create default scheds on days that didn't have them   
+      if cw.day1.nil?
+        cw.day1 = PsvmSched.new({
+          filekey:  employee.filekey, 
+          sch_wg3:  custnum, 
+          sch_date: @startdate + 0.days, 
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+      end
+      if cw.day2.nil?
+        cw.day2 = PsvmSched.new({
+          filekey:  employee.filekey, 
+          sch_wg3:  custnum, 
+          sch_date: @startdate + 1.days, 
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+      end
+      if cw.day3.nil?
+        cw.day3 = PsvmSched.new({
+          filekey:  employee.filekey, 
+          sch_wg3:  custnum, 
+          sch_date: @startdate + 2.days, 
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+      end
+      if cw.day4.nil?
+        cw.day4 = PsvmSched.new({
+          filekey:  employee.filekey, 
+          sch_wg3:  custnum, 
+          sch_date: @startdate + 3.days, 
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+      end
+      if cw.day5.nil?
+        cw.day5 = PsvmSched.new({
+          filekey:  employee.filekey, 
+          sch_wg3:  custnum, 
+          sch_date: @startdate + 4.days, 
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+      end
+      if cw.day6.nil?
+        cw.day6 = PsvmSched.new({
+          filekey:  employee.filekey, 
+          sch_wg3:  custnum, 
+          sch_date: @startdate + 5.days, 
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+      end
+      
       cust_weeks << cw
     end
 
@@ -176,8 +227,6 @@ class PluginServiceMasterController < ApplicationController
       @custpattern.day5 = params[:day_field5]
       @custpattern.day6 = params[:day_field6]
       @custpattern.day7 = params[:day_field7]
-      log 'custpattern', @custpattern
-      log 'customer', @customer
       @custpattern.save
       @customer.save
       render json: true
@@ -191,10 +240,6 @@ class PluginServiceMasterController < ApplicationController
   def save_employee
     begin
       log "\n\nmethod", 'save_employee', 0
-      log 'params:emp_id', params[:emp_id]
-      log 'params:first_name', params[:first_name]
-      log 'params:last_name', params[:last_name]
-      log 'params:psvm_workgroups', params[:psvm_workgroup_ids]
       @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
       @employee.first_name = params[:first_name]
       @employee.last_name = params[:last_name]
@@ -258,16 +303,42 @@ class PluginServiceMasterController < ApplicationController
     begin
       log "\n\nmethod", 'import_workgroups', 0
       
+      # # Request workgroup1 from AoD, in the background
+      # Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
+      #   current_user.id,
+      #   session[:settings],
+      #   1)
+
+      # # Request workgroup2 from AoD, in the background
+      # Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
+      #   current_user.id,
+      #   session[:settings],
+      #   2)
+
       # Request workgroup3 from AoD, in the background
       Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
         current_user.id,
         session[:settings],
         3)
+
+      # # Request workgroup4 from AoD, in the background
+      # Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
+      #   current_user.id,
+      #   session[:settings],
+      #   4)
+
       # Request workgroup5 from AoD, in the background
       Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
         current_user.id,
         session[:settings],
         5)
+
+      # # Request workgroup6 from AoD, in the background
+      # Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
+      #   current_user.id,
+      #   session[:settings],
+      #   6)
+
       render json: true
 
     rescue Exception => exc
@@ -278,7 +349,7 @@ class PluginServiceMasterController < ApplicationController
 
   def load_schedules
     begin
-      log "\n\nmethod", 'load_scheds', 0
+      log "\n\nmethod", 'load_schedules', 0
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -288,8 +359,29 @@ class PluginServiceMasterController < ApplicationController
 
   def save_schedule
     begin
-      log "\n\nmethod", 'save_scheds', 0
-      log 'params', params
+      log "\n\nmethod", 'save_schedule', 0
+      schid = params[:schid]
+      filekey = params[:filekey]
+      sch_date = params[:sch_date]
+      sch_start_time = params[:sch_start_time]
+      sch_end_time = params[:sch_end_time]
+      sch_wg3 = params[:sch_wg3]
+      sch_wg5 = params[:sch_wg5]
+
+      s = PsvmSched.where(id: schid).first_or_initialize
+      s.filekey = filekey if filekey.present?
+      s.sch_date = Date.parse(sch_date) if sch_date.present?
+      s.sch_start_time = DateTime.parse(sch_start_time) if sch_start_time.present?
+      s.sch_end_time = DateTime.parse(sch_end_time) if sch_end_time.present?
+      s.sch_wg3 = sch_wg3 if sch_wg3.present?
+      s.sch_wg5 = sch_wg5 if sch_wg5.present?
+      if s.sch_end_time < s.sch_start_time 
+        s.sch_end_time = s.sch_end_time + 1.days
+      end
+      s.sch_hours_hund = (s.sch_end_time - s.sch_start_time) / 3600
+      s.save
+
+      render json: true
     
     rescue Exception => exc
       log 'exception', exc.message
@@ -329,6 +421,76 @@ class PluginServiceMasterController < ApplicationController
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
     end
+  end
+
+  def generate_scheds
+    begin
+      log "\n\nmethod", 'generate_scheds', 0
+      
+      # Get this view
+      construct_view
+
+      # For each empweek
+      @v.emp_weeks.each do |ew|
+
+        # For each custweek
+        ew.cust_weeks.each do |cw|
+
+          # If the customer has a pattern
+          pattern = cw.customer.pattern
+          if pattern.present?
+            # For each day that is unscheduled, get it from the pattern
+            if cw.day1.id.nil? && pattern.day1.present?
+              custweek.day1 = convert_to_sched(pattern.day1)
+            end
+          end
+        end
+      end
+
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+    end
+      render :index
+  end
+
+  def convert_to_sched(serialized)
+
+    s = eval serialized
+
+    schid = s[:schid]
+    filekey = s[:filekey]
+    sch_date = s[:sch_date]
+    sch_start_time = s[:sch_start_time]
+    sch_end_time = s[:sch_end_time]
+    sch_wg3 = s[:sch_wg3]
+    sch_wg5 = s[:sch_wg5]
+
+    sched = PsvmSched.new
+    sched.sch_date = Date.parse(sch_date) if sch_date.present?
+    sched.sch_start_time = DateTime.parse(sch_start_time) if sch_start_time.present?
+    sched.sch_end_time = DateTime.parse(sch_end_time) if sch_end_time.present?
+    sched.sch_wg3 = sch_wg3 if sch_wg3.present?
+    sched.sch_wg5 = sch_wg5 if sch_wg5.present?
+    if s.sch_end_time < s.sch_start_time 
+      s.sch_end_time = s.sch_end_time + 1.days
+    end
+    s.sch_hours_hund = (s.sch_end_time - s.sch_start_time) / 3600
+    s.save
+
+    pattern: 
+          :id => 34,
+    :wg_level => 3,
+      :wg_num => 191,
+        :day1 => "{\"start_time\":\"1900-01-01T13:00:00.000Z\",\"end_time\":\"1900-01-01T22:00:00.000Z\",\"hours\":9,\"activity\":\"\"}",
+        :day2 => "",
+        :day3 => "{\"start_time\":\"1900-01-01T14:00:00.000Z\",\"end_time\":\"1900-01-01T23:00:00.000Z\",\"hours\":9,\"activity\":\"\"}",
+        :day4 => "{\"start_time\":\"1900-01-01T13:00:00.000Z\",\"end_time\":\"1900-01-01T23:00:00.000Z\",\"hours\":10,\"activity\":\"\"}",
+        :day5 => "",
+        :day6 => "",
+        :day7 => "",
+  :created_at => Sun, 09 Mar 2014 18:21:37 UTC +00:00,
+  :updated_at => Sun, 09 Mar 2014 18:22:02 UTC +00:00
   end
 
 end

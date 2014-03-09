@@ -31,7 +31,7 @@
   #save-btn { width: 170px; }
 
   #list-wrapper {
-    width: 860px;
+    width: 872px;
     .column { 
       float: left; 
       margin-right: 20px; 
@@ -81,11 +81,10 @@
     cursor: default;
   }
 
-  tr.newemp td.outside { border: inherit }
-
   th, td {
     border: 1px solid black;
     margin: 0px;
+    min-width: 69px;
     text-align: center;
     vertical-align: top;
 
@@ -97,20 +96,12 @@
     font-weight: normal;
     padding: 5px;
   }
-  th.outside {
-    background: inherit;
-    border: inherit;
-    color: inherit;
-    vertical-align: middle;
-  }
-  td.outside {
-    border: inherit;
-    vertical-align: middle;
-  }
+
   th.name { text-align: left; width: 132px; }
   th.cust { text-align: left; width: 132px; }
 
-  td.addsched {}
+  tr.even { background: #fff; }
+  td.odd { background: #eee; }
   td.name { text-align: left; padding: 5px; }
   td.cust { text-align: left; vertical-align: middle; padding: 5px; }
   td.sched, td.cust-sched { 
@@ -125,12 +116,15 @@
 
   td.overlimit { color: red; }
   td.transfer { font-style: italic; }
-  td.dayportera { background: #BAD2FF; 
+  td.projectwork { background: #BAD2FF; 
     &:hover     { background: #94B5F3; } }
-  td.dayporterb { background: #D7FFB2; 
-    &:hover     { background: #B6EC84; } }
-  td.projspec { background: #FFDEB9; 
-    &:hover     { background: #FFC789; } }
+  td.housekeeping { background: #CAF0A7; 
+    &:hover     { background: #A6D67A; } }
+  td.daycleaning { background: #FFDEB9; 
+    &:hover     { background: #EBBF8F; } }
+  td.supervision { background: #E0BAFD; 
+    &:hover     { background: #C294E5; } }
+
   td.overlap { font-weight: bold; color: #FF9420; }
   td.flattened {
     padding: 0;
@@ -138,6 +132,11 @@
     margin: 0;
     text-align: left;
     vertical-align: baseline;
+  }
+  th.outside, td.outside {
+    background: $site-bg;
+    border: 0;
+    vertical-align: middle;
   }
 
   #sched-popup {
@@ -155,7 +154,7 @@
     #close-btn { 
       margin-right: 14px; }
 
-    #ok-btn { 
+    #save-cust-sched-btn, #save-sched-btn { 
       width: 70px; }
   }
   

@@ -1,6 +1,8 @@
+$site-bg: #efefef;
+
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: #efefef;
+  background: $site-bg;
 
   * {
     position: relative;

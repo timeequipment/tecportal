@@ -14,7 +14,7 @@ module PluginServiceMaster
       :total_hours
 
     def initialize
-      @customer = PsvmWorkgroup.new
+      @customer = nil
       @day1 = nil
       @day2 = nil
       @day3 = nil

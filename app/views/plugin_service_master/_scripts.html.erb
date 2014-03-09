@@ -254,6 +254,7 @@
   function editSchedule(td, e) {
     resetSchedForm();
     // Find the <td> it references
+    schid     = td.attr('schid');
     filekey   = td.attr('filekey');
     date      = td.attr('date');
     starttime = td.attr('starttime');
@@ -261,6 +262,9 @@
     cust      = td.attr('cust');
     activity  = td.attr('activity');
     // Load the values into the schedule popup
+    $('#schid')         .val(schid); 
+    $('#filekey')       .val(filekey);
+    $('#sch_date')      .val(date);
     $('#sch_start_time').val(starttime); 
     $('#sch_end_time')  .val(endtime); 
     $('#sch_wg3')       .val(cust);
@@ -298,7 +302,8 @@
       // Make moment objects to contain sched info
       var start_time = parseTime($('#sch_start_time').val());
       var end_time   = parseTime($('#sch_end_time').val());
-      if (start_time.isAfter(end_time)) end_time.add('days', 1);
+      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For am - pm
+      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
       s = {
         'start_time' : start_time, 
         'end_time' : end_time,
@@ -333,7 +338,7 @@
   }
 
   function saveSchedule() {
-    
+
     // Validate times
     var startCheck = checkTime($('#sch_start_time'));
     var endCheck   = checkTime($('#sch_end_time'));
@@ -348,19 +353,11 @@
       var end_time   = parseTime($('#sch_end_time').val());
       
       // Adjust end if its before start
-      if (start_time.isAfter(end_time)) end_time.add('days', 1);
-
-      // Package up data for AJAX
-      data = {
-        'start_time' : start_time, 
-        'end_time'   : end_time,
-        'hours'      : end_time.diff(start_time, 'hours', true), // end_time - start_time,
-        'cust'       : $('#sch_wg3').val(), 
-        'activity'   : $('#sch_wg5').val(), 
-      };
+      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For am - pm
+      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
 
       // Send it to the server - save this schedule and reload page
-      $.post('save_schedule', data, function() {
+      $.post('save_schedule', $('#form-popup').serialize(), function() {
         location.reload();        
       });
 
@@ -462,12 +459,12 @@
   });
 
   // OK button updates cust sched
-  $('#save-cust-sched').click(function(){
+  $('#save-cust-sched-btn').click(function(){
     updateCustPattern();
   });
 
   // OK button updates sched
-  $('#save-cust-sched').click(function(){
+  $('#save-sched-btn').click(function(){
     saveSchedule();
   });
 

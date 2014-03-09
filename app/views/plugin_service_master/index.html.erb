@@ -7,6 +7,7 @@
       <%= @enddate  .strftime '%b %d' %>
     </div>
     <%= link_to ">", plugin_service_master_next_week_path %>
+    <%= link_to "Generate", plugin_service_master_generate_scheds_path %>
     <%= render partial: 'links' %>
   </header>
 
@@ -27,33 +28,33 @@
           <th class="outside"></th>
         </tr>
       </thead>
-      <% @v.emp_weeks.each do |ew| %>
-        <tr class="newemp"> 
+      <% @v.emp_weeks.each_with_index do |ew, index| %>
+        <tr <%= raw 'class="even"' if index.even? %>>
           <td class="name" rowspan="<%= ew.cust_weeks.count + 1 %>">
             <%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %>
           </td>
           <td class="flattened" colspan="8"></td>
           <td class="emptotal" rowspan="<%= ew.cust_weeks.count + 1 %>">
-            <%= ew.total_hours %>
+            <%= ew.total_hours.round(2) %>
           </td>
-          <td class="overlimit outside">
+          <td class="overlimit outside" rowspan="<%= ew.cust_weeks.count + 1 %>">
             <%= ew.exceptions %>
           </td>
         </tr>
         <% ew.cust_weeks.each do |cw| %>
-          <tr>
-            <td class="cust"><%= "#{ cw.customer.wg_name }" %>&nbsp;</td>8
-            <td class="sched" <%= raw generate_td_attr(cw.day1) %>> <%= raw generate_td_content(cw.day1) %></td>
-            <td class="sched" <%= raw generate_td_attr(cw.day2) %>> <%= raw generate_td_content(cw.day2) %></td>
-            <td class="sched" <%= raw generate_td_attr(cw.day3) %>> <%= raw generate_td_content(cw.day3) %></td>
-            <td class="sched" <%= raw generate_td_attr(cw.day4) %>> <%= raw generate_td_content(cw.day4) %></td>
-            <td class="sched" <%= raw generate_td_attr(cw.day5) %>> <%= raw generate_td_content(cw.day5) %></td>
-            <td class="sched" <%= raw generate_td_attr(cw.day6) %>> <%= raw generate_td_content(cw.day6) %></td>
-            <td class="custtotal"><%= cw.total_hours %></td>
+          <tr <%= raw 'class="even"' if index.even? %>>
+            <td class="cust"><%= "#{ cw.customer.wg_name }" %>&nbsp;</td>
+            <td <%= raw generate_td_attr(cw.day1) %>> <%= raw generate_td_content(cw.day1) %></td>
+            <td <%= raw generate_td_attr(cw.day2) %>> <%= raw generate_td_content(cw.day2) %></td>
+            <td <%= raw generate_td_attr(cw.day3) %>> <%= raw generate_td_content(cw.day3) %></td>
+            <td <%= raw generate_td_attr(cw.day4) %>> <%= raw generate_td_content(cw.day4) %></td>
+            <td <%= raw generate_td_attr(cw.day5) %>> <%= raw generate_td_content(cw.day5) %></td>
+            <td <%= raw generate_td_attr(cw.day6) %>> <%= raw generate_td_content(cw.day6) %></td>
+            <td class="custtotal"><%= cw.total_hours.round(2) %></td>
           </tr>
         <% end %>
       <% end %>
-      <%= render partial: "sched_popup", locals: { allow_edit_cust: true } %>
+      <%= render partial: "sched_popup", locals: { editing_customer: true } %>
     </table>
 
     <%= render "shared/spinner" %>

@@ -23,28 +23,14 @@ class PsvmSched < ActiveRecord::Base
       :sch_wg7,
       :unique_id
 
-    def initialize 
-      @filekey = 0
-      @sch_date = Date.new
-      @sch_start_time = DateTime.new
-      @sch_end_time = DateTime.new
-      @sch_hours = 0
-      @sch_rate = 0
-      @sch_hours_hund = 0
-      @sch_type = 0
-      @sch_style = 0
-      @sch_patt_id = 0
-      @benefit_id = 0
-      @pay_des_id = 0
-      @sch_wg1 = 0
-      @sch_wg2 = 0
-      @sch_wg3 = 0
-      @sch_wg4 = 0
-      @sch_wg5 = 0
-      @sch_wg6 = 0
-      @sch_wg7 = 0
-      @unique_id = 0
+    def after_initialize(attributes = {}, options = {})
+      self[:filekey] = attributes[:filekey] if attributes[:filekey].present?
+      self[:sch_wg3] = attributes[:sch_wg3] if attributes[:sch_wg3].present?
+      self[:sch_date] = attributes[:sch_date] if attributes[:sch_date].present?
+      self[:sch_start_time] = attributes[:sch_start_time] if attributes[:sch_start_time].present?
+      self[:sch_end_time] = attributes[:sch_end_time] if attributes[:sch_end_time].present?
     end
+
 
     # def to_s
     #   @sch_start_time.strftime('%T') + ', ' + @sch_end_time.strftime('%T')
