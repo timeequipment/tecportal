@@ -37,4 +37,8 @@ class PsvmEmp < ActiveRecord::Base
   def fullname 
     "#{ last_name }, #{ first_name }"
   end
+
+  def customers
+    PsvmWorkgroup.find_all_by_id(self.psvm_workgroup_ids)
+  end 
 end

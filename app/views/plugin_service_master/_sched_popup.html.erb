@@ -1,15 +1,22 @@
 <div id="sched-popup">
+  <% unless editing_customer %>
+    <div>
+      <%= label_tag :sch_wg3, 'Customer' %>
+      <%= select_tag :sch_wg3, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Customer" %>
+    </div>
+    <br>
+  <% end %>
   <div>
-    <%= label_tag :start_time %>
-    <%= text_field_tag :start_time %>
+    <%= label_tag :sch_start_time, 'Start Time' %>
+    <%= text_field_tag :sch_start_time %>
   </div>
   <div>
-    <%= label_tag :end_time %>
-    <%= text_field_tag :end_time %>
+    <%= label_tag :sch_end_time, 'End Time' %>
+    <%= text_field_tag :sch_end_time %>
   </div>
   <div>
-    <%= label_tag :activity %><br>
-    <%= select_tag :activity, options_for_select(@activities.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Activity" %>
+    <%= label_tag :sch_wg5, 'Activity' %>
+    <%= select_tag :sch_wg5, options_for_select(@activities.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Activity" %>
   </div>
   <br>
   <div id='ok-btn' class="button right">OK</div>

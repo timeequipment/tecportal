@@ -1,0 +1,315 @@
+<div class="plugin-service-master">  
+
+  <header>
+    <%= link_to "<", plugin_service_master_prev_week_path %>
+    <div class="daterange">
+      <%= @startdate.strftime '%b %d' %> - 
+      <%= @enddate  .strftime '%b %d' %>
+    </div>
+    <%= link_to ">", plugin_service_master_next_week_path %>
+    <%= render partial: 'links' %>
+  </header>
+
+  <main>
+    <%= @a %>
+    <%= render "shared/spinner" %>
+    <table class="popup-owner-js">
+      <thead>
+        <tr> <!-- Table header -->
+          <th class="name">Name</th>
+          <th class="cust">Customer</th>
+          <th class="sched">Monday</br>01/06</th>
+          <th class="sched">Tuesday</br>01/07</th>
+          <th class="sched">Wednesday</br>01/08</th>
+          <th class="sched">Thursday</br>01/09</th>
+          <th class="sched">Friday</br>01/12</th>
+          <th class="sched">Saturday</br>01/11</th>
+          <th class="custtotal">Cust.</br>Total</th>
+          <th class="emptotal">Emp.</br>Total</th>
+          <th class="outside"></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- New employee -->
+        <tr class="newemp">
+          <td class="name" rowspan=2>Fillup Adams</td>
+          <td class="cust">FTB Germantown</td>
+          <td class="sched">5 - 7:30</td>
+          <td class="sched"></td>
+          <td class="sched">5 - 7:30</td>
+          <td class="sched"></td>
+          <td class="sched">5 - 7:30</td>
+          <td class="sched">5 - 7:30</td>
+          <td class="custtotal">9.00</td>
+          <td class="emptotal" rowspan=2>12.75</td>
+          <td class="overlimit outside" rowspan=2></td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Kirby Woods</td>
+          <td class="sched">7:30 - 8:45</td>
+          <td class="sched"></td>
+          <td class="sched">7:30 - 8:45</td>
+          <td class="sched"></td>
+          <td class="sched">7:30 - 8:45</td>
+          <td class="sched">7:30 - 8:45</td>
+          <td class="custtotal">3.75</td>
+        </tr>
+
+        <!-- New employee -->
+        <tr class="newemp">
+          <td class="name"rowspan=4>Joseph Adolph</td>
+          <td class="cust">TNB Arlington</td>
+          <td class="sched">4 - 5:15</td>
+          <td class="sched">4 - 5:15</td>
+          <td class="sched">4 - 5:15</td>
+          <td class="sched">4 - 5:15</td>
+          <td class="sched">4 - 5:15</td>
+          <td class="sched"></td>
+          <td class="custtotal">6.25</td>
+          <td class="emptotal overlimit" rowspan=4>30.00</td>
+          <td class="outside overlimit" rowspan=4>Over limit!</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB Bartlett</td>
+          <td class="sched">5:15 - 7</td>
+          <td class="sched">5:15 - 7</td>
+          <td class="sched">5:15 - 7</td>
+          <td class="sched">5:15 - 7</td>
+          <td class="sched">5:15 - 7</td>
+          <td class="sched"></td>
+          <td class="custtotal">8.75</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB Lakeland</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched"></td>
+          <td class="custtotal">3.75</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB N. Houston Levee</td>
+          <td class="sched">7:45 - 9:30</td>
+          <td class="sched">7:45 - 9:30</td>
+          <td class="sched">7:45 - 9:30</td>
+          <td class="sched">7:45 - 9:30</td>
+          <td class="sched">7:45 - 9:30</td>
+          <td class="sched"></td>
+          <td class="custtotal">6.25</td>
+        </tr>
+        <tr>
+        <!-- New employee -->
+          <td class="name" rowspan=3>David Alexander</td>
+          <td class="cust">Bank TN W. Poplar</td>
+          <td class="sched">4 - 6:30</td>
+          <td class="sched"></td>
+          <td class="sched">4 - 6:30</td>
+          <td class="sched"></td>
+          <td class="sched">4 - 6:30</td>
+          <td class="sched"></td>
+          <td class="custtotal">7.50</td>
+          <td class="emptotal" rowspan=3>17.25</td>
+          <td class="overlimit outside" rowspan=3></td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Collierville</td>
+          <td class="sched">6:30 - 8</td>
+          <td class="sched"></td>
+          <td class="sched">6:30 - 8</td>
+          <td class="sched"></td>
+          <td class="sched">6:30 - 8</td>
+          <td class="sched projspec">6:30 - 8</td>
+          <td class="custtotal">6.00</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB Lakeland</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched">7 - 7:45</td>
+          <td class="sched"></td>
+          <td class="custtotal">3.75</td>
+        </tr>
+          
+        <!-- New employee -->
+        <tr class="newemp">
+          <td class="name"rowspan=4>William Alexander</td>
+          <td class="cust">FTB Farmington</td>
+          <td class="sched">4 - 5</td>
+          <td class="sched"></td>
+          <td class="sched">4 - 5</td>
+          <td class="sched"></td>
+          <td class="sched">4 - 5</td>
+          <td class="sched"></td>
+          <td class="custtotal">3.00</td>
+          <td class="emptotal overlimit" rowspan=4>29.00</td>
+          <td class="outside overlimit" rowspan=4>Over limit!</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB Germantown M.</td>
+          <td class="sched">5 - 6</td>
+          <td class="sched">5 - 6</td>
+          <td class="sched">5 - 6</td>
+          <td class="sched">5 - 6</td>
+          <td class="sched">5 - 6</td>
+          <td class="sched">5 - 6</td>
+          <td class="custtotal">6.00</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB Germantown O.</td>
+          <td class="sched">6 - 8:30</td>
+          <td class="sched">6 - 8:30</td>
+          <td class="sched">6 - 8:30</td>
+          <td class="sched">6 - 8:30</td>
+          <td class="sched">6 - 8:30</td>
+          <td class="sched"></td>
+          <td class="custtotal">12.50</td>
+        </tr>
+        <tr>
+          <td class="cust">TNB Whitehaven</td>
+          <td class="sched">8:30 - 10</td>
+          <td class="sched">8:30 - 10</td>
+          <td class="sched">8:30 - 10</td>
+          <td class="sched transfer">8:30 - 10</br>Kirby Woods</td>
+          <td class="sched transfer">8:30 - 10</br>Kirby Woods</td>
+          <td class="sched"></td>
+          <td class="custtotal">6.25</td>
+        </tr>
+          
+        <!-- New employee -->
+        <tr class="newemp"> 
+          <td class="name" rowspan=6>Andrew Antonyk</td>
+          <td class="cust">FTB Bartlett</td>
+          <td class="sched dayportera">4 - 5:30</td>
+          <td class="sched"></td>
+          <td class="sched dayportera">4 - 5:30</td>
+          <td class="sched"></td>
+          <td class="sched dayporterb">4 - 5:30</td>
+          <td class="sched"></td>
+          <td class="custtotal">4.50</td>
+          <td class="emptotal" rowspan=6>25.25</td>
+          <td class="outside overlimit" rowspan=6></td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Bartlett Main</td>
+          <td class="sched dayportera">5:30 - 7</td>
+          <td class="sched"></td>
+          <td class="sched dayportera">5:30 - 7</td>
+          <td class="sched"></td>
+          <td class="sched dayportera">5:30 - 7</td>
+          <td class="sched"></td>
+          <td class="custtotal">7.50</td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Berclair</td>
+          <td class="sched">7 - 8:15</td>
+          <td class="sched"></td>
+          <td class="sched">7 - 8:15</td>
+          <td class="sched"></td>
+          <td class="sched">7 - 8:15</td>
+          <td class="sched"></td>
+          <td class="custtotal">3.75</td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Hollywood & J.</td>
+          <td class="sched"></td>
+          <td class="sched overlap">4 - 6</td>
+          <td class="sched"></td>
+          <td class="sched overlap">4 - 6</td>
+          <td class="sched"></td>
+          <td class="sched projspec">4 - 4:30</td>
+          <td class="custtotal">4.00</td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Hollywood & J.</td>
+          <td class="sched"></td>
+          <td class="sched overlap">5 - 5:45</td>
+          <td class="sched"></td>
+          <td class="sched overlap">5 - 5:45</td>
+          <td class="sched"></td>
+          <td class="sched projspec">4:30 - 5:45</td>
+          <td class="custtotal">2.50</td>
+        </tr>
+        <tr>
+          <td class="cust">FTB Watkins Frayser</td>
+          <td class="sched"></td>
+          <td class="sched overlap">5:45 - 7:15</td>
+          <td class="sched"></td>
+          <td class="sched overlap">5:45 - 7:15</td>
+          <td class="sched"></td>
+          <td class="sched"></td>
+          <td class="custtotal">3.00</td>
+        </tr>
+        
+        <tr> <!-- Overlapping schedules notifications -->
+          <td class="outside"></td>
+          <td class="outside"></td>
+          <td class="outside"></td>
+          <td class="outside overlap">Overlapping</br>Schedules!</td>
+          <td class="outside"></td>
+          <td class="outside overlap">Overlapping</br>Schedules!</td>
+          <td class="outside"></td>
+          <td class="outside"></td>
+          <td class="outside"></td>
+          <td class="outside"></td>
+          <td class="outside"></td>
+        </tr>
+          
+        <tr> <!-- Legend -->
+          <td class="outside name"><h2>Legend</h2></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+          <td class="outside name" rowspan=8></td>
+        </tr>
+        <tr><td class="name">Housekeeping</td></tr>
+        <tr><td class="transfer name">Customer Transfer</td></tr>
+        <tr><td class="dayportera name">Day Porter A</td></tr>
+        <tr><td class="dayporterb name">Day Porter B</td></tr>
+        <tr><td class="projspec name">Project Specialist</td></tr>
+        <tr><td class="overlap name">Overlapping Schedules</td></tr>
+        <tr><td class="overlimit name">Over 29 hrs/wk</td></tr>
+      </tbody>
+      <%= render partial: "sched_popup" %>
+    </table>
+    <br>
+    <div id="progress-status"></div>
+    <div id="progress-bar"><div id="progress-label"></div></div>
+  </main>
+</div>  
+
+<%= render partial: "scripts" %>
+
+<!-- Scripts -->
+<script>
+
+  // Init progress bar
+  var progressbar = $( "#progress-bar" );
+  var progressLabel = $( "#progress-label" );
+  
+  progressbar.progressbar({
+    value: 0,
+    change: function() {
+      progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+    },
+    complete: function() {
+      progressLabel.text( "Complete!" );
+    }
+  });
+
+  // Get the latest employees and workgroups from AoD
+  // in the background
+  // $.get('import_employees');
+  // $.get('import_workgroups');
+
+</script>

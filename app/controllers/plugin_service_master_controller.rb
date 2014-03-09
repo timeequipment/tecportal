@@ -14,20 +14,117 @@ class PluginServiceMasterController < ApplicationController
         current_user.customer_id, 
         @@plugin_id)
 
-      # Get schedules
+      # Get the dates for the week we're viewing
       @startdate = session[:settings].weekstart
       @startdate ||= Date.today.beginning_of_week
       log 'startdate', @startdate
       @enddate = @startdate + 6.days
-      @scheds = PsvmSched.where(sched_date: @startdate..@enddate)
 
-      # Get activities
-      @activities = PsvmWorkgroup.where('wg_level = 5').select('wg_num, wg_name').order('wg_name')
+      # Get customers and activities
+      @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
+      @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_name')
 
+      # Get all employees
+      @employees = PsvmEmp.where(filekey: 183).order('last_name')
+
+      # Make a view week
+      @v = PluginServiceMaster::ViewWeek.new
+      @v.start_date = @startdate
+      @v.end_date = @enddate
+      @v.emp_weeks = get_emp_weeks(@employees, @startdate, @enddate)
+      log 'v', @v
+
+      # # Get employees that are assigned to customers
+      # @employees = []
+      # PsvmEmp.order('last_name').each do |emp|
+      #   @employees << emp if emp.customers.any?
+      # end
+      
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
     end
+  end
+
+  def get_emp_weeks employees, startdate, enddate
+    emp_weeks = []
+
+    # For each employee
+    employees.each do |emp|
+      # Make an empweek
+      ew = PluginServiceMaster::EmpWeek.new
+      ew.employee = emp
+      ew.cust_weeks = get_cust_weeks(emp, startdate, enddate)
+
+      # Calculate total hours
+      ew.total_hours = 0.0
+      ew.cust_weeks.each do |cw|
+        ew.total_hours += cw.total_hours
+      end
+
+      # If total hours > 29, print exception
+      ew.exceptions = 'Over limit!' if ew.total_hours > 29.0
+
+      # Save empweek
+      emp_weeks << ew
+    end
+
+    emp_weeks
+  end
+
+  def get_cust_weeks employee, startdate, enddate
+    cust_weeks = []
+
+    # Get the customers this employee is assigned to
+    assigned_custs = employee.customers.map {|c| c.wg_num }
+
+    # Get the customers this employee is scheduled for
+    scheduled_custs = PsvmSched.where(sch_date: @startdate..@enddate, filekey: employee.filekey)
+      .select(:sch_wg3)
+      .group(:sch_wg3)
+      .map &:sch_wg3
+
+    # Merge both together
+    all_custs = assigned_custs + scheduled_custs
+
+    # Eliminate duplicates
+    all_custs = all_custs.uniq
+
+    # For each customer
+    all_custs.each do |custnum|
+
+      # Make a custweek
+      cw = PluginServiceMaster::CustWeek.new
+      cw.customer = PsvmWorkgroup.where(wg_level: 3, wg_num: custnum).first
+      cw.total_hours = 0
+
+      # Get schedules for this employee/customer
+      scheds = PsvmSched.where(
+        sch_date: @startdate..@enddate, 
+        filekey: employee.filekey, 
+        sch_wg3: custnum)
+        .order('sch_date, sch_start_time')
+
+      # For each sched
+      scheds.each do |sched|
+        
+        # Plug it into a day on the custweek
+        cw.day1 = sched if sched.sch_date.strftime('%A') == 'Monday'
+        cw.day2 = sched if sched.sch_date.strftime('%A') == 'Tuesday'
+        cw.day3 = sched if sched.sch_date.strftime('%A') == 'Wednesday'
+        cw.day4 = sched if sched.sch_date.strftime('%A') == 'Thursday'
+        cw.day5 = sched if sched.sch_date.strftime('%A') == 'Friday'
+        cw.day6 = sched if sched.sch_date.strftime('%A') == 'Saturday'
+        cw.day7 = sched if sched.sch_date.strftime('%A') == 'Sunday'
+
+        # Tally hours
+        cw.total_hours += sched.sch_hours_hund
+      end
+
+      cust_weeks << cw
+    end
+
+    cust_weeks
   end
 
   def settings
@@ -179,7 +276,7 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
-  def load_scheds
+  def load_schedules
     begin
       log "\n\nmethod", 'load_scheds', 0
 
@@ -189,9 +286,10 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
-  def save_scheds
+  def save_schedule
     begin
       log "\n\nmethod", 'save_scheds', 0
+      log 'params', params
     
     rescue Exception => exc
       log 'exception', exc.message

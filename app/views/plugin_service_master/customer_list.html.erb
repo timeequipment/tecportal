@@ -41,13 +41,13 @@
             </thead>
             <tbody>
               <tr>
-                <td id="day1" daynum="1" class="sched">&nbsp;</td>
-                <td id="day2" daynum="2" class="sched">&nbsp;</td>
-                <td id="day3" daynum="3" class="sched">&nbsp;</td>
-                <td id="day4" daynum="4" class="sched">&nbsp;</td>
-                <td id="day5" daynum="5" class="sched">&nbsp;</td>
-                <td id="day6" daynum="6" class="sched">&nbsp;</td>
-                <td id="day6" daynum="7" class="sched">&nbsp;</td>
+                <td id="day1" daynum="1" class="cust-sched">&nbsp;</td>
+                <td id="day2" daynum="2" class="cust-sched">&nbsp;</td>
+                <td id="day3" daynum="3" class="cust-sched">&nbsp;</td>
+                <td id="day4" daynum="4" class="cust-sched">&nbsp;</td>
+                <td id="day5" daynum="5" class="cust-sched">&nbsp;</td>
+                <td id="day6" daynum="6" class="cust-sched">&nbsp;</td>
+                <td id="day6" daynum="7" class="cust-sched">&nbsp;</td>
                 <td id="total" class="custtotal">&nbsp;</td>
               </tr>
             </tbody>
@@ -55,7 +55,7 @@
           <br>
           <input id='save-btn' type="submit" value="Save Customer">
         </form>
-        <%= render :partial => "sched_popup" %>
+        <%= render partial: "sched_popup", locals: { allow_edit_cust: false } %>
       </div>
     </div>
   </main>

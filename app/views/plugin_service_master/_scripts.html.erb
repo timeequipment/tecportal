@@ -203,60 +203,82 @@
     } 
   }
 
-  function editSchedule(td, e) {
+  function editCustPattern(td, e) {
     resetSchedForm();
     // Find the day it references
     day_editing = td.attr('daynum');
     // Load the values into the schedule popup
     if (day_editing === '1' && cust_pattern.day1) {
-      $('#start_time').val(cust_pattern.day1.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day1.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day1.activity);
+      $('#sch_start_time').val(cust_pattern.day1.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day1.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day1.activity);
     }
     if (day_editing === '2' && cust_pattern.day2) {
-      $('#start_time').val(cust_pattern.day2.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day2.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day2.activity);
+      $('#sch_start_time').val(cust_pattern.day2.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day2.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day2.activity);
     }
     if (day_editing === '3' && cust_pattern.day3) {
-      $('#start_time').val(cust_pattern.day3.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day3.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day3.activity);
+      $('#sch_start_time').val(cust_pattern.day3.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day3.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day3.activity);
     }
     if (day_editing === '4' && cust_pattern.day4) {
-      $('#start_time').val(cust_pattern.day4.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day4.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day4.activity);
+      $('#sch_start_time').val(cust_pattern.day4.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day4.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day4.activity);
     }
     if (day_editing === '5' && cust_pattern.day5) {
-      $('#start_time').val(cust_pattern.day5.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day5.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day5.activity);
+      $('#sch_start_time').val(cust_pattern.day5.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day5.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day5.activity);
     }
     if (day_editing === '6' && cust_pattern.day6) {
-      $('#start_time').val(cust_pattern.day6.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day6.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day6.activity);
+      $('#sch_start_time').val(cust_pattern.day6.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day6.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day6.activity);
     }
     if (day_editing === '7' && cust_pattern.day7) {
-      $('#start_time').val(cust_pattern.day7.start_time.format('HH:mm')); 
-      $('#end_time')  .val(cust_pattern.day7.end_time.format('HH:mm')); 
-      $('#activity')  .val(cust_pattern.day7.activity);
+      $('#sch_start_time').val(cust_pattern.day7.start_time.format('HH:mm')); 
+      $('#sch_end_time')  .val(cust_pattern.day7.end_time.format('HH:mm')); 
+      $('#sch_wg5')  .val(cust_pattern.day7.activity);
     }
     // Show the schedule popup
     var offset = $('.popup-owner-js').offset();
     popup.css("left", e.pageX - offset.left + 'px');
     popup.css("top",  e.pageY - offset.top + 'px');
     popup.show();
-    $('#start_time').focus();
+    $('#sch_start_time').focus();
+  }
+
+  function editSchedule(td, e) {
+    resetSchedForm();
+    // Find the <td> it references
+    filekey   = td.attr('filekey');
+    date      = td.attr('date');
+    starttime = td.attr('starttime');
+    endtime   = td.attr('endtime');
+    cust      = td.attr('cust');
+    activity  = td.attr('activity');
+    // Load the values into the schedule popup
+    $('#sch_start_time').val(starttime); 
+    $('#sch_end_time')  .val(endtime); 
+    $('#sch_wg3')       .val(cust);
+    $('#sch_wg5')       .val(activity);
+    // Show the schedule popup
+    var offset = $('.popup-owner-js').offset();
+    popup.css("left", e.pageX - offset.left + 'px');
+    popup.css("top",  e.pageY - offset.top + 'px');
+    popup.show();
+    $('#sch_start_time').focus();
   }
 
   function resetSchedForm() {
-    $('#start_time').css("background","#fff");
-    $('#end_time').css("background","#fff");
-    $('#start_time').val('');
-    $('#end_time').val('');
-    $('#activity').val('');
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
+    $('#sch_start_time').val('');
+    $('#sch_end_time').val('');
+    $('#sch_wg5').val('');
   }
 
   function cancelSchedule() {
@@ -264,24 +286,24 @@
     popup.hide(); 
   }
 
-  function updateSchedule() {
+  function updateCustPattern() {
     // Validate times
-    var startCheck = checkTime($('#start_time'));
-    var endCheck   = checkTime($('#end_time'));
-    $('#start_time').css("background","#fff");
-    $('#end_time').css("background","#fff");
+    var startCheck = checkTime($('#sch_start_time'));
+    var endCheck   = checkTime($('#sch_end_time'));
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
 
     // If they pass
     if (startCheck && endCheck) {
       // Make moment objects to contain sched info
-      var start_time = parseTime($('#start_time').val());
-      var end_time   = parseTime($('#end_time').val());
+      var start_time = parseTime($('#sch_start_time').val());
+      var end_time   = parseTime($('#sch_end_time').val());
       if (start_time.isAfter(end_time)) end_time.add('days', 1);
       s = {
         'start_time' : start_time, 
         'end_time' : end_time,
         'hours' : end_time.diff(start_time, 'hours', true), // end_time - start_time,
-        'activity' : $('#activity').val(), 
+        'activity' : $('#sch_wg5').val(), 
       };
       // Save in memory
       if (day_editing === '1') cust_pattern.day1 = s;
@@ -300,12 +322,57 @@
     // If they didn't pass make them red
     } else {
       if (!startCheck) {
-        $('#start_time').css("background","#ffc4ba");
-        $('#start_time').focus();
+        $('#sch_start_time').css("background","#ffc4ba");
+        $('#sch_start_time').focus();
       }
       if (!endCheck) {
-        $('#end_time').css("background","#ffc4ba");
-        $('#end_time').focus();
+        $('#sch_end_time').css("background","#ffc4ba");
+        $('#sch_end_time').focus();
+      }
+    }
+  }
+
+  function saveSchedule() {
+    
+    // Validate times
+    var startCheck = checkTime($('#sch_start_time'));
+    var endCheck   = checkTime($('#sch_end_time'));
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
+
+    // If they pass
+    if (startCheck && endCheck) {
+      
+      // Make moment objects to contain sched info
+      var start_time = parseTime($('#sch_start_time').val());
+      var end_time   = parseTime($('#sch_end_time').val());
+      
+      // Adjust end if its before start
+      if (start_time.isAfter(end_time)) end_time.add('days', 1);
+
+      // Package up data for AJAX
+      data = {
+        'start_time' : start_time, 
+        'end_time'   : end_time,
+        'hours'      : end_time.diff(start_time, 'hours', true), // end_time - start_time,
+        'cust'       : $('#sch_wg3').val(), 
+        'activity'   : $('#sch_wg5').val(), 
+      };
+
+      // Send it to the server - save this schedule and reload page
+      $.post('save_schedule', data, function() {
+        location.reload();        
+      });
+
+    // If they didn't pass make them red
+    } else {
+      if (!startCheck) {
+        $('#sch_start_time').css("background","#ffc4ba");
+        $('#sch_start_time').focus();
+      }
+      if (!endCheck) {
+        $('#sch_end_time').css("background","#ffc4ba");
+        $('#sch_end_time').focus();
       }
     }
   }
@@ -394,9 +461,19 @@
     cancelSchedule();
   });
 
+  // OK button updates cust sched
+  $('#save-cust-sched').click(function(){
+    updateCustPattern();
+  });
+
   // OK button updates sched
-  $('#ok-btn').click(function(){
-    updateSchedule();
+  $('#save-cust-sched').click(function(){
+    saveSchedule();
+  });
+
+  // When user clicks on a cust schedule
+  $('.cust-sched').click(function(e){
+    editCustPattern($(this), e);
   });
 
   // When user clicks on a schedule
