@@ -1,3 +1,3 @@
 web:     bundle exec rails server -p $PORT
 worker:  bundle exec rake jobs:work
-guard:   guard -P livereload
+# guard:   guard -P livereload
