@@ -7,7 +7,7 @@ class PluginServiceMasterController < ApplicationController
   def index
     begin
       log "\n\nmethod", 'index', 0
-      
+
       construct_view
 
     rescue Exception => exc
@@ -33,8 +33,12 @@ class PluginServiceMasterController < ApplicationController
     @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
     @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_num')
 
-    # Get employees that are assigned to customers
-    @employees = PsvmEmp.where(id: 380..400).order('last_name')
+    # Get the current customer filter
+    @cust_filter = session[:cust_filter]
+    @cust_filter ||= PsvmWorkgroup.where(wg_level: 3).first
+
+    # Get active employees that are assigned to this customer
+    @employees = PsvmEmp.where(wg3: @cust_filter, active_status: 0).order('last_name')
 
     # Make a view week
     @v = PluginServiceMaster::ViewWeek.new
@@ -62,7 +66,7 @@ class PluginServiceMasterController < ApplicationController
       end
 
       # If total hours > 29, print exception
-      ew.exceptions = 'Over limit!' if ew.total_hours > 29.0
+      ew.exceptions = 'Over limit!' if ew.total_hours >= 29.0
 
       # Save empweek
       emp_weeks << ew
@@ -131,7 +135,7 @@ class PluginServiceMasterController < ApplicationController
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
       end
-      if cw.day2.nil?
+      if cw.day2.nil? 
         cw.day2 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
@@ -257,7 +261,7 @@ class PluginServiceMasterController < ApplicationController
   def employee_list
     begin
       log "\n\nmethod", 'employee_list', 0
-      @employees = PsvmEmp.order('last_name, first_name')
+      @employees = PsvmEmp.where(active_status: 0).order('last_name, first_name')
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -389,10 +393,28 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
+  def delete_schedule
+    begin
+      log "\n\nmethod", 'delete_schedule', 0
+
+      PsvmSched.destroy(params[:schid].to_i) if params[:schid].present?
+
+      render json: true
+    
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+    end
+  end
+
   def filter
     begin
       log "\n\nmethod", 'filter', 0
-    
+
+      # Save the filter(s) to the session
+      session[:cust_filter] = params[:cust_filter]
+      render json: true
+
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
@@ -426,7 +448,7 @@ class PluginServiceMasterController < ApplicationController
   def generate_scheds
     begin
       log "\n\nmethod", 'generate_scheds', 0
-      
+
       # Get this view
       construct_view
 
@@ -439,58 +461,66 @@ class PluginServiceMasterController < ApplicationController
           # If the customer has a pattern
           pattern = cw.customer.pattern
           if pattern.present?
+
             # For each day that is unscheduled, get it from the pattern
+            filekey = ew.employee.filekey
+            custnum = cw.customer.wg_num
             if cw.day1.id.nil? && pattern.day1.present?
-              custweek.day1 = convert_to_sched(pattern.day1)
+              cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
+              log 'cw-day1', cw.day1
+            end
+            if cw.day2.id.nil? && pattern.day2.present?
+              cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
+              log 'cw-day2', cw.day2
+            end
+            if cw.day3.id.nil? && pattern.day3.present?
+              cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
+              log 'cw-day3', cw.day3
+            end
+            if cw.day4.id.nil? && pattern.day4.present?
+              cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
+              log 'cw-day4', cw.day4
+            end
+            if cw.day5.id.nil? && pattern.day5.present?
+              cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
+              log 'cw-day5', cw.day5
+            end
+            if cw.day6.id.nil? && pattern.day6.present?
+              cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
+              log 'cw-day6', cw.day6
             end
           end
         end
       end
 
+      redirect_to action: 'index' 
+
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
     end
-      render :index
   end
 
-  def convert_to_sched(serialized)
+  def convert_to_sched(filekey, custnum, date, serialized)
 
-    s = eval serialized
+    s = JSON[serialized]
 
-    schid = s[:schid]
-    filekey = s[:filekey]
-    sch_date = s[:sch_date]
-    sch_start_time = s[:sch_start_time]
-    sch_end_time = s[:sch_end_time]
-    sch_wg3 = s[:sch_wg3]
-    sch_wg5 = s[:sch_wg5]
+    sch_start_time = s["start_time"]
+    sch_end_time = s["end_time"]
+    sch_hours_hund = s["hours"]
+    sch_wg5 = s["activity"]
 
     sched = PsvmSched.new
-    sched.sch_date = Date.parse(sch_date) if sch_date.present?
-    sched.sch_start_time = DateTime.parse(sch_start_time) if sch_start_time.present?
-    sched.sch_end_time = DateTime.parse(sch_end_time) if sch_end_time.present?
-    sched.sch_wg3 = sch_wg3 if sch_wg3.present?
+    sched.sch_date = date
+    sched.filekey = filekey
+    sched.sch_wg3 = custnum
+    sched.sch_start_time = date.midnight + Time.parse(sch_start_time).seconds_since_midnight.seconds if sch_start_time.present?
+    sched.sch_end_time = date.midnight + Time.parse(sch_end_time).seconds_since_midnight.seconds if sch_end_time.present?
+    sched.sch_hours_hund = sch_hours_hund if sch_hours_hund.present?
     sched.sch_wg5 = sch_wg5 if sch_wg5.present?
-    if s.sch_end_time < s.sch_start_time 
-      s.sch_end_time = s.sch_end_time + 1.days
-    end
-    s.sch_hours_hund = (s.sch_end_time - s.sch_start_time) / 3600
-    s.save
+    sched.save
 
-    pattern: 
-          :id => 34,
-    :wg_level => 3,
-      :wg_num => 191,
-        :day1 => "{\"start_time\":\"1900-01-01T13:00:00.000Z\",\"end_time\":\"1900-01-01T22:00:00.000Z\",\"hours\":9,\"activity\":\"\"}",
-        :day2 => "",
-        :day3 => "{\"start_time\":\"1900-01-01T14:00:00.000Z\",\"end_time\":\"1900-01-01T23:00:00.000Z\",\"hours\":9,\"activity\":\"\"}",
-        :day4 => "{\"start_time\":\"1900-01-01T13:00:00.000Z\",\"end_time\":\"1900-01-01T23:00:00.000Z\",\"hours\":10,\"activity\":\"\"}",
-        :day5 => "",
-        :day6 => "",
-        :day7 => "",
-  :created_at => Sun, 09 Mar 2014 18:21:37 UTC +00:00,
-  :updated_at => Sun, 09 Mar 2014 18:22:02 UTC +00:00
+    sched
   end
 
 end

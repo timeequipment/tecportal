@@ -248,7 +248,7 @@
     popup.css("left", e.pageX - offset.left + 'px');
     popup.css("top",  e.pageY - offset.top + 'px');
     popup.show();
-    $('#sch_start_time').focus();
+    $('#sch_start_time').select();
   }
 
   function editSchedule(td, e) {
@@ -274,7 +274,7 @@
     popup.css("left", e.pageX - offset.left + 'px');
     popup.css("top",  e.pageY - offset.top + 'px');
     popup.show();
-    $('#sch_start_time').focus();
+    $('#sch_start_time').select();
   }
 
   function resetSchedForm() {
@@ -290,7 +290,7 @@
     popup.hide(); 
   }
 
-  function updateCustPattern() {
+  function updateCustSchedule() {
     // Validate times
     var startCheck = checkTime($('#sch_start_time'));
     var endCheck   = checkTime($('#sch_end_time'));
@@ -304,6 +304,11 @@
       var end_time   = parseTime($('#sch_end_time').val());
       if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For am - pm
       if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
+
+      // Refresh inputs with parsed times
+      $('#sch_start_time').val(start_time.format('hh:mm a'))
+      $('#sch_end_time').val(end_time.format('hh:mm a'))
+
       s = {
         'start_time' : start_time, 
         'end_time' : end_time,
@@ -328,11 +333,11 @@
     } else {
       if (!startCheck) {
         $('#sch_start_time').css("background","#ffc4ba");
-        $('#sch_start_time').focus();
+        $('#sch_start_time').select();
       }
       if (!endCheck) {
         $('#sch_end_time').css("background","#ffc4ba");
-        $('#sch_end_time').focus();
+        $('#sch_end_time').select();
       }
     }
   }
@@ -356,22 +361,39 @@
       if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For am - pm
       if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
 
+      // Refresh inputs with parsed times
+      $('#sch_start_time').val(start_time.format('hh:mm a'))
+      $('#sch_end_time').val(end_time.format('hh:mm a'))
+
       // Send it to the server - save this schedule and reload page
       $.post('save_schedule', $('#form-popup').serialize(), function() {
-        location.reload();        
+        location.reload();
       });
 
     // If they didn't pass make them red
     } else {
       if (!startCheck) {
         $('#sch_start_time').css("background","#ffc4ba");
-        $('#sch_start_time').focus();
+        $('#sch_start_time').select();
       }
       if (!endCheck) {
         $('#sch_end_time').css("background","#ffc4ba");
-        $('#sch_end_time').focus();
+        $('#sch_end_time').select();
       }
     }
+  }
+
+  function deleteSchedule()
+  {
+    // Tell server to delete this schedule
+    $.post('delete_schedule', $('#form-popup').serialize(), function() {
+      location.reload();
+    });
+  }
+
+  function deleteCustSchedule()
+  {
+
   }
 
   // Check if input has a valid time
@@ -379,7 +401,8 @@
     var valid = true;
 
     // Regex for valid time format
-    re = /(\d{1,2}):(\d{2})(:00)?([ap]m)?/;
+    // re = /(\d{1,2}):(\d{2})(:00)?([ap]m)?/   // good
+    re = /(\d+)(?::(\d\d))?\s*(p?)/i;        // better
     var val = field.val().toString();
 
     // If there's input
@@ -453,19 +476,29 @@
     getEmployee();
   });
 
-  // Close button hides popup
-  $('#close-btn').click(function(){
-    cancelSchedule();
-  });
-
   // OK button updates cust sched
   $('#save-cust-sched-btn').click(function(){
-    updateCustPattern();
+    updateCustSchedule();
   });
 
   // OK button updates sched
   $('#save-sched-btn').click(function(){
     saveSchedule();
+  });
+
+  // Close button hides popup
+  $('#close-sched-btn, #close-cust-sched-btn').click(function(){
+    cancelSchedule();
+  });
+
+  // Delete button deletes sched
+  $('#delete-sched-btn').click(function(){
+    deleteSchedule();
+  });
+
+  // Delete button deletes cust sched
+  $('#delete-cust-sched-btn').click(function(){
+    deleteCustSchedule();
   });
 
   // When user clicks on a cust schedule
@@ -476,6 +509,46 @@
   // When user clicks on a schedule
   $('.sched').click(function(e){
     editSchedule($(this), e);
+  });
+
+  // Expand button shows links
+  $('#expand-btn').click(function(e) {
+    e.preventDefault();
+    if ($('#links-expand').width() == 0)
+    {
+      $('#expand-btn').html('>>');
+      $('#expand-btn').css('margin-right','-2px');
+      $('#home-btn').css('margin-left','-7px');
+      $("#links-expand").animate({
+        "width": "330px",
+      }, 300 );
+    }
+    else
+    {
+     $('#expand-btn').html('<<');
+      $('#expand-btn').css('margin-right','-5px');
+      $('#home-btn').css('margin-left','0px');
+      $("#links-expand").animate({
+        "width": "0px",
+      }, 300 );
+    }
+  });
+
+  // Cust filter saves filter, reloads page
+  $('#cust_filter').change(function() {
+    $.get('filter', { cust_filter: $(this).val() }, function() {
+      location.reload();
+    });
+  });
+
+  // Stop sched popup form from submitting normally
+  $('#form-popup').submit(function(event) {
+    event.preventDefault();
+  });
+
+  // When user presses escape, hide sched-popup
+  $(document).keyup(function(e) {
+    if (e.keyCode == 27) { cancelSchedule(); }   // code 27 = escape key
   });
 
   // Attach a submit handler to the customer form

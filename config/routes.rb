@@ -14,6 +14,7 @@ Tecportal::Application.routes.draw do
   get 'plugin_service_master/import_workgroups'
   get 'plugin_service_master/load_schedules'
   post 'plugin_service_master/save_schedule'
+  post 'plugin_service_master/delete_schedule'
   get 'plugin_service_master/filter'
   get 'plugin_service_master/next_week'
   get 'plugin_service_master/prev_week'

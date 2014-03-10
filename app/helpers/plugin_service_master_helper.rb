@@ -26,7 +26,8 @@ module PluginServiceMasterHelper
        starttime='#{ sched.sch_start_time.strftime('%-l:%M %p') }'
        endtime='#{ sched.sch_end_time.strftime('%-l:%M %p') }'
        cust='#{ sched.sch_wg3 }'
-       activity='#{ sched.sch_wg5 }'"
+       activity='#{ sched.sch_wg5 }'
+       title='#{ sched.sch_hours_hund.to_f.round(2) } hours'"
     else
       attributes +=
       "schid filekey date starttime endtime cust activity"   

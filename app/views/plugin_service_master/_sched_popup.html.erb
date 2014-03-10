@@ -26,10 +26,13 @@
     </div>
     <br>
     <% if editing_customer %>
-      <div id='save-sched-btn' class="button right">OK</div>
+      <input type="submit" id='save-sched-btn' value="OK">
+      <input type="submit" id='close-sched-btn' value="Cancel">
+      <input type="submit" id='delete-sched-btn' value="Delete">
     <% else %>
-      <div id='save-cust-sched-btn' class="button right">OK</div>
+      <input type="submit" id='save-cust-sched-btn' value="OK">
+      <input type="submit" id='close-cust-sched-btn' value="Cancel">
+      <input type="submit" id='delete-cust-sched-btn' value="Delete">
     <% end %>
-    <div id='close-btn' class="button left">Cancel</div>
   </form>
 </div>

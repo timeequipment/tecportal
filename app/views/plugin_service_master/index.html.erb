@@ -7,8 +7,11 @@
       <%= @enddate  .strftime '%b %d' %>
     </div>
     <%= link_to ">", plugin_service_master_next_week_path %>
-    <%= link_to "Generate", plugin_service_master_generate_scheds_path %>
     <%= render partial: 'links' %>
+    <div id="cust-filter-wrap">
+      <%= label_tag :cust_filter, 'Customer' %>
+      <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
+    </div>
   </header>
 
   <main>
@@ -17,12 +20,12 @@
         <tr>
           <th class="name">Name</th>
           <th class="cust">Customer</th>
-          <th class="sched">Monday</br>01/06</th>
-          <th class="sched">Tuesday</br>01/07</th>
-          <th class="sched">Wednesday</br>01/08</th>
-          <th class="sched">Thursday</br>01/09</th>
-          <th class="sched">Friday</br>01/12</th>
-          <th class="sched">Saturday</br>01/11</th>
+          <th class="sched">Monday</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></th>
+          <th class="sched">Tuesday</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
+          <th class="sched">Wednesday</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
+          <th class="sched">Thursday</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
+          <th class="sched">Friday</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
+          <th class="sched">Saturday</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
           <th class="custtotal">Cust.</br>Total</th>
           <th class="emptotal">Emp.</br>Total</th>
           <th class="outside"></th>
@@ -56,12 +59,9 @@
       <% end %>
       <%= render partial: "sched_popup", locals: { editing_customer: true } %>
     </table>
-
-    <%= render "shared/spinner" %>
-
+    <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
     <br>
-    <div id="progress-status"></div>
-    <div id="progress-bar"><div id="progress-label"></div></div>
+    <%= render "shared/spinner" %>
   </main>
 </div>  
 
