@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140306015422) do
+ActiveRecord::Schema.define(:version => 20140310075204) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
@@ -71,7 +71,6 @@ ActiveRecord::Schema.define(:version => 20140306015422) do
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "plugins", :force => true do |t|
-    t.integer  "type"
     t.string   "name"
     t.string   "description"
     t.datetime "created_at",  :null => false
