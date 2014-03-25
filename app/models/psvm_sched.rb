@@ -23,6 +23,8 @@ class PsvmSched < ActiveRecord::Base
       :sch_wg7,
       :unique_id
 
+    attr_accessor :overlapping
+
     def after_initialize(attributes = {}, options = {})
       self[:filekey] = attributes[:filekey] if attributes[:filekey].present?
       self[:sch_wg3] = attributes[:sch_wg3] if attributes[:sch_wg3].present?

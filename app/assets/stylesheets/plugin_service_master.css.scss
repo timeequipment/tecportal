@@ -148,8 +148,7 @@
     &:hover     { background: #EBBF8F; } }
   td.supervision { background: #E0BAFD; 
     &:hover     { background: #C294E5; } }
-
-  td.overlap { font-weight: bold; color: #FF9420; }
+  td.overlap   { font-weight: bold; color: #FF9420; }
   td.flattened {
     padding: 0;
     border-bottom: solid 1px transparent;
@@ -192,9 +191,16 @@
 
   }
 
+#legend {
+  float: left;
+  margin: 24px 0;
+  height: 300px;
+  width: 200px;
+}
+
 .gen-btn {
   float: left;
-  margin: 12px 0 60px 670px;
+  margin: 12px 0 60px 470px;
 }
   
   

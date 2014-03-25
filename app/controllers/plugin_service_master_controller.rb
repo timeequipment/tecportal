@@ -38,7 +38,20 @@ class PluginServiceMasterController < ApplicationController
     @cust_filter ||= PsvmWorkgroup.where(wg_level: 3).first
 
     # Get active employees that are assigned to this customer
-    @employees = PsvmEmp.where(wg3: @cust_filter, active_status: 0).order('last_name')
+    log 'cust_filter', @cust_filter
+
+    @employees = PsvmEmp
+      .joins(:psvm_workgroups)
+      .where(psvm_workgroups: {wg_level: 3, wg_num: @cust_filter})
+      .order('last_name')      
+
+      # PsvmEmp.joins(
+      #          :psvm_emp_workgroups)
+      #        .where(
+      #          psvm_emp_workgroups: {psvm_workgroup_id: }, 
+      #          active_status: 0)
+      #        .order(
+      #          :last_name)
 
     # Make a view week
     @v = PluginServiceMaster::ViewWeek.new
@@ -58,6 +71,48 @@ class PluginServiceMasterController < ApplicationController
       ew = PluginServiceMaster::EmpWeek.new
       ew.employee = emp
       ew.cust_weeks = get_cust_weeks(emp, startdate, enddate)
+
+      # Check for any overlapping schedules
+      ew.cust_weeks.each do |cw1|
+        ew.cust_weeks.each do |cw2|
+          if cw1.day1.id != cw2.day1.id && 
+             cw1.day1.sch_start_time < cw2.day1.sch_end_time &&
+             cw2.day1.sch_start_time < cw1.day1.sch_end_time
+             cw1.day1.overlapping = true;
+             cw2.day1.overlapping = true;
+          end
+          if cw1.day2.id != cw2.day2.id && 
+             cw1.day2.sch_start_time < cw2.day2.sch_end_time &&
+             cw2.day2.sch_start_time < cw1.day2.sch_end_time
+             cw1.day2.overlapping = true;
+             cw2.day2.overlapping = true;
+          end
+          if cw1.day3.id != cw2.day3.id && 
+             cw1.day3.sch_start_time < cw2.day3.sch_end_time &&
+             cw2.day3.sch_start_time < cw1.day3.sch_end_time
+             cw1.day3.overlapping = true;
+             cw2.day3.overlapping = true;
+          end
+          if cw1.day4.id != cw2.day4.id && 
+             cw1.day4.sch_start_time < cw2.day4.sch_end_time &&
+             cw2.day4.sch_start_time < cw1.day4.sch_end_time
+             cw1.day4.overlapping = true;
+             cw2.day4.overlapping = true;
+          end
+          if cw1.day5.id != cw2.day5.id && 
+             cw1.day5.sch_start_time < cw2.day5.sch_end_time &&
+             cw2.day5.sch_start_time < cw1.day5.sch_end_time
+             cw1.day5.overlapping = true;
+             cw2.day5.overlapping = true;
+          end
+          if cw1.day6.id != cw2.day6.id && 
+             cw1.day6.sch_start_time < cw2.day6.sch_end_time &&
+             cw2.day6.sch_start_time < cw1.day6.sch_end_time
+             cw1.day6.overlapping = true;
+             cw2.day6.overlapping = true;
+          end
+        end  
+      end
 
       # Calculate total hours
       ew.total_hours = 0.0
@@ -80,9 +135,6 @@ class PluginServiceMasterController < ApplicationController
 
     # Get the customers this employee is assigned to
     assigned_custs = employee.customers.map {|c| c.wg_num }
-
-    # And the home customer
-    assigned_custs << employee.wg3
 
     # Get the customers this employee is scheduled for
     scheduled_custs = PsvmSched.where(sch_date: @startdate..@enddate, filekey: employee.filekey)
@@ -113,7 +165,6 @@ class PluginServiceMasterController < ApplicationController
 
       # For each sched
       scheds.each do |sched|
-        
         # Plug it into a day on the custweek
         cw.day1 = sched if sched.sch_date.monday?
         cw.day2 = sched if sched.sch_date.tuesday?
@@ -132,48 +183,48 @@ class PluginServiceMasterController < ApplicationController
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
           sch_date: @startdate + 0.days, 
-          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
-          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
       if cw.day2.nil? 
         cw.day2 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
           sch_date: @startdate + 1.days, 
-          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
-          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
       if cw.day3.nil?
         cw.day3 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
           sch_date: @startdate + 2.days, 
-          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
-          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
       if cw.day4.nil?
         cw.day4 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
           sch_date: @startdate + 3.days, 
-          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
-          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
       if cw.day5.nil?
         cw.day5 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
           sch_date: @startdate + 4.days, 
-          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
-          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
       if cw.day6.nil?
         cw.day6 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
           sch_date: @startdate + 5.days, 
-          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0), 
-          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0)})
+          sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
+          sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
       
       cust_weeks << cw
@@ -375,8 +426,8 @@ class PluginServiceMasterController < ApplicationController
       s = PsvmSched.where(id: schid).first_or_initialize
       s.filekey = filekey if filekey.present?
       s.sch_date = Date.parse(sch_date) if sch_date.present?
-      s.sch_start_time = DateTime.parse(sch_start_time) if sch_start_time.present?
-      s.sch_end_time = DateTime.parse(sch_end_time) if sch_end_time.present?
+      s.sch_start_time = DateTime.parse(sch_start_time).utc if sch_start_time.present?
+      s.sch_end_time = DateTime.parse(sch_end_time).utc if sch_end_time.present?
       s.sch_wg3 = sch_wg3 if sch_wg3.present?
       s.sch_wg5 = sch_wg5 if sch_wg5.present?
       if s.sch_end_time < s.sch_start_time 
@@ -465,29 +516,38 @@ class PluginServiceMasterController < ApplicationController
             # For each day that is unscheduled, get it from the pattern
             filekey = ew.employee.filekey
             custnum = cw.customer.wg_num
+            log '1 filekey', filekey
+            log '1 custnum', custnum
+            log '1 startdate', @startdate
             if cw.day1.id.nil? && pattern.day1.present?
+              log '1 pattern.day1', pattern.day1
               cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
-              log 'cw-day1', cw.day1
+              log '3 cw-day1', cw.day1
             end
             if cw.day2.id.nil? && pattern.day2.present?
+              log '1 pattern.day2', pattern.day2
               cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
-              log 'cw-day2', cw.day2
+              log '3 cw-day2', cw.day2
             end
             if cw.day3.id.nil? && pattern.day3.present?
+              log '1 pattern.day3', pattern.day3
               cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
-              log 'cw-day3', cw.day3
+              log '3 cw-day3', cw.day3
             end
             if cw.day4.id.nil? && pattern.day4.present?
+              log '1 pattern.day4', pattern.day4
               cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
-              log 'cw-day4', cw.day4
+              log '3 cw-day4', cw.day4
             end
             if cw.day5.id.nil? && pattern.day5.present?
+              log '1 pattern.day5', pattern.day5
               cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
-              log 'cw-day5', cw.day5
+              log '3 cw-day5', cw.day5
             end
             if cw.day6.id.nil? && pattern.day6.present?
+              log '1 pattern.day6', pattern.day6
               cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
-              log 'cw-day6', cw.day6
+              log '3 cw-day6', cw.day6
             end
           end
         end
@@ -505,19 +565,30 @@ class PluginServiceMasterController < ApplicationController
 
     s = JSON[serialized]
 
-    sch_start_time = s["start_time"]
-    sch_end_time = s["end_time"]
-    sch_hours_hund = s["hours"]
-    sch_wg5 = s["activity"]
+    s_start = Time.parse(s["start_time"])
+    s_end = Time.parse(s["end_time"])
+    sch_hours_hund = s["hours"].to_f
+    sch_wg5 = s["activity"].to_i
+
+    log '2 start_time', s["start_time"]
+    log '2 end_time', s["end_time"]
+    log '2 s_start', s_start
+    log '2 s_end', s_end
+    log '2 date', date
 
     sched = PsvmSched.new
     sched.sch_date = date
     sched.filekey = filekey
     sched.sch_wg3 = custnum
-    sched.sch_start_time = date.midnight + Time.parse(sch_start_time).seconds_since_midnight.seconds if sch_start_time.present?
-    sched.sch_end_time = date.midnight + Time.parse(sch_end_time).seconds_since_midnight.seconds if sch_end_time.present?
-    sched.sch_hours_hund = sch_hours_hund if sch_hours_hund.present?
-    sched.sch_wg5 = sch_wg5 if sch_wg5.present?
+    sched.sch_start_time = DateTime.new(
+      date.year, date.month, date.day, s_start.hour, s_start.min)
+    sched.sch_end_time = DateTime.new(
+      date.year, date.month, date.day, s_end.hour, s_end.min)
+    log '2 schstart', sched.sch_start_time
+    log '2 schend', sched.sch_end_time
+
+    sched.sch_hours_hund = sch_hours_hund
+    sched.sch_wg5 = sch_wg5
     sched.save
 
     sched

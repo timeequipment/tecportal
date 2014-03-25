@@ -59,6 +59,7 @@
       <% end %>
       <%= render partial: "sched_popup", locals: { editing_customer: true } %>
     </table>
+    <%= render partial: "legend" %>
     <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
     <br>
     <%= render "shared/spinner" %>

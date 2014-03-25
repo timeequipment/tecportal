@@ -82,44 +82,44 @@
       // View info for days that have schedules defined
       if (day1) {
         $('#day1').html(
-          day1.start_time.format("HH:mm") + ' - ' + 
-          day1.end_time.format("HH:mm"));
+          day1.start_time.format("h:mm a") + ' - ' + 
+          day1.end_time.format("h:mm a"));
         total += day1.hours;
       }
       if (day2) {
         $('#day2').html(
-          day2.start_time.format("HH:mm") + ' - ' + 
-          day2.end_time.format("HH:mm"));
+          day2.start_time.format("h:mm a") + ' - ' + 
+          day2.end_time.format("h:mm a"));
         total += day2.hours;
       }
       if (day3) {
         $('#day3').html(
-          day3.start_time.format("HH:mm") + ' - ' + 
-          day3.end_time.format("HH:mm"));
+          day3.start_time.format("h:mm a") + ' - ' + 
+          day3.end_time.format("h:mm a"));
         total += day3.hours;
       }
       if (day4) {
         $('#day4').html(
-          day4.start_time.format("HH:mm") + ' - ' + 
-          day4.end_time.format("HH:mm"));
+          day4.start_time.format("h:mm a") + ' - ' + 
+          day4.end_time.format("h:mm a"));
         total += day4.hours;
       }
       if (day5) {
         $('#day5').html(
-          day5.start_time.format("HH:mm") + ' - ' + 
-          day5.end_time.format("HH:mm"));
+          day5.start_time.format("h:mm a") + ' - ' + 
+          day5.end_time.format("h:mm a"));
         total += day5.hours;
       }
       if (day6) {
         $('#day6').html(
-          day6.start_time.format("HH:mm") + ' - ' + 
-          day6.end_time.format("HH:mm"));
+          day6.start_time.format("h:mm a") + ' - ' + 
+          day6.end_time.format("h:mm a"));
         total += day6.hours;
       }
       if (day7) {
         $('#day7').html(
-          day7.start_time.format("HH:mm") + ' - ' + 
-          day7.end_time.format("HH:mm"));
+          day7.start_time.format("h:mm a") + ' - ' + 
+          day7.end_time.format("h:mm a"));
         total += day7.hours;
       }
       $('#total').html(total.toFixed(2));
@@ -168,38 +168,38 @@
     var day7_str = cust_pattern.day7 || "";
     if (day1_str.length > 0) {
       cust_pattern.day1 = JSON.parse(day1_str);
-      cust_pattern.day1.start_time = moment(cust_pattern.day1.start_time)
-      cust_pattern.day1.end_time = moment(cust_pattern.day1.end_time)
+      cust_pattern.day1.start_time = moment.utc(cust_pattern.day1.start_time)
+      cust_pattern.day1.end_time = moment.utc(cust_pattern.day1.end_time)
     } 
     if (day2_str.length > 0) {
       cust_pattern.day2 = JSON.parse(day2_str);
-      cust_pattern.day2.start_time = moment(cust_pattern.day2.start_time)
-      cust_pattern.day2.end_time = moment(cust_pattern.day2.end_time)
+      cust_pattern.day2.start_time = moment.utc(cust_pattern.day2.start_time)
+      cust_pattern.day2.end_time = moment.utc(cust_pattern.day2.end_time)
     } 
     if (day3_str.length > 0) {
       cust_pattern.day3 = JSON.parse(day3_str);
-      cust_pattern.day3.start_time = moment(cust_pattern.day3.start_time)
-      cust_pattern.day3.end_time = moment(cust_pattern.day3.end_time)
+      cust_pattern.day3.start_time = moment.utc(cust_pattern.day3.start_time)
+      cust_pattern.day3.end_time = moment.utc(cust_pattern.day3.end_time)
     } 
     if (day4_str.length > 0) {
       cust_pattern.day4 = JSON.parse(day4_str);
-      cust_pattern.day4.start_time = moment(cust_pattern.day4.start_time)
-      cust_pattern.day4.end_time = moment(cust_pattern.day4.end_time)
+      cust_pattern.day4.start_time = moment.utc(cust_pattern.day4.start_time)
+      cust_pattern.day4.end_time = moment.utc(cust_pattern.day4.end_time)
     } 
     if (day5_str.length > 0) {
       cust_pattern.day5 = JSON.parse(day5_str);
-      cust_pattern.day5.start_time = moment(cust_pattern.day5.start_time)
-      cust_pattern.day5.end_time = moment(cust_pattern.day5.end_time)
+      cust_pattern.day5.start_time = moment.utc(cust_pattern.day5.start_time)
+      cust_pattern.day5.end_time = moment.utc(cust_pattern.day5.end_time)
     } 
     if (day6_str.length > 0) {
       cust_pattern.day6 = JSON.parse(day6_str);
-      cust_pattern.day6.start_time = moment(cust_pattern.day6.start_time)
-      cust_pattern.day6.end_time = moment(cust_pattern.day6.end_time)
+      cust_pattern.day6.start_time = moment.utc(cust_pattern.day6.start_time)
+      cust_pattern.day6.end_time = moment.utc(cust_pattern.day6.end_time)
     } 
     if (day7_str.length > 0) {
       cust_pattern.day7 = JSON.parse(day7_str);
-      cust_pattern.day7.start_time = moment(cust_pattern.day7.start_time)
-      cust_pattern.day7.end_time = moment(cust_pattern.day7.end_time)
+      cust_pattern.day7.start_time = moment.utc(cust_pattern.day7.start_time)
+      cust_pattern.day7.end_time = moment.utc(cust_pattern.day7.end_time)
     } 
   }
 
@@ -209,38 +209,38 @@
     day_editing = td.attr('daynum');
     // Load the values into the schedule popup
     if (day_editing === '1' && cust_pattern.day1) {
-      $('#sch_start_time').val(cust_pattern.day1.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day1.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day1.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day1.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day1.activity);
     }
     if (day_editing === '2' && cust_pattern.day2) {
-      $('#sch_start_time').val(cust_pattern.day2.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day2.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day2.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day2.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day2.activity);
     }
     if (day_editing === '3' && cust_pattern.day3) {
-      $('#sch_start_time').val(cust_pattern.day3.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day3.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day3.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day3.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day3.activity);
     }
     if (day_editing === '4' && cust_pattern.day4) {
-      $('#sch_start_time').val(cust_pattern.day4.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day4.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day4.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day4.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day4.activity);
     }
     if (day_editing === '5' && cust_pattern.day5) {
-      $('#sch_start_time').val(cust_pattern.day5.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day5.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day5.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day5.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day5.activity);
     }
     if (day_editing === '6' && cust_pattern.day6) {
-      $('#sch_start_time').val(cust_pattern.day6.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day6.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day6.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day6.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day6.activity);
     }
     if (day_editing === '7' && cust_pattern.day7) {
-      $('#sch_start_time').val(cust_pattern.day7.start_time.format('HH:mm')); 
-      $('#sch_end_time')  .val(cust_pattern.day7.end_time.format('HH:mm')); 
+      $('#sch_start_time').val(cust_pattern.day7.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(cust_pattern.day7.end_time.format('h:mm a')); 
       $('#sch_wg5')  .val(cust_pattern.day7.activity);
     }
     // Show the schedule popup
@@ -306,8 +306,8 @@
       if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
 
       // Refresh inputs with parsed times
-      $('#sch_start_time').val(start_time.format('hh:mm a'))
-      $('#sch_end_time').val(end_time.format('hh:mm a'))
+      $('#sch_start_time').val(start_time.format('h:mm a'))
+      $('#sch_end_time').val(end_time.format('h:mm a'))
 
       s = {
         'start_time' : start_time, 
@@ -362,8 +362,8 @@
       if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
 
       // Refresh inputs with parsed times
-      $('#sch_start_time').val(start_time.format('hh:mm a'))
-      $('#sch_end_time').val(end_time.format('hh:mm a'))
+      $('#sch_start_time').val(start_time.format('h:mm a'))
+      $('#sch_end_time').val(end_time.format('h:mm a'))
 
       // Send it to the server - save this schedule and reload page
       $.post('save_schedule', $('#form-popup').serialize(), function() {
@@ -393,7 +393,29 @@
 
   function deleteCustSchedule()
   {
+    // Delete in memory and in html
+    if (day_editing === '1') {
+      cust_pattern.day1 = "";
+      $('#day1').html('');
+    } else if (day_editing === '2') {
+      cust_pattern.day2 = "";
+      $('#day2').html('');
+    } else if (day_editing === '3') {
+      cust_pattern.day3 = "";
+      $('#day3').html('');
+    } else if (day_editing === '4') {
+      cust_pattern.day4 = "";
+      $('#day4').html('');
+    } else if (day_editing === '5') {
+      cust_pattern.day5 = "";
+      $('#day5').html('');
+    } else if (day_editing === '6') {
+      cust_pattern.day6 = "";
+      $('#day6').html('');
+    }
 
+    // exit popup form
+    cancelSchedule();
   }
 
   // Check if input has a valid time
@@ -443,7 +465,7 @@
     // so a regex is the next best choice
 
     if (!dt) {
-      dt = moment("1-1-1900", "M-D-YYYY");
+      dt = moment.utc("1-1-1900", "M-D-YYYY");
     }
  
     var time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/i);
