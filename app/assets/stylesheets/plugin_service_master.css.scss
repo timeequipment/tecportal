@@ -191,18 +191,33 @@
 
   }
 
-#legend {
-  float: left;
-  margin: 24px 0;
-  height: 300px;
-  width: 200px;
-}
+  #legend {
+    float: left;
+    margin: 24px 0;
+    height: 300px;
+    width: 200px;
+  }
 
-.gen-btn {
-  float: left;
-  margin: 12px 0 60px 470px;
-}
-  
+  .export-btn {
+    float: left;
+    margin: 12px 0 0 325px;
+  } 
+ 
+  .gen-btn {
+    float: left;
+    margin: 12px 0 0 12px;
+  }
+   
+  #progress-bar-wrapper {
+    float: left;
+    margin: 20px 0 0 210px;
+  }
+
+  #spinner-container {
+    position: relative;
+    top: 93px;
+    left: 363px;
+  }
   
 
 

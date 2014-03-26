@@ -19,6 +19,9 @@ Tecportal::Application.routes.draw do
   get 'plugin_service_master/next_week'
   get 'plugin_service_master/prev_week'
   get 'plugin_service_master/generate_scheds'
+  get 'plugin_service_master/export'
+  get 'plugin_service_master/progress'
+  get 'plugin_service_master/finish'
 
   # Snohomish plugin
   get 'plugin_snohomish/index'

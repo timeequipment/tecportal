@@ -6,7 +6,7 @@ class PluginServiceMasterController < ApplicationController
 
   def index
     begin
-      log "\n\nmethod", 'index', 0
+      log "\n\nmethod", __method__, 0
 
       construct_view
 
@@ -163,6 +163,9 @@ class PluginServiceMasterController < ApplicationController
         sch_wg3: custnum)
         .order('sch_date, sch_start_time')
 
+      # Save these schedules in case we want to export them to AoD later
+      save_scheds_to_export scheds
+
       # For each sched
       scheds.each do |sched|
         # Plug it into a day on the custweek
@@ -235,7 +238,7 @@ class PluginServiceMasterController < ApplicationController
 
   def settings
     begin
-      log "\n\nmethod", 'settings', 0
+      log "\n\nmethod", __method__, 0
     
     rescue Exception => exc
       log 'exception', exc.message
@@ -245,7 +248,7 @@ class PluginServiceMasterController < ApplicationController
 
   def get_employee
     begin
-      log "\n\nmethod", 'get_employee', 0
+      log "\n\nmethod", __method__, 0
       @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
       @workgroups = @employee.psvm_workgroups.order('wg_name')
       render json: [ @employee, @workgroups ].to_json
@@ -258,7 +261,7 @@ class PluginServiceMasterController < ApplicationController
 
   def get_customer
     begin
-      log "\n\nmethod", 'get_customer', 0
+      log "\n\nmethod", __method__, 0
       @customer      = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
       @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
       render json: [ @customer, @custpattern, @activities ].to_json
@@ -271,7 +274,7 @@ class PluginServiceMasterController < ApplicationController
 
   def save_customer
     begin
-      log "\n\nmethod", 'save_customer', 0
+      log "\n\nmethod", __method__, 0
       @customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
       @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first_or_initialize
       @customer.wg_name = params[:wg_name]
@@ -294,7 +297,7 @@ class PluginServiceMasterController < ApplicationController
 
   def save_employee
     begin
-      log "\n\nmethod", 'save_employee', 0
+      log "\n\nmethod", __method__, 0
       @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
       @employee.first_name = params[:first_name]
       @employee.last_name = params[:last_name]
@@ -311,7 +314,7 @@ class PluginServiceMasterController < ApplicationController
 
   def employee_list
     begin
-      log "\n\nmethod", 'employee_list', 0
+      log "\n\nmethod", __method__, 0
       @employees = PsvmEmp.where(active_status: 0).order('last_name, first_name')
 
     rescue Exception => exc
@@ -322,7 +325,7 @@ class PluginServiceMasterController < ApplicationController
 
   def customer_list
     begin
-      log "\n\nmethod", 'customer_list', 0
+      log "\n\nmethod", __method__, 0
       @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
       @activities = PsvmWorkgroup.where('wg_level = 5').select('wg_num, wg_name').order('wg_name')
       if params[:wg_num]
@@ -340,7 +343,7 @@ class PluginServiceMasterController < ApplicationController
 
   def import_employees
     begin
-      log "\n\nmethod", 'import_employees', 0
+      log "\n\nmethod", __method__, 0
       
       # Request employees from AoD, in the background
       Delayed::Job.enqueue PluginServiceMaster::ImportEmployees.new(
@@ -356,7 +359,7 @@ class PluginServiceMasterController < ApplicationController
 
   def import_workgroups
     begin
-      log "\n\nmethod", 'import_workgroups', 0
+      log "\n\nmethod", __method__, 0
       
       # # Request workgroup1 from AoD, in the background
       # Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
@@ -404,7 +407,7 @@ class PluginServiceMasterController < ApplicationController
 
   def load_schedules
     begin
-      log "\n\nmethod", 'load_schedules', 0
+      log "\n\nmethod", __method__, 0
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -414,7 +417,7 @@ class PluginServiceMasterController < ApplicationController
 
   def save_schedule
     begin
-      log "\n\nmethod", 'save_schedule', 0
+      log "\n\nmethod", __method__, 0
       schid = params[:schid]
       filekey = params[:filekey]
       sch_date = params[:sch_date]
@@ -446,7 +449,7 @@ class PluginServiceMasterController < ApplicationController
 
   def delete_schedule
     begin
-      log "\n\nmethod", 'delete_schedule', 0
+      log "\n\nmethod", __method__, 0
 
       PsvmSched.destroy(params[:schid].to_i) if params[:schid].present?
 
@@ -460,7 +463,7 @@ class PluginServiceMasterController < ApplicationController
 
   def filter
     begin
-      log "\n\nmethod", 'filter', 0
+      log "\n\nmethod", __method__, 0
 
       # Save the filter(s) to the session
       session[:cust_filter] = params[:cust_filter]
@@ -474,7 +477,7 @@ class PluginServiceMasterController < ApplicationController
 
   def next_week
     begin
-      log "\n\nmethod", 'next_week', 0
+      log "\n\nmethod", __method__, 0
       session[:settings].weekstart = session[:settings].weekstart + 7.days
       redirect_to action: 'index' 
       
@@ -486,7 +489,7 @@ class PluginServiceMasterController < ApplicationController
 
   def prev_week
     begin
-      log "\n\nmethod", 'prev_week', 0
+      log "\n\nmethod", __method__, 0
       session[:settings].weekstart = session[:settings].weekstart - 7.days
       redirect_to action: 'index' 
 
@@ -498,7 +501,7 @@ class PluginServiceMasterController < ApplicationController
 
   def generate_scheds
     begin
-      log "\n\nmethod", 'generate_scheds', 0
+      log "\n\nmethod", __method__, 0
 
       # Get this view
       construct_view
@@ -593,5 +596,51 @@ class PluginServiceMasterController < ApplicationController
 
     sched
   end
+
+  def export
+    log "\n\nmethod", __method__, 0
+    begin
+
+      cache_save current_user.id, 'svm_status', 'Initializing'
+      cache_save current_user.id, 'svm_progress', '10'
+      sleep 1
+
+      # Get the schedules to export
+      scheds = session[:scheds_to_export]
+      scheds ||= []
+
+      # Export them to AoD
+      if scheds.length > 0
+        Delayed::Job.enqueue PluginServiceMaster::ExportToAod.new(
+          current_user.id,
+          session[:settings],
+          scheds)
+      end
+
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+      flash.now[:alert] = exc.message
+    end
+  end
+
+  def progress
+    progress = cache_get current_user.id, 'svm_progress'
+    status   = cache_get current_user.id, 'svm_status'
+
+    if progress != '100'
+      render json: { progress: progress, status: status }.to_json
+    else
+      render json: true
+    end
+  end
+
+  def save_scheds_to_export(scheds)
+    saved_scheds = session[:scheds_to_export]
+    saved_scheds ||= []
+    saved_scheds.concat scheds
+    session[:scheds_to_export] = saved_scheds
+  end
+
 
 end

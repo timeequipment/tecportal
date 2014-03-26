@@ -60,9 +60,11 @@
       <%= render partial: "sched_popup", locals: { editing_customer: true } %>
     </table>
     <%= render partial: "legend" %>
+    <%= link_to "Export to AoD", plugin_service_master_export_to_aod_path, class: 'button export-btn' %>
     <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
     <br>
     <%= render "shared/spinner" %>
+    <%= render "shared/progressbar" %>
   </main>
 </div>  
 
@@ -90,6 +92,59 @@
   // $.get('import_employees');
   // $.get('import_workgroups');
 
+  function poll()
+  {
+    $.get('progress', function(data) {
+
+      // If job completed
+      if (data === true)
+      {
+        // Show results
+        $('#progress-status').text('Finished')
+        $('#progress-bar').progressbar('value', 100);
+
+        // Hide spinner and progress bar
+        $('#spinner').hide();
+      }
+      else if (data.status)
+      {
+        // Show status
+        $('#progress-status').text(data.status)
+        $('#progress-bar').progressbar('value', parseInt(data.progress)); 
+
+        // If job processing
+        if (data.status != '')
+        {
+          // Show spinner and check status again in 2 seconds
+          $('#spinner').show();
+          setTimeout(poll, 2000);
+        }
+      }
+    });
+  }
+
+  // When the user clicks the export button
+  $( ".export-btn" ).click(function( event ) {
+   
+    // Stop form from submitting normally
+    event.preventDefault();
+
+    // Show the spinner and progress bar
+    $('#spinner, #progress-bar-wrapper').show();
+
+    // Get form inputs
+    var payPeriod = $(this).find("input[name='payperiod']" ).val();
+
+    // Send inputs and run the export
+    $.get('export');
+
+    // Poll for status
+    setTimeout(poll, 2000);
+
+  });
+
 </script>
+
+
 
 
