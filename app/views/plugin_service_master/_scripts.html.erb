@@ -552,18 +552,28 @@
     $('#expand-btn').html('>>');
     $('#expand-btn').css('margin-right','-2px');
     $('#home-btn').css('margin-left','-7px');
-    $("#links-expand").animate({
-      "width": "330px",
-    }, animation );
+    if (animation === 0) {
+      $("#links-expand").css({
+        "width": "330px"});
+    } else {
+      $("#links-expand").animate({
+        "width": "330px",
+      }, animation );
+    }
   }
 
   function shrinkMenu(animation) {
     $('#expand-btn').html('<<');
     $('#expand-btn').css('margin-right','-5px');
     $('#home-btn').css('margin-left','0px');
-    $("#links-expand").animate({
-      "width": "0px",
-    }, animation );
+    if (animation === 0) {
+      $("#links-expand").css({
+        "width": "0px"});
+    } else {
+      $("#links-expand").animate({
+        "width": "0px",
+      }, animation );
+    }
   }
 
   // Team filter saves filter, reloads page
