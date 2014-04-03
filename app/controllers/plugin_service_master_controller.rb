@@ -29,29 +29,47 @@ class PluginServiceMasterController < ApplicationController
     @startdate ||= Date.today.beginning_of_week
     @enddate = @startdate + 6.days
 
+    # Get teams
+    @teams = PsvmEmp.where(active_status: 0).select(:custom1).uniq.map(&:custom1)
+    @teams.delete(nil)
+    @teams.delete("")
+
     # Get customers and activities
     @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
     @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_num')
 
+    # Get the current team filter
+    @team_filter = session[:team_filter]
+
     # Get the current customer filter
     @cust_filter = session[:cust_filter]
-    @cust_filter ||= PsvmWorkgroup.where(wg_level: 3).first
 
-    # Get active employees that are assigned to this customer
-    log 'cust_filter', @cust_filter
-
-    @employees = PsvmEmp
+    # If we're filtering by customer only, get the employees just for this customer
+    @employees = []
+    if @team_filter.blank? && @cust_filter.present?
+      @employees = PsvmEmp
       .joins(:psvm_workgroups)
       .where(psvm_workgroups: {wg_level: 3, wg_num: @cust_filter})
-      .order('last_name')      
+      .order('last_name')
 
-      # PsvmEmp.joins(
-      #          :psvm_emp_workgroups)
-      #        .where(
-      #          psvm_emp_workgroups: {psvm_workgroup_id: }, 
-      #          active_status: 0)
-      #        .order(
-      #          :last_name)
+    # If we're filtering by team only, get the employees just for this team
+    elsif @team_filter.present? && @cust_filter.blank?
+      @employees = PsvmEmp
+      .joins(:psvm_workgroups)
+      .where(custom1: @team_filter)
+      .order('last_name')    
+
+    # If we're filtering by both, get the employees matching both
+    elsif @team_filter.present? && @cust_filter.present?
+      @employees = PsvmEmp
+      .joins(:psvm_workgroups)
+      .where(custom1: @team_filter, 
+             psvm_workgroups: {wg_level: 3, wg_num: @cust_filter})
+      .order('last_name')    
+    end
+
+    # Clear the list of schedules we can export
+    clear_scheds_to_export
 
     # Make a view week
     @v = PluginServiceMaster::ViewWeek.new
@@ -301,6 +319,7 @@ class PluginServiceMasterController < ApplicationController
       @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
       @employee.first_name = params[:first_name]
       @employee.last_name = params[:last_name]
+      @employee.custom1 = params[:custom1]
       @employee.psvm_workgroups.clear
       @employee.psvm_workgroup_ids = params[:psvm_workgroup_ids].to_a
       @employee.save
@@ -345,10 +364,15 @@ class PluginServiceMasterController < ApplicationController
     begin
       log "\n\nmethod", __method__, 0
       
+      cache_save current_user.id, 'svm_status', 'Initializing'
+      cache_save current_user.id, 'svm_progress', '10'
+      sleep 1
+
       # Request employees from AoD, in the background
       Delayed::Job.enqueue PluginServiceMaster::ImportEmployees.new(
         current_user.id,
         session[:settings])
+      
       render json: true
 
     rescue Exception => exc
@@ -361,6 +385,10 @@ class PluginServiceMasterController < ApplicationController
     begin
       log "\n\nmethod", __method__, 0
       
+      cache_save current_user.id, 'svm_status', 'Initializing'
+      cache_save current_user.id, 'svm_progress', '10'
+      sleep 1
+
       # # Request workgroup1 from AoD, in the background
       # Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
       #   current_user.id,
@@ -461,11 +489,25 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
-  def filter
+  def team_filter
     begin
       log "\n\nmethod", __method__, 0
 
-      # Save the filter(s) to the session
+      # Save the filter to the session
+      session[:team_filter] = params[:team_filter]
+      render json: true
+
+    rescue Exception => exc
+      log 'exception', exc.message
+      log 'exception backtrace', exc.backtrace
+    end
+  end
+
+  def cust_filter
+    begin
+      log "\n\nmethod", __method__, 0
+
+      # Save the filter to the session
       session[:cust_filter] = params[:cust_filter]
       render json: true
 
@@ -519,38 +561,23 @@ class PluginServiceMasterController < ApplicationController
             # For each day that is unscheduled, get it from the pattern
             filekey = ew.employee.filekey
             custnum = cw.customer.wg_num
-            log '1 filekey', filekey
-            log '1 custnum', custnum
-            log '1 startdate', @startdate
             if cw.day1.id.nil? && pattern.day1.present?
-              log '1 pattern.day1', pattern.day1
               cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
-              log '3 cw-day1', cw.day1
             end
             if cw.day2.id.nil? && pattern.day2.present?
-              log '1 pattern.day2', pattern.day2
               cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
-              log '3 cw-day2', cw.day2
             end
             if cw.day3.id.nil? && pattern.day3.present?
-              log '1 pattern.day3', pattern.day3
               cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
-              log '3 cw-day3', cw.day3
             end
             if cw.day4.id.nil? && pattern.day4.present?
-              log '1 pattern.day4', pattern.day4
               cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
-              log '3 cw-day4', cw.day4
             end
             if cw.day5.id.nil? && pattern.day5.present?
-              log '1 pattern.day5', pattern.day5
               cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
-              log '3 cw-day5', cw.day5
             end
             if cw.day6.id.nil? && pattern.day6.present?
-              log '1 pattern.day6', pattern.day6
               cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
-              log '3 cw-day6', cw.day6
             end
           end
         end
@@ -573,12 +600,6 @@ class PluginServiceMasterController < ApplicationController
     sch_hours_hund = s["hours"].to_f
     sch_wg5 = s["activity"].to_i
 
-    log '2 start_time', s["start_time"]
-    log '2 end_time', s["end_time"]
-    log '2 s_start', s_start
-    log '2 s_end', s_end
-    log '2 date', date
-
     sched = PsvmSched.new
     sched.sch_date = date
     sched.filekey = filekey
@@ -587,8 +608,6 @@ class PluginServiceMasterController < ApplicationController
       date.year, date.month, date.day, s_start.hour, s_start.min)
     sched.sch_end_time = DateTime.new(
       date.year, date.month, date.day, s_end.hour, s_end.min)
-    log '2 schstart', sched.sch_start_time
-    log '2 schend', sched.sch_end_time
 
     sched.sch_hours_hund = sch_hours_hund
     sched.sch_wg5 = sch_wg5
@@ -608,6 +627,7 @@ class PluginServiceMasterController < ApplicationController
       # Get the schedules to export
       scheds = session[:scheds_to_export]
       scheds ||= []
+      log 'export count', scheds.count
 
       # Export them to AoD
       if scheds.length > 0
@@ -616,6 +636,8 @@ class PluginServiceMasterController < ApplicationController
           session[:settings],
           scheds)
       end
+
+      render json: true
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -640,6 +662,10 @@ class PluginServiceMasterController < ApplicationController
     saved_scheds ||= []
     saved_scheds.concat scheds
     session[:scheds_to_export] = saved_scheds
+  end
+
+  def clear_scheds_to_export
+    session[:scheds_to_export] = []
   end
 
 

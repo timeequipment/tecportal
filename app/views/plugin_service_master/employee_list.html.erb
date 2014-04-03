@@ -1,7 +1,7 @@
 <div class="plugin-service-master">  
 
   <header>
-    <h1>Employees</h1>
+    <h2>Employees</h2>
     <%= render partial: 'links' %>
   </header>
 
@@ -20,6 +20,10 @@
           <div>
             <%= label_tag :last_name %> &nbsp;
             <%= text_field_tag :last_name %>
+          </div>
+          <div>
+            <%= label_tag :custom1, 'Team' %> &nbsp;
+            <%= text_field_tag :custom1 %>
           </div>
           <label>Customers Assigned To:</label>
           <div id="customers-assigned">

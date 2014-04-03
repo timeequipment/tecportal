@@ -136,12 +136,14 @@
       var empid     = employee.emp_id;
       var firstname = employee.first_name;
       var lastname  = employee.last_name;
+      var custom1   = employee.custom1;
 
       // View employee's name and id #
       $('#emp-name').html(firstname + ' ' + lastname);
       $('#emp_id').val(empid);
       $('#first_name').val(firstname);
       $('#last_name') .val(lastname);
+      $('#custom1').val(custom1);
     }
 
     // If this employee is assigned to customers
@@ -538,27 +540,42 @@
     e.preventDefault();
     if ($('#links-expand').width() == 0)
     {
-      $('#expand-btn').html('>>');
-      $('#expand-btn').css('margin-right','-2px');
-      $('#home-btn').css('margin-left','-7px');
-      $("#links-expand").animate({
-        "width": "330px",
-      }, 300 );
+      expandMenu(300);
     }
     else
     {
-     $('#expand-btn').html('<<');
-      $('#expand-btn').css('margin-right','-5px');
-      $('#home-btn').css('margin-left','0px');
-      $("#links-expand").animate({
-        "width": "0px",
-      }, 300 );
+      shrinkMenu(300);
     }
+  });
+
+  function expandMenu(animation) {
+    $('#expand-btn').html('>>');
+    $('#expand-btn').css('margin-right','-2px');
+    $('#home-btn').css('margin-left','-7px');
+    $("#links-expand").animate({
+      "width": "330px",
+    }, animation );
+  }
+
+  function shrinkMenu(animation) {
+    $('#expand-btn').html('<<');
+    $('#expand-btn').css('margin-right','-5px');
+    $('#home-btn').css('margin-left','0px');
+    $("#links-expand").animate({
+      "width": "0px",
+    }, animation );
+  }
+
+  // Team filter saves filter, reloads page
+  $('#team_filter').change(function() {
+    $.get('team_filter', { team_filter: $(this).val() }, function() {
+      location.reload();
+    });
   });
 
   // Cust filter saves filter, reloads page
   $('#cust_filter').change(function() {
-    $.get('filter', { cust_filter: $(this).val() }, function() {
+    $.get('cust_filter', { cust_filter: $(this).val() }, function() {
       location.reload();
     });
   });

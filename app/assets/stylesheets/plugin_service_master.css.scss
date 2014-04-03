@@ -19,29 +19,35 @@
     top: 0;
     right: 120px;
   }
+  #team-filter-wrap {
+    position: absolute;
+    top: 0;
+    right: 444px;
+  }
   #links {
-    // display: inline-block;
-    // width: 400px;
     position: absolute;
     top: 0;
     right: 0;
     line-height: 60px;
     z-index: 1;
 
-    a { @extend .button-set } 
+    a { @extend .button-set; } 
+
     #expand-btn {
-      margin-right: -5px;
+      margin-right: -2px;
     }
+
     #links-expand {
       display: inline-block;
-      // margin: 0 -7px 0 1px;
-      width: 0;
+      width: 330px;
       overflow: hidden;
       white-space: nowrap;
       vertical-align: bottom;
     }
 
     #home-btn {
+      margin-left: -7px;
+      margin-right: -2px;
     }
   }
 
@@ -78,8 +84,10 @@
     #emp-wrapper {
       display: none; 
       label { 
+        min-width: 60px;
         line-height: 20px; 
       }
+
       #customers-assigned {
         margin: 0 0 8px 12px;
         label { display: block; font-size: 14px; }
@@ -125,8 +133,9 @@
   th.cust { text-align: left; width: 132px; }
 
   tr.even { background: #fff; }
-  td.odd { background: #eee; }
-  td.name { text-align: left; padding: 5px; }
+
+  td.name { text-align: left; padding: 5px; 
+    .team { color: #999; font-size: 10px; } }
   td.cust { text-align: left; vertical-align: middle; padding: 5px; }
   td.sched, td.cust-sched { 
     width: 70px; 
@@ -217,6 +226,19 @@
     position: relative;
     top: 93px;
     left: 363px;
+  }
+
+  #aod-settings {
+
+    #progress-bar-wrapper {
+      margin: 20px 0;
+    }
+
+    #spinner-container {
+      margin: 0;
+      top: 64px;
+      left: 441px; 
+    }
   }
   
 

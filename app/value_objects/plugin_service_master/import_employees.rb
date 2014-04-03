@@ -14,16 +14,20 @@ module PluginServiceMaster
       begin
 
         # Connect to AoD
+        progress 20, 'Connecting to AoD'
         aod = create_conn(@settings)
         
         # Get employees
+        progress 40, 'Getting employees'
         response = aod.call(
           :get_employees_list_detail_from_hyper_query, message: {
             hyperQueryName: 'All Employees' })  
         emps = response.body[:t_ae_employee_detail]
 
         empcount = 0
-        emps.each do |emp|
+        emps.each_with_index do |emp, i|
+
+          progress 40 + (60 * i / emps.count), "Importing #{ i } of #{ emps.count }"
 
           # Insert or Update this employee
           my_emp = PsvmEmp.where(filekey: emp[:filekey]).first_or_initialize
@@ -66,7 +70,15 @@ module PluginServiceMaster
       rescue Exception => exc
         log 'exception', exc.message
         log 'exception backtrace', exc.backtrace
+      ensure
+        progress 100, ''
       end
+    end
+
+    def progress percent, status
+      cache_save @user_id, 'svm_progress', percent.to_s
+      cache_save @user_id, 'svm_status', status
+      sleep 2 # Wait to allow user to see status
     end
 
   end

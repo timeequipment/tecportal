@@ -15,9 +15,11 @@ module PluginServiceMaster
       begin
 
         # Connect to AoD
+        progress 20, 'Connecting to AoD'
         aod = create_conn(@settings)
         
         # Get workgroups
+        progress 40, 'Getting workgroups'
         response = aod.call(
           :get_workgroups, message: {
             wGLevel: @wglevel,
@@ -25,7 +27,9 @@ module PluginServiceMaster
         wgs = response.body[:t_ae_workgroup]
 
         wgcount = 0
-        wgs.each do |wg|
+        wgs.each_with_index do |wg, i|
+
+          progress 40 + (60 * i / wgs.count), "Importing #{ i } of #{ wgs.count }"
 
           # Insert or Update this workgroup
           my_wg = PsvmWorkgroup.where(
@@ -45,7 +49,15 @@ module PluginServiceMaster
       rescue Exception => exc
         log 'exception', exc.message
         log 'exception backtrace', exc.backtrace
-      end
+      ensure
+        progress 100, ''
+      end      
+    end
+
+    def progress percent, status
+      cache_save @user_id, 'svm_progress', percent.to_s
+      cache_save @user_id, 'svm_status', status
+      sleep 2 # Wait to allow user to see status
     end
 
   end

@@ -8,6 +8,10 @@
     </div>
     <%= link_to ">", plugin_service_master_next_week_path %>
     <%= render partial: 'links' %>
+    <div id="team-filter-wrap">
+      <%= label_tag :team_filter, 'Team' %>
+      <%= select_tag :team_filter, options_for_select(@teams, @team_filter), prompt: "Select Team" %>
+    </div>
     <div id="cust-filter-wrap">
       <%= label_tag :cust_filter, 'Customer' %>
       <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
@@ -34,7 +38,8 @@
       <% @v.emp_weeks.each_with_index do |ew, index| %>
         <tr <%= raw 'class="even"' if index.even? %>>
           <td class="name" rowspan="<%= ew.cust_weeks.count + 1 %>">
-            <%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %>
+            <%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %> <br>
+            <span class="team"><%= "#{ ew.employee.custom1 }" %></span>
           </td>
           <td class="flattened" colspan="8"></td>
           <td class="emptotal" rowspan="<%= ew.cust_weeks.count + 1 %>">
@@ -60,7 +65,7 @@
       <%= render partial: "sched_popup", locals: { editing_customer: true } %>
     </table>
     <%= render partial: "legend" %>
-    <%= link_to "Export to AoD", plugin_service_master_export_to_aod_path, class: 'button export-btn' %>
+    <%= link_to "Export to AoD", plugin_service_master_export_path, class: 'button export-btn' %>
     <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
     <br>
     <%= render "shared/spinner" %>
@@ -87,11 +92,6 @@
     }
   });
 
-  // Get the latest employees and workgroups from AoD
-  // in the background
-  // $.get('import_employees');
-  // $.get('import_workgroups');
-
   function poll()
   {
     $.get('progress', function(data) {
@@ -103,7 +103,7 @@
         $('#progress-status').text('Finished')
         $('#progress-bar').progressbar('value', 100);
 
-        // Hide spinner and progress bar
+        // Hide spinner
         $('#spinner').hide();
       }
       else if (data.status)
@@ -130,10 +130,7 @@
     event.preventDefault();
 
     // Show the spinner and progress bar
-    $('#spinner, #progress-bar-wrapper').show();
-
-    // Get form inputs
-    var payPeriod = $(this).find("input[name='payperiod']" ).val();
+    $('#spinner').show();
 
     // Send inputs and run the export
     $.get('export');
@@ -142,6 +139,16 @@
     setTimeout(poll, 2000);
 
   });
+
+
+  // If the last page wasn't this page
+  if (location.href != document.referrer) {
+    // Shrink menu slowly
+    shrinkMenu(300);
+  } else {
+    // Shrink menu instantly (i.e. preserve state)
+    shrinkMenu(0)
+  }
 
 </script>
 
