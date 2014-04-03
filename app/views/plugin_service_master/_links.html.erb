@@ -6,6 +6,8 @@
     <%= link_to "Customers", plugin_service_master_customer_list_path %>
     <% if current_user.customer_admin? %>
       <%= link_to "AoD",     plugin_service_master_settings_path %>
+    <% else %>
+      <a href=""> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </a>
     <% end %>
   </div>
   <%= link_to "Home", home_dashboard_path, id: "home-btn" %>
