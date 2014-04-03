@@ -1,76 +1,78 @@
-<div class="plugin-service-master">  
+<div class="plugin-service-master">
+  <div id="index">
 
-  <header>
-    <%= link_to "<", plugin_service_master_prev_week_path %>
-    <div class="daterange">
-      <%= @startdate.strftime '%b %d' %> - 
-      <%= @enddate  .strftime '%b %d' %>
-    </div>
-    <%= link_to ">", plugin_service_master_next_week_path %>
-    <%= render partial: 'links' %>
-    <div id="team-filter-wrap">
-      <%= label_tag :team_filter, 'Team' %>
-      <%= select_tag :team_filter, options_for_select(@teams, @team_filter), prompt: "Select Team" %>
-    </div>
-    <div id="cust-filter-wrap">
-      <%= label_tag :cust_filter, 'Customer' %>
-      <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
-    </div>
-  </header>
+    <header>
+      <%= link_to "<", plugin_service_master_prev_week_path %>
+      <div class="daterange">
+        <%= @startdate.strftime '%b %d' %> - 
+        <%= @enddate  .strftime '%b %d' %>
+      </div>
+      <%= link_to ">", plugin_service_master_next_week_path %>
+      <%= render partial: 'links' %>
+      <div id="team-filter-wrap">
+        <%= label_tag :team_filter, 'Team' %>
+        <%= select_tag :team_filter, options_for_select(@teams, @team_filter), prompt: "Select Team" %>
+      </div>
+      <div id="cust-filter-wrap">
+        <%= label_tag :cust_filter, 'Customer' %>
+        <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
+      </div>
+    </header>
 
-  <main>
-    <table class="popup-owner-js">
-      <thead>
-        <tr>
-          <th class="name">Name</th>
-          <th class="cust">Customer</th>
-          <th class="sched">Monday</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></th>
-          <th class="sched">Tuesday</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
-          <th class="sched">Wednesday</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
-          <th class="sched">Thursday</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
-          <th class="sched">Friday</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
-          <th class="sched">Saturday</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
-          <th class="custtotal">Cust.</br>Total</th>
-          <th class="emptotal">Emp.</br>Total</th>
-          <th class="outside"></th>
-        </tr>
-      </thead>
-      <% @v.emp_weeks.each_with_index do |ew, index| %>
-        <tr <%= raw 'class="even"' if index.even? %>>
-          <td class="name" rowspan="<%= ew.cust_weeks.count + 1 %>">
-            <%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %> <br>
-            <span class="team"><%= "#{ ew.employee.custom1 }" %></span>
-          </td>
-          <td class="flattened" colspan="8"></td>
-          <td class="emptotal" rowspan="<%= ew.cust_weeks.count + 1 %>">
-            <%= ew.total_hours.round(2) %>
-          </td>
-          <td class="overlimit outside" rowspan="<%= ew.cust_weeks.count + 1 %>">
-            <%= ew.exceptions %>
-          </td>
-        </tr>
-        <% ew.cust_weeks.each do |cw| %>
-          <tr <%= raw 'class="even"' if index.even? %>>
-            <td class="cust"><%= "#{ cw.customer.wg_name }" %>&nbsp;</td>
-            <td <%= raw generate_td_attr(cw.day1) %>> <%= raw generate_td_content(cw.day1) %></td>
-            <td <%= raw generate_td_attr(cw.day2) %>> <%= raw generate_td_content(cw.day2) %></td>
-            <td <%= raw generate_td_attr(cw.day3) %>> <%= raw generate_td_content(cw.day3) %></td>
-            <td <%= raw generate_td_attr(cw.day4) %>> <%= raw generate_td_content(cw.day4) %></td>
-            <td <%= raw generate_td_attr(cw.day5) %>> <%= raw generate_td_content(cw.day5) %></td>
-            <td <%= raw generate_td_attr(cw.day6) %>> <%= raw generate_td_content(cw.day6) %></td>
-            <td class="custtotal"><%= cw.total_hours.round(2) %></td>
+    <main>
+      <table class="popup-owner-js">
+        <thead>
+          <tr>
+            <th class="name">Name</th>
+            <th class="cust">Customer</th>
+            <th class="sched">Monday</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></th>
+            <th class="sched">Tuesday</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
+            <th class="sched">Wednesday</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
+            <th class="sched">Thursday</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
+            <th class="sched">Friday</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
+            <th class="sched">Saturday</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
+            <th class="custtotal">Cust.</br>Total</th>
+            <th class="emptotal">Emp.</br>Total</th>
+            <th class="outside"></th>
           </tr>
+        </thead>
+        <% @v.emp_weeks.each_with_index do |ew, index| %>
+          <tr <%= raw 'class="even"' if index.even? %>>
+            <td class="name" rowspan="<%= ew.cust_weeks.count + 1 %>">
+              <%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %> <br>
+              <span class="team"><%= "#{ ew.employee.custom1 }" %></span>
+            </td>
+            <td class="flattened" colspan="8"></td>
+            <td class="emptotal" rowspan="<%= ew.cust_weeks.count + 1 %>">
+              <%= ew.total_hours.round(2) %>
+            </td>
+            <td class="overlimit outside" rowspan="<%= ew.cust_weeks.count + 1 %>">
+              <%= ew.exceptions %>
+            </td>
+          </tr>
+          <% ew.cust_weeks.each do |cw| %>
+            <tr <%= raw 'class="even"' if index.even? %>>
+              <td class="cust"><%= "#{ cw.customer.wg_name }" %>&nbsp;</td>
+              <td <%= raw generate_td_attr(cw.day1) %>> <%= raw generate_td_content(cw.day1) %></td>
+              <td <%= raw generate_td_attr(cw.day2) %>> <%= raw generate_td_content(cw.day2) %></td>
+              <td <%= raw generate_td_attr(cw.day3) %>> <%= raw generate_td_content(cw.day3) %></td>
+              <td <%= raw generate_td_attr(cw.day4) %>> <%= raw generate_td_content(cw.day4) %></td>
+              <td <%= raw generate_td_attr(cw.day5) %>> <%= raw generate_td_content(cw.day5) %></td>
+              <td <%= raw generate_td_attr(cw.day6) %>> <%= raw generate_td_content(cw.day6) %></td>
+              <td class="custtotal"><%= cw.total_hours.round(2) %></td>
+            </tr>
+          <% end %>
         <% end %>
-      <% end %>
-      <%= render partial: "sched_popup", locals: { editing_customer: true } %>
-    </table>
-    <%= render partial: "legend" %>
-    <%= link_to "Export to AoD", plugin_service_master_export_path, class: 'button export-btn' %>
-    <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
-    <br>
-    <%= render "shared/spinner" %>
-    <%= render "shared/progressbar" %>
-  </main>
+        <%= render partial: "sched_popup", locals: { editing_customer: true } %>
+      </table>
+      <%= render partial: "legend" %>
+      <%= link_to "Export to AoD", plugin_service_master_export_path, class: 'button export-btn' %>
+      <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
+      <br>
+      <%= render "shared/spinner" %>
+      <%= render "shared/progressbar" %>
+    </main>
+  </div>  
 </div>  
 
 <%= render partial: "scripts" %>
@@ -140,15 +142,7 @@
 
   });
 
-
-  // If the last page wasn't this page
-  if (location.href != document.referrer) {
-    // Shrink menu slowly
-    shrinkMenu(300);
-  } else {
-    // Shrink menu instantly (i.e. preserve state)
-    shrinkMenu(0)
-  }
+  $('#expand-btn').html("<<");
 
 </script>
 

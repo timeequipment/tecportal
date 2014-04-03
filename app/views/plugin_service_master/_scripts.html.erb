@@ -540,40 +540,30 @@
     e.preventDefault();
     if ($('#links-expand').width() == 0)
     {
-      expandMenu(300);
+      expandMenu();
     }
     else
     {
-      shrinkMenu(300);
+      shrinkMenu();
     }
   });
 
-  function expandMenu(animation) {
+  function expandMenu() {
     $('#expand-btn').html('>>');
     $('#expand-btn').css('margin-right','-2px');
     $('#home-btn').css('margin-left','-7px');
-    if (animation === 0) {
-      $("#links-expand").css({
-        "width": "330px"});
-    } else {
-      $("#links-expand").animate({
-        "width": "330px",
-      }, animation );
-    }
+    $("#links-expand").animate({
+      "width": "330px",
+    }, 300 );
   }
 
-  function shrinkMenu(animation) {
+  function shrinkMenu() {
     $('#expand-btn').html('<<');
     $('#expand-btn').css('margin-right','-5px');
     $('#home-btn').css('margin-left','0px');
-    if (animation === 0) {
-      $("#links-expand").css({
-        "width": "0px"});
-    } else {
-      $("#links-expand").animate({
-        "width": "0px",
-      }, animation );
-    }
+    $("#links-expand").animate({
+      "width": "0px",
+    }, 300 );
   }
 
   // Team filter saves filter, reloads page
