@@ -1,5 +1,17 @@
 Tecportal::Application.routes.draw do
 
+  get "plugin_bamboo_hr/index"
+
+  get "plugin_bamboo_hr/settings"
+
+  get "plugin_bamboo_hr/save_settings"
+
+  get "plugin_bamboo_hr/import_employees"
+
+  get "plugin_bamboo_hr/progress"
+
+  get "plugin_bamboo_hr/finish"
+
   # ServiceMaster plugin
   get 'plugin_service_master/employee_list'
   get 'plugin_service_master/customer_list'
