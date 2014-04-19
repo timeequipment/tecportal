@@ -1,0 +1,2 @@
+module PluginBambooHrHelper
+end
