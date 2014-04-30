@@ -5,15 +5,15 @@ module PluginFMC
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
-    attr_accessor :owner, :account, :username, :password, :includeunmapped, :paycodemappings
+    attr_accessor :owner, :account, :username, :password, :bamboo_company, :bamboo_key
 
     def initialize(a = {})
       @owner           = a[:owner]
       @account         = a[:account]
       @username        = a[:username]
       @password        = a[:password]
-      @includeunmapped = a[:includeunmapped]
-      @paycodemappings = a[:paycodemappings]
+      @bamboohr_key    = a[:bamboo_company]
+      @bamboohr_key    = a[:bamboo_key]
     end
 
     def persisted?

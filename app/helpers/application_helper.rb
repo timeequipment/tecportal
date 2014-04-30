@@ -70,7 +70,7 @@ require 'awesome_print'
 
   # AoD Web Services
 
-  def create_conn(settings)
+  def create_conn(settings, log_level = :info)
     log 'method', 'create_conn', 0
     log 'aod account', settings.account
     log 'aod username', settings.username
@@ -84,7 +84,7 @@ require 'awesome_print'
       open_timeout: 300,
       read_timeout: 300,
       log: true,
-      log_level: :info, # use :debug to log HTTP messages or :info to not
+      log_level: log_level, # use :debug to log HTTP messages or :info to not
       pretty_print_xml: true,
       convert_request_keys_to: :camelcase,
       env_namespace: :soap,

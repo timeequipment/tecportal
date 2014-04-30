@@ -108,7 +108,7 @@
     $('#spinner').show();
 
     // Get form inputs
-    var payPeriod = $(this).find("input[name='payperiod']" ).val();
+    var payPeriod = $(this).find("select[name='payperiod']" ).val();
 
     // Send inputs and run the export
     $.get('create_export', { payperiod: payPeriod } );
