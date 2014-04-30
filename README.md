@@ -16,7 +16,7 @@ Before creating the application, you will need:
 First, clone the GitHub repo:
 
 ```
-$ git clone https://github.com/lanebuckingham/tecportal.git
+$ git clone https://github.com/timeequipment/tecportal.git
 ```
 
 Then install the gems:
