@@ -140,8 +140,6 @@ module PluginBambooHr
             eMail:                        b["bestEmail"],
           }
 
-          # next if emp[:lastName] != 'Rodriguez' 
-
           # EmpID - Pad left 6 zeros
           emp[:empID] = emp[:empID].rjust(6, '0')
 
@@ -234,16 +232,14 @@ module PluginBambooHr
           end
 
           # Send emp to AoD
-          if emp[:lastName] == 'Rodriguez'
-            debug_import(emp, a)
-            response = aod.call(:maintain_employee_detail2, 
-              message: {
-                aeEmployeeDetail2: emp,
-                aeEmpMode:      "aemAuto",
-                tBadgeManagement: "bmAuto",
-            })
-            success = response.body[:maintain_employee_detail2_response][:return]
-          end
+          debug_import(emp, a)
+          response = aod.call(:maintain_employee_detail2, 
+            message: {
+              aeEmployeeDetail2: emp,
+              aeEmpMode:      "aemAuto",
+              tBadgeManagement: "bmAuto",
+          })
+          success = response.body[:maintain_employee_detail2_response][:return]
         end
 
       rescue Exception => exc
