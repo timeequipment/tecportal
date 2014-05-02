@@ -104,10 +104,10 @@ require 'awesome_print'
 
   def get_settings(cls, user_id, customer_id, plugin_id)
     log 'method', 'get_settings', 0
-    settings = get_user_settings(cls, user_id, plugin_id) 
-    settings ||= get_customer_settings(cls, customer_id, plugin_id)
-    settings ||= cls.new
-    settings
+    settings = 
+      get_user_settings(cls, user_id, plugin_id) ||
+      get_customer_settings(cls, customer_id, plugin_id) ||
+      cls.new
   end
 
   def get_user_settings(cls, user_id, plugin_id)

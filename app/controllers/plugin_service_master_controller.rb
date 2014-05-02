@@ -20,9 +20,6 @@ class PluginServiceMasterController < ApplicationController
 
       construct_view
 
-      log 'startdate2', @startdate
-      log 'enddate2', @enddate
-
     rescue Exception => exc
       log 'exception', exc.message
       log 'exception backtrace', exc.backtrace
@@ -32,11 +29,8 @@ class PluginServiceMasterController < ApplicationController
   def construct_view
 
     # Get the dates for the week we're viewing
-    @startdate = session[:settings].weekstart
-    @startdate ||= Date.today.beginning_of_week
+    @startdate = session[:settings].weekstart || Date.today.beginning_of_week
     @enddate = @startdate + 6.days
-    log 'startdate', @startdate
-    log 'enddate', @enddate
 
     # Get teams
     @teams = PsvmEmp.where(active_status: 0).select(:custom1).uniq.map(&:custom1)
@@ -76,6 +70,12 @@ class PluginServiceMasterController < ApplicationController
              psvm_workgroups: {wg_level: 3, wg_num: @cust_filter})
       .order('last_name')    
     end
+
+    # Get the current gen scheds options
+    @overwrite_scheds = session[:overwrite_scheds]
+    @apply_to_all_cutomers = session[:apply_to_all_customers]
+    @apply_to_future = session[:apply_to_future]
+    @future_date = session[:future_date]
 
     # Clear the list of schedules we can export
     clear_scheds_to_export
@@ -557,40 +557,47 @@ class PluginServiceMasterController < ApplicationController
       # Get this view
       construct_view
 
-      # For each empweek
-      @v.emp_weeks.each do |ew|
+      log 'params', params
+      # Get the options
+      @overwrite_scheds       = params[:overwrite_scheds]
+      @apply_to_all_customers = params[:apply_to_all_customers]
+      @apply_to_future        = params[:apply_to_future]
+      @future_date            = params[:future_date]
 
-        # For each custweek
-        ew.cust_weeks.each do |cw|
+      # # For each empweek
+      # @v.emp_weeks.each do |ew|
 
-          # If the customer has a pattern
-          pattern = cw.customer.pattern
-          if pattern.present?
+      #   # For each custweek
+      #   ew.cust_weeks.each do |cw|
 
-            # For each day that is unscheduled, get it from the pattern
-            filekey = ew.employee.filekey
-            custnum = cw.customer.wg_num
-            if cw.day1.id.nil? && pattern.day1.present?
-              cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
-            end
-            if cw.day2.id.nil? && pattern.day2.present?
-              cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
-            end
-            if cw.day3.id.nil? && pattern.day3.present?
-              cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
-            end
-            if cw.day4.id.nil? && pattern.day4.present?
-              cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
-            end
-            if cw.day5.id.nil? && pattern.day5.present?
-              cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
-            end
-            if cw.day6.id.nil? && pattern.day6.present?
-              cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
-            end
-          end
-        end
-      end
+      #     # If the customer has a pattern
+      #     pattern = cw.customer.pattern
+      #     if pattern.present?
+
+      #       # For each day that is unscheduled, get it from the pattern
+      #       filekey = ew.employee.filekey
+      #       custnum = cw.customer.wg_num
+      #       if cw.day1.id.nil? && pattern.day1.present?
+      #         cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
+      #       end
+      #       if cw.day2.id.nil? && pattern.day2.present?
+      #         cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
+      #       end
+      #       if cw.day3.id.nil? && pattern.day3.present?
+      #         cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
+      #       end
+      #       if cw.day4.id.nil? && pattern.day4.present?
+      #         cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
+      #       end
+      #       if cw.day5.id.nil? && pattern.day5.present?
+      #         cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
+      #       end
+      #       if cw.day6.id.nil? && pattern.day6.present?
+      #         cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
+      #       end
+      #     end
+      #   end
+      # end
 
       redirect_to action: 'index' 
 
@@ -634,8 +641,7 @@ class PluginServiceMasterController < ApplicationController
       sleep 1
 
       # Get the schedules to export
-      scheds = session[:scheds_to_export]
-      scheds ||= []
+      scheds = session[:scheds_to_export] || []
       log 'export count', scheds.count
 
       # Export them to AoD
@@ -667,8 +673,7 @@ class PluginServiceMasterController < ApplicationController
   end
 
   def save_scheds_to_export(scheds)
-    saved_scheds = session[:scheds_to_export]
-    saved_scheds ||= []
+    saved_scheds = session[:scheds_to_export] || []
     saved_scheds.concat scheds
     session[:scheds_to_export] = saved_scheds
   end

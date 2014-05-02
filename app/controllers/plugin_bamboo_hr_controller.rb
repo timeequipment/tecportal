@@ -53,11 +53,8 @@ class PluginBambooHrController < ApplicationController
   end
 
   def progress
-    progress = cache_get current_user.id, 'bhr_progress'
-    status   = cache_get current_user.id, 'bhr_status'
-
-    progress ||= 0
-    status   ||= ''
+    progress = cache_get(current_user.id, 'bhr_progress') || 0
+    status   = cache_get(current_user.id, 'bhr_status')   || ''
 
     render json: { progress: progress, status: status }.to_json
   end

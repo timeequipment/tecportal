@@ -29,7 +29,7 @@
             <th class="sched">Tuesday</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
             <th class="sched">Wednesday</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
             <th class="sched">Thursday</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
-            <th class="sched">Friday</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
+            <th class="sched">Fr387mn,iday</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
             <th class="sched">Saturday</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
             <th class="custtotal">Cust.</br>Total</th>
             <th class="emptotal">Emp.</br>Total</th>
@@ -67,8 +67,21 @@
       </table>
       <%= render partial: "legend" %>
       <%= link_to "Export to AoD", plugin_service_master_export_path, class: 'button export-btn' %>
-      <%= link_to "Generate Schedules", plugin_service_master_generate_scheds_path, class: 'button gen-btn' %>
-      <br>
+
+      <form id="gen-scheds-form" action="generate_scheds" method="get">
+        <input type="submit" value="Generate Schedules"><br>
+        
+        <%= check_box_tag "overwrite_scheds", 1, @overwrite_scheds %>
+        <%= label_tag(:overwrite_scheds, "Overwrite Schedules") %><br>
+        
+        <%= check_box_tag "apply_to_all_customers", 1, @apply_to_all_customers %>
+        <%= label_tag(:apply_to_all_customers, "Apply to All Customers") %><br>
+        
+        <%= check_box_tag "apply_to_future", 1, @apply_to_future %>
+        <%= label_tag(:apply_to_future, "Apply to Future Date: ") %>
+        <%= text_field_tag(:future_date, @future_date, class: "date-picker") %>
+      </form>
+
       <%= render "shared/spinner" %>
       <%= render "shared/progressbar" %>
     </main>
@@ -93,6 +106,9 @@
       progressLabel.text( "Complete!" );
     }
   });
+
+  // Init date picker
+  $('.date-picker').datepicker();
 
   function poll()
   {

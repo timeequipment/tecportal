@@ -209,17 +209,27 @@
 
   .export-btn {
     float: left;
-    margin: 12px 0 0 325px;
+    margin: 12px 0 0 290px;
   } 
  
-  .gen-btn {
+  #gen-scheds-form {
     float: left;
     margin: 12px 0 0 12px;
+
+    input[type="checkbox"] {
+      margin-left: 8px;
+    }
+
+    .date-picker {
+      margin-top: 2px;
+      height: 20px;
+      width: 90px;
+    }
   }
    
   #progress-bar-wrapper {
     float: left;
-    margin: 20px 0 0 210px;
+    margin: 0 0 0 249px;
   }
 
   #spinner-container {
