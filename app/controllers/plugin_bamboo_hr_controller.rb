@@ -9,10 +9,14 @@ class PluginBambooHrController < ApplicationController
       log "\n\nmethod", __method__, 0
 
       # Get plugin settings for this user
-      session[:settings] ||= get_settings(PluginBambooHr::Settings, 
-        current_user.id, 
-        current_user.customer_id, 
-        @@plugin_id)
+      cls = PluginBambooHr::Settings
+      if session[:settings].class != cls
+         session[:settings] = 
+           get_settings(cls, 
+            current_user.id, 
+            current_user.customer_id, 
+            @@plugin_id)
+      end
 
     rescue Exception => exc
       log 'exception', exc.message

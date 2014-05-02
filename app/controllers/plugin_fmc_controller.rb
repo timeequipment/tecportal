@@ -7,11 +7,16 @@ class PluginFmcController < ApplicationController
   def index
     log "\n\nmethod", 'index', 0
     begin
+
       # Get plugin settings for this user
-      session[:settings] = get_settings(PluginFMC::Settings, 
-        current_user.id, 
-        current_user.customer_id, 
-        @@plugin_id)
+      cls = PluginFMC::Settings
+      if session[:settings].class != cls
+         session[:settings] = 
+           get_settings(cls, 
+            current_user.id, 
+            current_user.customer_id, 
+            @@plugin_id)
+      end
 
       # Connect to AoD
       aod = create_conn(session[:settings])

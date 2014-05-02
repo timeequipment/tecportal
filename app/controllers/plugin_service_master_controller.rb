@@ -8,7 +8,20 @@ class PluginServiceMasterController < ApplicationController
     begin
       log "\n\nmethod", __method__, 0
 
+      # Get plugin settings for this user
+      cls = PluginServiceMaster::Settings
+      if session[:settings].class != cls
+         session[:settings] = 
+           get_settings(cls, 
+            current_user.id, 
+            current_user.customer_id, 
+            @@plugin_id)
+      end
+
       construct_view
+
+      log 'startdate2', @startdate
+      log 'enddate2', @enddate
 
     rescue Exception => exc
       log 'exception', exc.message
@@ -18,16 +31,12 @@ class PluginServiceMasterController < ApplicationController
 
   def construct_view
 
-    # Get plugin settings for this user
-    session[:settings] ||= get_settings(PluginServiceMaster::Settings, 
-      current_user.id, 
-      current_user.customer_id, 
-      @@plugin_id)
-
     # Get the dates for the week we're viewing
     @startdate = session[:settings].weekstart
     @startdate ||= Date.today.beginning_of_week
     @enddate = @startdate + 6.days
+    log 'startdate', @startdate
+    log 'enddate', @enddate
 
     # Get teams
     @teams = PsvmEmp.where(active_status: 0).select(:custom1).uniq.map(&:custom1)
