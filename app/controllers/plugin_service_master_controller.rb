@@ -564,40 +564,40 @@ class PluginServiceMasterController < ApplicationController
       @apply_to_future        = params[:apply_to_future]
       @future_date            = params[:future_date]
 
-      # # For each empweek
-      # @v.emp_weeks.each do |ew|
+      # For each empweek
+      @v.emp_weeks.each do |ew|
 
-      #   # For each custweek
-      #   ew.cust_weeks.each do |cw|
+        # For each custweek
+        ew.cust_weeks.each do |cw|
 
-      #     # If the customer has a pattern
-      #     pattern = cw.customer.pattern
-      #     if pattern.present?
+          # If the customer has a pattern
+          pattern = cw.customer.pattern
+          if pattern.present?
 
-      #       # For each day that is unscheduled, get it from the pattern
-      #       filekey = ew.employee.filekey
-      #       custnum = cw.customer.wg_num
-      #       if cw.day1.id.nil? && pattern.day1.present?
-      #         cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
-      #       end
-      #       if cw.day2.id.nil? && pattern.day2.present?
-      #         cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
-      #       end
-      #       if cw.day3.id.nil? && pattern.day3.present?
-      #         cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
-      #       end
-      #       if cw.day4.id.nil? && pattern.day4.present?
-      #         cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
-      #       end
-      #       if cw.day5.id.nil? && pattern.day5.present?
-      #         cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
-      #       end
-      #       if cw.day6.id.nil? && pattern.day6.present?
-      #         cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
-      #       end
-      #     end
-      #   end
-      # end
+            # For each day that is unscheduled, get it from the pattern
+            filekey = ew.employee.filekey
+            custnum = cw.customer.wg_num
+            if cw.day1.id.nil? && pattern.day1.present?
+              cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
+            end
+            if cw.day2.id.nil? && pattern.day2.present?
+              cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
+            end
+            if cw.day3.id.nil? && pattern.day3.present?
+              cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
+            end
+            if cw.day4.id.nil? && pattern.day4.present?
+              cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
+            end
+            if cw.day5.id.nil? && pattern.day5.present?
+              cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
+            end
+            if cw.day6.id.nil? && pattern.day6.present?
+              cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
+            end
+          end
+        end
+      end
 
       redirect_to action: 'index' 
 
