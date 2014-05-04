@@ -1,6 +1,6 @@
-module PluginServiceMaster
+module PluginServiceMaster::ViewModels
 
-  class ViewWeek
+  class ViewWeekVM
     
     attr_accessor \
       :start_date,

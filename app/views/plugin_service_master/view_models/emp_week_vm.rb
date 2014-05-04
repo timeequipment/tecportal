@@ -1,6 +1,6 @@
-module PluginServiceMaster
+module PluginServiceMaster::ViewModels
 
-  class EmpWeek
+  class EmpWeekVM
     
     attr_accessor \
       :employee,

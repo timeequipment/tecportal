@@ -1,4 +1,4 @@
-module PluginServiceMaster
+module PluginServiceMaster::ViewModels
 
   class SettingsVM
     include ActiveModel::Validations

@@ -1,6 +1,6 @@
-module PluginServiceMaster
+module PluginServiceMaster::ViewModels
 
-  class CustWeek
+  class CustWeekVM
     
     attr_accessor \
       :customer,

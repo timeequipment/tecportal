@@ -66,7 +66,7 @@
         <%= render partial: "sched_popup", locals: { editing_customer: true } %>
       </table>
       <%= render partial: "legend" %>
-      <%= link_to "Export to AoD", plugin_service_master_export_path, class: 'button export-btn' %>
+      <%= link_to "Export to AoD", plugin_service_master_export_scheds_path, class: 'button export-btn' %>
 
       <form id="gen-scheds-form" action="generate_scheds" method="get">
         <input type="submit" value="Generate Schedules"><br>

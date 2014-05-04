@@ -1,4 +1,4 @@
-module PluginFMC
+module PluginBambooHr::ViewModels
 
   class SettingsVM
     include ActiveModel::Validations
