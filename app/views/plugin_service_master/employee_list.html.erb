@@ -13,14 +13,8 @@
         <h3 id="emp-name"></h3><br>
         <form id="emp-form" action="save_employee" method="post">
           <%= hidden_field_tag :emp_id %>
-          <div>
-            <%= label_tag :first_name %> &nbsp;
-            <%= text_field_tag :first_name %>
-          </div>
-          <div>
-            <%= label_tag :last_name %> &nbsp;
-            <%= text_field_tag :last_name %>
-          </div>
+          <%= hidden_field_tag :first_name %>
+          <%= hidden_field_tag :last_name %>
           <div>
             <%= label_tag :custom1, 'Team' %> &nbsp;
             <%= text_field_tag :custom1 %>

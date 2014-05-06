@@ -22,8 +22,6 @@ module Tecportal
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
-    # config.autoload_paths += %W(#{config.root}/app/models/**/)
-    # config.autoload_paths += %W(#{config.root}/app/views/**/)
     config.autoload_paths += Dir["#{config.root}/app/models/**/",
                                  "#{config.root}/app/views/**/",
                                  "#{config.root}/lib/**/"]

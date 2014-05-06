@@ -14,6 +14,10 @@
 
     a { @extend .button-set } }
 
+  main {
+    width: 890px;
+  }
+
   #cust-filter-wrap {
     position: absolute;
     top: 0;
@@ -118,7 +122,7 @@
     margin: 0px;
     min-width: 69px;
     text-align: center;
-    vertical-align: top;
+    // vertical-align: top;
     border: solid 1px #333;
   }
 
@@ -134,8 +138,10 @@
 
   tr.even { background: #fff; }
 
-  td.name { text-align: left; padding: 5px; 
-    .team { color: #999; font-size: 10px; } }
+  td.name { text-align: left; padding-left: 5px;
+    
+    .idnum { color: #777; font-size: 10px; }
+    .team { color: #777; font-size: 10px; } }
   td.cust { text-align: left; vertical-align: middle; padding: 5px; }
   td.sched, td.cust-sched { 
     width: 70px; 
@@ -192,6 +198,12 @@
       padding: 7px 6px;
       width: 64px; }
 
+    #copy-sched-btn, #copy-cust-sched-btn { 
+      display: inline-block;
+      float: right; 
+      padding: 3px 2px;
+      width: 84px; }
+
     #delete-sched-btn, #delete-cust-sched-btn { 
       display: inline-block;
       float: left; 
@@ -207,9 +219,13 @@
     width: 200px;
   }
 
-  .export-btn {
+  #export-scheds-form {
     float: left;
-    margin: 12px 0 0 290px;
+    margin: 12px 0 0 220px;
+
+    input[type="checkbox"] {
+      margin-left: 8px;
+    }
   } 
  
   #gen-scheds-form {
@@ -229,12 +245,15 @@
    
   #progress-bar-wrapper {
     float: left;
-    margin: 0 0 0 249px;
+    margin: 0 0 0 220px;
+
+    #progress-bar { 
+      width: 380px; }
   }
 
   #spinner-container {
     position: relative;
-    top: 93px;
+    top: 180px;
     left: 363px;
   }
 

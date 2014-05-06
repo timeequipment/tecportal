@@ -13,8 +13,7 @@
         <h3 id="cust-name"></h3><br>
         <form id="cust-form" action="save_customer" method="post">
           <div>
-            <%= label_tag :wg_name, 'Name' %>
-            <%= text_field_tag :wg_name %>
+            <%= hidden_field_tag :wg_name %>
             <%= hidden_field_tag :wg_num %>
             <%= hidden_field_tag :day_field1 %>
             <%= hidden_field_tag :day_field2 %>
@@ -52,6 +51,13 @@
               </tr>
             </tbody>
           </table>
+          <br>
+          <br>
+
+          <h4>Employees Assigned:</h4>
+          <div id="employees-assigned">
+            <label>(None)</label>
+          </div>
           <br>
           <input id='save-btn' type="submit" value="Save Customer">
         </form>

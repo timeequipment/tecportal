@@ -7,10 +7,6 @@ class PluginServiceMasterController < ApplicationController
 
   def index
     log __method__
-    log 'overwrite_scheds 1', session[:overwrite_scheds]
-    log 'apply_to_all_customers 1', session[:apply_to_all_customers]
-    log 'apply_to_future 1', session[:apply_to_future]
-    log 'future_date 1', session[:future_date]
 
     # Get plugin settings for this user
     cls = PluginServiceMaster::Settings
@@ -26,8 +22,39 @@ class PluginServiceMasterController < ApplicationController
     session[:startdate] = session[:settings].weekstart || Date.today.beginning_of_week
     session[:enddate] = session[:startdate] + 6.days
 
-    # Create view model
-    construct_view
+    # Create view model vars
+    @team_filter            = session[:team_filter]
+    @cust_filter            = session[:cust_filter] || 0
+    @startdate              = session[:settings].weekstart || Date.today.beginning_of_week
+    @enddate                = @startdate + 6.days
+    @export_all_customers   = session[:export_all_customers]
+    @overwrite_scheds       = session[:overwrite_scheds]
+    @apply_to_all_customers = session[:apply_to_all_customers]
+    @apply_to_future        = session[:apply_to_future]
+    
+    if session[:future_date].class == Date
+      @future_date = session[:future_date].strftime "%m/%d/%Y"
+    else
+      @future_date = @enddate.strftime "%m/%d/%Y"
+    end
+
+    # Get teams
+    @teams = PsvmEmp.where(active_status: 0).select(:custom1).uniq.map(&:custom1)
+    @teams.delete(nil)  # Clean up nils
+    @teams.delete("")   # Clean up blanks
+
+    # Get customers and activities
+    @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
+    @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_num')
+
+    # Get employees
+    @employees = get_filtered_emps(@team_filter, @cust_filter)
+
+    # Make a view model
+    @v = PluginServiceMaster::ViewModels::ViewWeekVM.new
+    @v.start_date = @startdate
+    @v.end_date = @enddate
+    @v.emp_weeks = get_emp_weeks(@employees, @startdate, @enddate)
   end
 
   def settings
@@ -47,12 +74,6 @@ class PluginServiceMasterController < ApplicationController
     log __method__
     @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
     @activities = PsvmWorkgroup.where('wg_level = 5').select('wg_num, wg_name').order('wg_name')
-    # if params[:wg_num]
-    #   @customer    = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    #   @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
-    #   @customer    ||= PsvmWorkgroup.new
-    #   @custpattern ||= PsvmCustPattern.new
-    # end
   end
 
   def get_employee
@@ -64,37 +85,41 @@ class PluginServiceMasterController < ApplicationController
 
   def save_employee
     log __method__
-    @employee = PsvmEmp.where(emp_id: params[:emp_id]).first
-    @employee.first_name = params[:first_name]
-    @employee.last_name = params[:last_name]
-    @employee.custom1 = params[:custom1]
-    @employee.psvm_workgroups.clear
-    @employee.psvm_workgroup_ids = params[:psvm_workgroup_ids].to_a
-    @employee.save
+    employee = PsvmEmp.where(emp_id: params[:emp_id]).first
+    employee.first_name = params[:first_name]
+    employee.last_name = params[:last_name]
+    employee.custom1 = params[:custom1]
+    employee.psvm_workgroups.clear
+    employee.psvm_workgroup_ids = params[:psvm_workgroup_ids].to_a
+    employee.save
     render json: true
   end
 
   def get_customer
     log __method__
-    @customer      = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
-    render json: [ @customer, @custpattern, @activities ].to_json
+    customer    = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
+    custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
+    employees   = PsvmEmp
+      .joins(:psvm_workgroups)
+      .where(psvm_workgroups: {wg_level: 3, wg_num: params[:wg_num]})
+      .order('last_name')
+    render json: [ customer, custpattern, employees ].to_json
   end
 
   def save_customer
     log __method__
-    @customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    @custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first_or_initialize
-    @customer.wg_name = params[:wg_name]
-    @custpattern.day1 = params[:day_field1]
-    @custpattern.day2 = params[:day_field2]
-    @custpattern.day3 = params[:day_field3]
-    @custpattern.day4 = params[:day_field4]
-    @custpattern.day5 = params[:day_field5]
-    @custpattern.day6 = params[:day_field6]
-    @custpattern.day7 = params[:day_field7]
-    @custpattern.save
-    @customer.save
+    customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
+    custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first_or_initialize
+    customer.wg_name = params[:wg_name]
+    custpattern.day1 = params[:day_field1]
+    custpattern.day2 = params[:day_field2]
+    custpattern.day3 = params[:day_field3]
+    custpattern.day4 = params[:day_field4]
+    custpattern.day5 = params[:day_field5]
+    custpattern.day6 = params[:day_field6]
+    custpattern.day7 = params[:day_field7]
+    custpattern.save
+    customer.save
     render json: true
   end
 
@@ -194,16 +219,51 @@ class PluginServiceMasterController < ApplicationController
 
   def export_scheds
     log __method__
-    cache_save current_user.id, 'svm_status', 'Initializing'
-    cache_save current_user.id, 'svm_progress', '10'
-    sleep 1
+
+    # Get the dates for the week we're exporting
+    start_date = session[:settings].weekstart
+    end_date = start_date + 6.days
+
+    # Get the options
+    session[:export_all_customers] = params[:export_all_customers].to_bool
+
+    # Get the employees we're exporting scheds for
+    if session[:export_all_customers] == true
+      employees = get_filtered_emps(nil, nil)
+    else
+      employees = get_filtered_emps(session[:team_filter], 
+                                    session[:cust_filter])
+    end
 
     # Get the schedules to export
-    scheds = session[:scheds_to_export] || []
+    scheds = []
+    v = PluginServiceMaster::ViewModels::ViewWeekVM.new
+    v.start_date = start_date
+    v.end_date = end_date
+    v.emp_weeks = get_emp_weeks(employees, start_date, end_date)
+
+    # For each empweek
+    v.emp_weeks.each do |ew|
+
+      # For each custweek
+      ew.cust_weeks.each do |cw|
+
+        # Get the scheds
+        scheds << cw.day1 if cw.day1.class == PsvmSched
+        scheds << cw.day2 if cw.day2.class == PsvmSched
+        scheds << cw.day3 if cw.day3.class == PsvmSched
+        scheds << cw.day4 if cw.day4.class == PsvmSched
+        scheds << cw.day5 if cw.day5.class == PsvmSched
+        scheds << cw.day6 if cw.day6.class == PsvmSched
+      end
+    end
+
     log 'export count', scheds.count
 
     # Export them to AoD
     if scheds.length > 0
+      cache_save current_user.id, 'svm_status', 'Initializing'
+      cache_save current_user.id, 'svm_progress', '10'
       Delayed::Job.enqueue PluginServiceMaster::ExportToAod.new(
         current_user.id,
         session[:settings],
@@ -216,48 +276,82 @@ class PluginServiceMasterController < ApplicationController
   def generate_scheds
     log __method__
 
+    # Get the dates for the week we're viewing
+    start_date = session[:settings].weekstart
+    end_date = start_date + 6.days
+
     # Get the options
-    session[:overwrite_scheds]       = params[:overwrite_scheds]
-    session[:apply_to_all_customers] = params[:apply_to_all_customers]
-    session[:apply_to_future]        = params[:apply_to_future]
-    session[:future_date]            = params[:future_date]
+    session[:overwrite_scheds]       = params[:overwrite_scheds].to_bool
+    session[:apply_to_all_customers] = params[:apply_to_all_customers].to_bool
+    session[:apply_to_future]        = params[:apply_to_future].to_bool
+    session[:future_date]            = 
+      Date.strptime(params[:future_date], "%m/%d/%Y") rescue end_date
 
-    # Get this view
-    construct_view
+    # Get the employees we're generating scheds for
+    if session[:apply_to_all_customers] == true
+      employees = get_filtered_emps(nil, nil)
+    else
+      employees = get_filtered_emps(session[:team_filter], 
+                                    session[:cust_filter])
+    end
 
-    # For each empweek
-    @v.emp_weeks.each do |ew|
+    if session[:apply_to_future] == true &&
+       session[:future_date] > end_date
+      future_date = session[:future_date]
+    else
+      future_date = end_date
+    end
 
-      # For each custweek
-      ew.cust_weeks.each do |cw|
+    while start_date <= future_date
+      # Get the current view
+      v = PluginServiceMaster::ViewModels::ViewWeekVM.new
+      v.start_date = start_date
+      v.end_date = end_date
+      v.emp_weeks = get_emp_weeks(employees, start_date, end_date)
 
-        # If the customer has a pattern
-        pattern = cw.customer.pattern
-        if pattern.present?
+      # For each empweek
+      v.emp_weeks.each do |ew|
 
-          # For each day that is unscheduled, get it from the pattern
-          filekey = ew.employee.filekey
-          custnum = cw.customer.wg_num
-          if (session[:overwrite_scheds] == "1" || cw.day1.id.nil?) && pattern.day1.present?
-            cw.day1 = convert_to_sched(filekey, custnum, @startdate + 0.days, pattern.day1)
-          end
-          if (session[:overwrite_scheds] == "1" || cw.day2.id.nil?) && pattern.day2.present?
-            cw.day2 = convert_to_sched(filekey, custnum, @startdate + 1.days, pattern.day2)
-          end
-          if (session[:overwrite_scheds] == "1" || cw.day3.id.nil?) && pattern.day3.present?
-            cw.day3 = convert_to_sched(filekey, custnum, @startdate + 2.days, pattern.day3)
-          end
-          if (session[:overwrite_scheds] == "1" || cw.day4.id.nil?) && pattern.day4.present?
-            cw.day4 = convert_to_sched(filekey, custnum, @startdate + 3.days, pattern.day4)
-          end
-          if (session[:overwrite_scheds] == "1" || cw.day5.id.nil?) && pattern.day5.present?
-            cw.day5 = convert_to_sched(filekey, custnum, @startdate + 4.days, pattern.day5)
-          end
-          if (session[:overwrite_scheds] == "1" || cw.day6.id.nil?) && pattern.day6.present?
-            cw.day6 = convert_to_sched(filekey, custnum, @startdate + 5.days, pattern.day6)
+        # For each custweek
+        ew.cust_weeks.each do |cw|
+
+          # If the customer has a pattern
+          pattern = cw.customer.pattern
+          if pattern.present?
+
+            # For each day that is unscheduled, get it from the pattern
+            filekey = ew.employee.filekey
+            custnum = cw.customer.wg_num
+            if (session[:overwrite_scheds] == true || cw.day1.id.nil?) && 
+                start_date + 0.days <= future_date && pattern.day1.present?
+                  cw.day1 = convert_to_sched(filekey, custnum, start_date + 0.days, pattern.day1)
+            end
+            if (session[:overwrite_scheds] == true || cw.day2.id.nil?) && 
+                start_date + 1.days <= future_date && pattern.day2.present?
+                  cw.day2 = convert_to_sched(filekey, custnum, start_date + 1.days, pattern.day2)
+            end
+            if (session[:overwrite_scheds] == true || cw.day3.id.nil?) && 
+                start_date + 2.days <= future_date && pattern.day3.present?
+                  cw.day3 = convert_to_sched(filekey, custnum, start_date + 2.days, pattern.day3)
+            end
+            if (session[:overwrite_scheds] == true || cw.day4.id.nil?) && 
+                start_date + 3.days <= future_date && pattern.day4.present?
+                  cw.day4 = convert_to_sched(filekey, custnum, start_date + 3.days, pattern.day4)
+            end
+            if (session[:overwrite_scheds] == true || cw.day5.id.nil?) && 
+                start_date + 4.days <= future_date && pattern.day5.present?
+                  cw.day5 = convert_to_sched(filekey, custnum, start_date + 4.days, pattern.day5)
+            end
+            if (session[:overwrite_scheds] == true || cw.day6.id.nil?) && 
+                start_date + 5.days <= future_date && pattern.day6.present?
+                  cw.day6 = convert_to_sched(filekey, custnum, start_date + 5.days, pattern.day6)
+            end
           end
         end
       end
+
+      start_date += 7.days
+      end_date += 7.days
     end
 
     redirect_to action: 'index' 
@@ -278,64 +372,41 @@ class PluginServiceMasterController < ApplicationController
 
   private
 
-  def construct_view
+  def get_filtered_emps(team_filter, cust_filter)
     log __method__
-
-    # Init vars
-    @team_filter            = session[:team_filter]
-    @cust_filter            = session[:cust_filter]
-    @startdate              = session[:startdate]
-    @enddate                = session[:enddate]
-    @overwrite_scheds       = session[:overwrite_scheds]
-    @apply_to_all_customers = session[:apply_to_all_customers]
-    @apply_to_future        = session[:apply_to_future]
-    @future_date            = session[:future_date]
-
-    # Get teams
-    @teams = PsvmEmp.where(active_status: 0).select(:custom1).uniq.map(&:custom1)
-    @teams.delete(nil)
-    @teams.delete("")
-
-    # Get customers and activities
-    @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
-    @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_num')
+    employees = []
 
     # If we're filtering by customer only, get the employees just for this customer
-    @employees = []
-    if @team_filter.blank? && @cust_filter.present?
-      @employees = PsvmEmp
-      .joins(:psvm_workgroups)
-      .where(psvm_workgroups: {wg_level: 3, wg_num: @cust_filter})
-      .order('last_name')
+    if team_filter.blank? && cust_filter.present?
+      employees = PsvmEmp
+        .joins(:psvm_workgroups)
+        .where(psvm_workgroups: {wg_level: 3, wg_num: cust_filter})
+        .order('last_name')
 
     # If we're filtering by team only, get the employees just for this team
-    elsif @team_filter.present? && @cust_filter.blank?
-      @employees = PsvmEmp
-      .joins(:psvm_workgroups)
-      .where(custom1: @team_filter)
-      .order('last_name')
+    elsif team_filter.present? && cust_filter.blank?
+      employees = PsvmEmp
+        .joins(:psvm_workgroups)
+        .where(custom1: team_filter)
+        .order('last_name')
 
     # If we're filtering by both, get the employees matching both
-    elsif @team_filter.present? && @cust_filter.present?
-      @employees = PsvmEmp
-      .joins(:psvm_workgroups)
-      .where(custom1: @team_filter, 
-             psvm_workgroups: {wg_level: 3, wg_num: @cust_filter})
-      .order('last_name')    
+    elsif team_filter.present? && cust_filter.present?
+      employees = PsvmEmp
+        .joins(:psvm_workgroups)
+        .where(custom1: team_filter, 
+               psvm_workgroups: {wg_level: 3, wg_num: cust_filter})
+        .order('last_name')    
+
+    # If we're not filtering, get all employees
+    else
+      employees = PsvmEmp.all
     end
 
-    # Clear the list of schedules we can export
-    clear_scheds_to_export
-
-    # Make a view viewmodel
-    @v = PluginServiceMaster::ViewModels::ViewWeekVM.new
-    @v.start_date = @startdate
-    @v.end_date = @enddate
-    @v.emp_weeks = get_emp_weeks(@employees, @startdate, @enddate)
-
+    employees
   end
 
-  def get_emp_weeks employees, startdate, enddate
+  def get_emp_weeks employees, start_date, end_date
     log __method__
     emp_weeks = []
 
@@ -344,7 +415,7 @@ class PluginServiceMasterController < ApplicationController
       # Make an empweek
       ew = PluginServiceMaster::ViewModels::EmpWeekVM.new
       ew.employee = emp
-      ew.cust_weeks = get_cust_weeks(emp, startdate, enddate)
+      ew.cust_weeks = get_cust_weeks(emp, start_date, end_date)
 
       # Check for any overlapping schedules
       ew.cust_weeks.each do |cw1|
@@ -404,7 +475,7 @@ class PluginServiceMasterController < ApplicationController
     emp_weeks
   end
 
-  def get_cust_weeks employee, startdate, enddate
+  def get_cust_weeks employee, start_date, end_date
     log __method__
     cust_weeks = []
 
@@ -412,7 +483,7 @@ class PluginServiceMasterController < ApplicationController
     assigned_custs = employee.customers.map {|c| c.wg_num }
 
     # Get the customers this employee is scheduled for
-    scheduled_custs = PsvmSched.where(sch_date: @startdate..@enddate, filekey: employee.filekey)
+    scheduled_custs = PsvmSched.where(sch_date: start_date..end_date, filekey: employee.filekey)
       .select(:sch_wg3)
       .group(:sch_wg3)
       .map &:sch_wg3
@@ -433,13 +504,10 @@ class PluginServiceMasterController < ApplicationController
 
       # Get schedules for this employee/customer
       scheds = PsvmSched.where(
-        sch_date: @startdate..@enddate, 
+        sch_date: start_date..end_date, 
         filekey: employee.filekey, 
         sch_wg3: custnum)
         .order('sch_date, sch_start_time')
-
-      # Save these schedules in case we want to export them to AoD later
-      save_scheds_to_export scheds
 
       # For each sched
       scheds.each do |sched|
@@ -460,7 +528,7 @@ class PluginServiceMasterController < ApplicationController
         cw.day1 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
-          sch_date: @startdate + 0.days, 
+          sch_date: start_date + 0.days, 
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
@@ -468,7 +536,7 @@ class PluginServiceMasterController < ApplicationController
         cw.day2 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
-          sch_date: @startdate + 1.days, 
+          sch_date: start_date + 1.days, 
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
@@ -476,7 +544,7 @@ class PluginServiceMasterController < ApplicationController
         cw.day3 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
-          sch_date: @startdate + 2.days, 
+          sch_date: start_date + 2.days, 
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
@@ -484,7 +552,7 @@ class PluginServiceMasterController < ApplicationController
         cw.day4 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
-          sch_date: @startdate + 3.days, 
+          sch_date: start_date + 3.days, 
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
@@ -492,7 +560,7 @@ class PluginServiceMasterController < ApplicationController
         cw.day5 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
-          sch_date: @startdate + 4.days, 
+          sch_date: start_date + 4.days, 
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
@@ -500,7 +568,7 @@ class PluginServiceMasterController < ApplicationController
         cw.day6 = PsvmSched.new({
           filekey:  employee.filekey, 
           sch_wg3:  custnum, 
-          sch_date: @startdate + 5.days, 
+          sch_date: start_date + 5.days, 
           sch_start_time: DateTime.new(2000, 1, 1, 0, 0, 0).utc, 
           sch_end_time:   DateTime.new(2000, 1, 1, 0, 0, 0).utc})
       end
@@ -544,22 +612,6 @@ class PluginServiceMasterController < ApplicationController
     sched.save
 
     sched
-  end
-
-  def save_scheds_to_export(scheds)
-    log __method__
-    saved_scheds = session[:scheds_to_export] || []
-    saved_scheds.concat scheds
-    session[:scheds_to_export] = saved_scheds
-  end
-
-  def clear_scheds_to_export
-    log __method__
-    session[:scheds_to_export] = []
-  end
-
-  def log_method
-    log __method__
   end
 
   def catch_exceptions

@@ -16,6 +16,7 @@
   function getCustomer() {
     customer = {};
     cust_pattern = {};
+    employees = {};
     
     // Get selected customer id
     var params = { wg_num : $('#customer-list').val() };
@@ -25,6 +26,7 @@
       if (data) {
         if (data[0]) customer     = data[0].psvm_workgroup;
         if (data[1]) cust_pattern = data[1].psvm_cust_pattern;
+        if (data[2]) employees    = data[2];
         deserializeCustPattern();
         viewCustomer();
       }
@@ -53,11 +55,26 @@
   }
 
   function viewCustomer() {
+    // Reset all labels
+    $('#employees-assigned').html('<label>(None)</label>');
+
     // If we recieved a customer object from the server
     if (customer) {
       $('#cust-name').html(customer.wg_name);
       $('#wg_name').val(customer.wg_name);  
       $('#wg_num').val(customer.wg_num);  
+    }
+
+    // If this customer has employees assigned to it
+    if (employees && employees.length > 0) {
+      // List their names
+      var container = $('<div />');
+      for (var i = 0; i < employees.length; i++) {
+        $('<label />', {
+          html: employees[i].psvm_emp.first_name + ' ' + employees[i].psvm_emp.last_name
+        }).appendTo(container);
+      }
+      $('#employees-assigned').html(container);
     }
   
     // If this customer has a pattern defined
