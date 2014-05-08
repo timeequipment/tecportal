@@ -23,14 +23,17 @@ class PluginServiceMasterController < ApplicationController
     session[:enddate] = session[:startdate] + 6.days
 
     # Create view model vars
-    @team_filter            = session[:team_filter]
-    @cust_filter            = session[:cust_filter] || 0
+    @team_filter            = session[:team_filter] || ""
+    @cust_filter            = session[:cust_filter] || ""
     @startdate              = session[:settings].weekstart || Date.today.beginning_of_week
     @enddate                = @startdate + 6.days
     @export_all_customers   = session[:export_all_customers]
     @overwrite_scheds       = session[:overwrite_scheds]
     @apply_to_all_customers = session[:apply_to_all_customers]
     @apply_to_future        = session[:apply_to_future]
+
+    log 'team_filter', @team_filter 
+    log 'cust_filter', @cust_filter
     
     if session[:future_date].class == Date
       @future_date = session[:future_date].strftime "%m/%d/%Y"
@@ -324,27 +327,27 @@ class PluginServiceMasterController < ApplicationController
             custnum = cw.customer.wg_num
             if (session[:overwrite_scheds] == true || cw.day1.id.nil?) && 
                 start_date + 0.days <= future_date && pattern.day1.present?
-                  cw.day1 = convert_to_sched(filekey, custnum, start_date + 0.days, pattern.day1)
+                  cw.day1 = convert_to_sched(filekey, custnum, start_date + 0.days, pattern.day1, session[:overwrite_scheds])
             end
             if (session[:overwrite_scheds] == true || cw.day2.id.nil?) && 
                 start_date + 1.days <= future_date && pattern.day2.present?
-                  cw.day2 = convert_to_sched(filekey, custnum, start_date + 1.days, pattern.day2)
+                  cw.day2 = convert_to_sched(filekey, custnum, start_date + 1.days, pattern.day2, session[:overwrite_scheds])
             end
             if (session[:overwrite_scheds] == true || cw.day3.id.nil?) && 
                 start_date + 2.days <= future_date && pattern.day3.present?
-                  cw.day3 = convert_to_sched(filekey, custnum, start_date + 2.days, pattern.day3)
+                  cw.day3 = convert_to_sched(filekey, custnum, start_date + 2.days, pattern.day3, session[:overwrite_scheds])
             end
             if (session[:overwrite_scheds] == true || cw.day4.id.nil?) && 
                 start_date + 3.days <= future_date && pattern.day4.present?
-                  cw.day4 = convert_to_sched(filekey, custnum, start_date + 3.days, pattern.day4)
+                  cw.day4 = convert_to_sched(filekey, custnum, start_date + 3.days, pattern.day4, session[:overwrite_scheds])
             end
             if (session[:overwrite_scheds] == true || cw.day5.id.nil?) && 
                 start_date + 4.days <= future_date && pattern.day5.present?
-                  cw.day5 = convert_to_sched(filekey, custnum, start_date + 4.days, pattern.day5)
+                  cw.day5 = convert_to_sched(filekey, custnum, start_date + 4.days, pattern.day5, session[:overwrite_scheds])
             end
             if (session[:overwrite_scheds] == true || cw.day6.id.nil?) && 
                 start_date + 5.days <= future_date && pattern.day6.present?
-                  cw.day6 = convert_to_sched(filekey, custnum, start_date + 5.days, pattern.day6)
+                  cw.day6 = convert_to_sched(filekey, custnum, start_date + 5.days, pattern.day6, session[:overwrite_scheds])
             end
           end
         end
@@ -399,7 +402,7 @@ class PluginServiceMasterController < ApplicationController
         .order('last_name')    
 
     # If we're not filtering, get all employees
-    else
+    elsif team_filter.nil? && cust_filter.nil?
       employees = PsvmEmp.all
     end
 
@@ -579,7 +582,7 @@ class PluginServiceMasterController < ApplicationController
     cust_weeks
   end
 
-  def convert_to_sched(filekey, custnum, date, serialized)
+  def convert_to_sched(filekey, custnum, date, serialized, overwrite)
     log __method__
 
     s = JSON[serialized]
@@ -590,7 +593,7 @@ class PluginServiceMasterController < ApplicationController
     sch_wg5 = s["activity"].to_i
 
     # If we're overwriting schedules
-    if @overwrite_scheds == "1"
+    if overwrite == true
       # Get any schedules on this day
       old_scheds = PsvmSched.where(filekey: filekey, sch_date: date)
       old_scheds.each do |o|
