@@ -76,8 +76,8 @@ module PluginServiceMaster
     end
 
     def progress percent, status
-      cache_save @user_id, 'svm_progress', percent.to_s
-      cache_save @user_id, 'svm_status', status
+      cache_save @user_id, 'svm_import_progress', percent.to_s
+      cache_save @user_id, 'svm_import_status', status
       sleep 2 # Wait to allow user to see status
     end
 

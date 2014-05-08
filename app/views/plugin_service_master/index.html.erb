@@ -119,7 +119,7 @@
 
   function poll()
   {
-    $.get('progress', function(data) {
+    $.get('progress', { progress_type: "export_scheds" }, function(data) {
 
       // If job completed
       if (data === true)

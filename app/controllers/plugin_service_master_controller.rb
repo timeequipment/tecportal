@@ -128,8 +128,8 @@ class PluginServiceMasterController < ApplicationController
 
   def import_employees
     log __method__
-    cache_save current_user.id, 'svm_status', 'Initializing'
-    cache_save current_user.id, 'svm_progress', '10'
+    cache_save current_user.id, 'svm_import_status', 'Initializing'
+    cache_save current_user.id, 'svm_import_progress', '10'
     sleep 1
 
     # Request employees from AoD, in the background
@@ -142,8 +142,8 @@ class PluginServiceMasterController < ApplicationController
 
   def import_workgroups
     log __method__
-    cache_save current_user.id, 'svm_status', 'Initializing'
-    cache_save current_user.id, 'svm_progress', '10'
+    cache_save current_user.id, 'svm_import_status', 'Initializing'
+    cache_save current_user.id, 'svm_import_progress', '10'
     sleep 1
 
     # Request workgroup3 from AoD, in the background
@@ -238,6 +238,8 @@ class PluginServiceMasterController < ApplicationController
                                     session[:cust_filter])
     end
 
+    log 'employees count', employees.count
+
     # Get the schedules to export
     scheds = []
     v = PluginServiceMaster::ViewModels::ViewWeekVM.new
@@ -252,21 +254,23 @@ class PluginServiceMasterController < ApplicationController
       ew.cust_weeks.each do |cw|
 
         # Get the scheds
-        scheds << cw.day1 if cw.day1.class == PsvmSched
-        scheds << cw.day2 if cw.day2.class == PsvmSched
-        scheds << cw.day3 if cw.day3.class == PsvmSched
-        scheds << cw.day4 if cw.day4.class == PsvmSched
-        scheds << cw.day5 if cw.day5.class == PsvmSched
-        scheds << cw.day6 if cw.day6.class == PsvmSched
+        scheds << cw.day1 if cw.day1.id.present?
+        scheds << cw.day2 if cw.day2.id.present?
+        scheds << cw.day3 if cw.day3.id.present?
+        scheds << cw.day4 if cw.day4.id.present?
+        scheds << cw.day5 if cw.day5.id.present?
+        scheds << cw.day6 if cw.day6.id.present?
       end
     end
 
     log 'export count', scheds.count
 
     # Export them to AoD
-    if scheds.length > 0
-      cache_save current_user.id, 'svm_status', 'Initializing'
-      cache_save current_user.id, 'svm_progress', '10'
+    if scheds.count > 0
+      cache_save current_user.id, 'svm_export_scheds_status', 'Initializing'
+      cache_save current_user.id, 'svm_export_scheds_progress', '10'
+      sleep 1
+
       Delayed::Job.enqueue PluginServiceMaster::ExportToAod.new(
         current_user.id,
         session[:settings],
@@ -361,9 +365,10 @@ class PluginServiceMasterController < ApplicationController
   end
 
   def progress
+
     log __method__
-    progress = cache_get current_user.id, 'svm_progress'
-    status   = cache_get current_user.id, 'svm_status'
+    progress = cache_get current_user.id, 'svm_' + params[:progress_type] + '_progress'
+    status   = cache_get current_user.id, 'svm_' + params[:progress_type] + '_status'
 
     if progress != '100'
       render json: { progress: progress, status: status }.to_json
@@ -371,7 +376,6 @@ class PluginServiceMasterController < ApplicationController
       render json: true
     end
   end
-
 
   private
 
