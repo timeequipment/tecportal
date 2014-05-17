@@ -36,7 +36,6 @@ class PluginBambooHrController < ApplicationController
 
       cache_save current_user.id, 'bhr_status', 'Initializing'
       cache_save current_user.id, 'bhr_progress', '10'
-      sleep 1
 
       # Request employees from AoD, in the background
       Delayed::Job.enqueue PluginBambooHr::ImportEmployees.new(

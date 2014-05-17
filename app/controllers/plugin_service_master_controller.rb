@@ -130,7 +130,6 @@ class PluginServiceMasterController < ApplicationController
     log __method__
     cache_save current_user.id, 'svm_import_status', 'Initializing'
     cache_save current_user.id, 'svm_import_progress', '10'
-    sleep 1
 
     # Request employees from AoD, in the background
     Delayed::Job.enqueue PluginServiceMaster::ImportEmployees.new(
@@ -144,7 +143,6 @@ class PluginServiceMasterController < ApplicationController
     log __method__
     cache_save current_user.id, 'svm_import_status', 'Initializing'
     cache_save current_user.id, 'svm_import_progress', '10'
-    sleep 1
 
     # Request workgroup3 from AoD, in the background
     Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
@@ -236,10 +234,12 @@ class PluginServiceMasterController < ApplicationController
     # If we're exporting all schedules
     if session[:export_all] == true
 
-      # Get ALL schedules from the start date forward
+      # Set the end date far in the future, to get all scheds
+      end_date = start_date + 1000.years
+
       scheds = PsvmSched.where(
-        sch_date: start_date..1000.years.from_now)
-        .order('filekey, sch_date, sch_start_time')
+        sch_date: start_date..end_date)
+        .order('filekey, sch_date, sch_start_time').to_a
     else
 
       # Get the schedules currently being viewed
@@ -267,19 +267,90 @@ class PluginServiceMasterController < ApplicationController
       end
     end
 
-    log 'employees count', employees.count
-    log 'scheds count', scheds.count
+    log 'employees', employees
+    log 'scheds', scheds
+    log 'start_date', start_date
+    log 'end_date', end_date 
+    log 'session[:settings]', session[:settings]
+    log 'current user id', current_user.id
 
     # Export them to AoD
-    if scheds.count > 0
+    if scheds.length > 0
       cache_save current_user.id, 'svm_export_scheds_status', 'Initializing'
       cache_save current_user.id, 'svm_export_scheds_progress', '10'
-      sleep 1
 
       Delayed::Job.enqueue PluginServiceMaster::ExportToAod.new(
         current_user.id,
         session[:settings],
+        start_date,
+        end_date,
         scheds)
+
+        # # Connect to AoD
+        # # progress 20, 'Connecting to AoD'
+        # aod = create_conn(session[:settings])
+
+        # # Get the unique filekeys we're exporting scheds for
+        # filekeys = scheds
+        #   .uniq {|sched| sched.filekey}
+        #   .map  {|sched| sched.filekey}
+
+        # log 'filekeys', filekeys
+
+        # # For each filekey
+        # filekeys.each_with_index do |filekey, i|
+
+        #   # Remove scheds in AoD for this filekey, for this date range
+        #   x = i + 1
+        #   y = filekeys.count
+        #   a = "Removing old schedules for "
+        #   b = "#{ x } of #{ y } employees"
+        #   # progress 20 + (20 * x / y), a + b
+        #   log a, b
+
+        #   response = aod.call(:remove_employee_schedules_in_range_by_filekey,
+        #     message: {
+        #       filekey:        filekey,
+        #       tDateRangeEnum: 'drCustom',
+        #       minDate:        start_date,
+        #       maxDate:        end_date
+        #     })
+        # end
+
+        # # Send scheds to AoD one at a time
+        # scheds.each_with_index do |sched, i|
+
+        #   x = i + 1
+        #   y = scheds.count
+        #   a = "Exporting schedule "
+        #   b = "#{ x } of #{ y }"
+        #   # progress 40 + (60 * x / y), a + b
+        #   log a, b
+
+        #   # Fix null values
+        #   fix_nulls sched
+
+        #   # Send schedule to AoD
+        #   log "sched", sched
+        #   response = aod.call(:append_employee_schedule_by_filekey,
+        #     message: {
+        #       filekey:        sched.filekey,
+        #       aeSchedule: {
+        #         schDate:      sched.sch_date,
+        #         schStartTime: sched.sch_start_time,
+        #         schEndTime:   sched.sch_end_time,
+        #         schHours:     sched.sch_hours,
+        #         schRate:      sched.sch_rate,
+        #         schHoursHund: sched.sch_hours_hund,
+        #         schWG1:       sched.sch_wg1,
+        #         schWG2:       sched.sch_wg2,
+        #         schWG3:       sched.sch_wg3,
+        #         schWG4:       sched.sch_wg4,
+        #         schWG5:       sched.sch_wg5,
+        #         schWGDescr:   "",
+        #       }
+        #     })
+        # end
     end
 
     render json: true
@@ -383,6 +454,24 @@ class PluginServiceMasterController < ApplicationController
   end
 
   private
+
+  def fix_nulls(sched)
+    # Get this employee from the db, for default values
+    emp = PsvmEmp.where(filekey: sched.filekey).first
+    sched.sch_hours ||= 0
+    sched.sch_rate ||= 0
+    sched.sch_hours_hund ||= 0
+    sched.sch_wg1 = emp.wg1 if sched.sch_wg1.nil? || sched.sch_wg1 == 0
+    sched.sch_wg2 = emp.wg2 if sched.sch_wg2.nil? || sched.sch_wg2 == 0
+    sched.sch_wg3 = emp.wg3 if sched.sch_wg3.nil? || sched.sch_wg3 == 0
+    sched.sch_wg4 = emp.wg4 if sched.sch_wg4.nil? || sched.sch_wg4 == 0
+    sched.sch_wg5 = emp.wg5 if sched.sch_wg5.nil? || sched.sch_wg5 == 0
+    sched.sch_wg1 = 1 if sched.sch_wg1 == 0
+    sched.sch_wg2 = 1 if sched.sch_wg2 == 0
+    sched.sch_wg3 = 1 if sched.sch_wg3 == 0
+    sched.sch_wg4 = 1 if sched.sch_wg4 == 0
+    sched.sch_wg5 = 1 if sched.sch_wg5 == 0
+  end
 
   def get_filtered_emps(team_filter, cust_filter)
     log __method__

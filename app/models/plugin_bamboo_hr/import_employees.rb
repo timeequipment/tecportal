@@ -229,9 +229,6 @@ module PluginBambooHr
             # Emp does not exist in AoD, must be new
           end
 
-          log 'emp', emp
-          log 'a', a
-
           # Send emp to AoD
           debug_import(emp, a)
           response = aod.call(:maintain_employee_detail2, 

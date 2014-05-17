@@ -3,10 +3,12 @@ module PluginServiceMaster
   class ExportToAod
     include ApplicationHelper
 
-    attr_accessor :user_id, :settings, :scheds
-    def initialize user_id,  settings,  scheds
+    attr_accessor :user_id, :settings, :start_date, :end_date, :scheds
+    def initialize user_id,  settings,  start_date,  end_date,  scheds
       @user_id = user_id
       @settings = settings
+      @start_date = start_date
+      @end_date = end_date
       @scheds = scheds
     end
 
@@ -18,16 +20,46 @@ module PluginServiceMaster
         progress 20, 'Connecting to AoD'
         aod = create_conn(@settings)
 
-        # Send scheds to AoD one at a time
-        scheds.each_with_index do |sched, i|
+        # Get the unique filekeys we're exporting scheds for
+        filekeys = @scheds.
+          uniq {|sched| sched.filekey}.
+          map  {|sched| sched.filekey}
 
-          progress 20 + (80 * i / scheds.count), "Exporting #{ i + 1 } of #{ scheds.count }"
+        log 'employees count', filekeys.count
+        log 'scheds count', @scheds.count
+
+        # For each filekey
+        filekeys.each_with_index do |filekey, i|
+
+          # Remove scheds in AoD for this filekey, for this date range
+          x = i + 1
+          y = filekeys.count
+          p = "Removing old schedules for employee #{ x } of #{ y }"
+          progress 20 + (20 * x / y), p
+          log 'progress', p
+
+          response = aod.call(:remove_employee_schedules_in_range_by_filekey,
+            message: {
+              filekey:        filekey,
+              tDateRangeEnum: 'drCustom',
+              minDate:        @start_date,
+              maxDate:        @end_date
+            })
+        end
+
+        # Send scheds to AoD one at a time
+        @scheds.each_with_index do |sched, i|
+
+          x = i + 1
+          y = @scheds.count
+          p = "Exporting schedule #{ x } of #{ y }"
+          progress 40 + (60 * x / y), p
+          log 'progress', p
 
           # Fix null values
           fix_nulls sched
 
           # Send schedule to AoD
-          log "Exporting sched", "#{ i } of #{ scheds.count }"
           log "sched", sched
           response = aod.call(:append_employee_schedule_by_filekey,
             message: {
@@ -47,8 +79,8 @@ module PluginServiceMaster
                 schWGDescr:   "",
               }
             })
-
         end
+
       rescue Exception => exc
         log 'exception', exc.message
         log 'exception backtrace', exc.backtrace
@@ -80,7 +112,6 @@ module PluginServiceMaster
     def progress percent, status
       cache_save @user_id, 'svm_export_scheds_progress', percent.to_s
       cache_save @user_id, 'svm_export_scheds_status', status
-      sleep 2 # Wait to allow user to see status
     end
 
   end

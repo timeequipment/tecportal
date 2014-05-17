@@ -158,7 +158,6 @@ module PluginFMC
     def progress percent, status
       cache_save @user_id, 'fmc_progress', percent.to_s
       cache_save @user_id, 'fmc_status', status
-      sleep 2 # Wait to allow user to see status
     end
 
     def get_paycode_mapping(mappings, paydesnum, wg3)

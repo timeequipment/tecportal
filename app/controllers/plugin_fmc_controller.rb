@@ -133,7 +133,6 @@ class PluginFmcController < ApplicationController
 
       cache_save current_user.id, 'fmc_status', 'Initializing'
       cache_save current_user.id, 'fmc_progress', '10'
-      sleep 1
 
       Delayed::Job.enqueue PluginFMC::CreateExport.new(
         current_user.id,

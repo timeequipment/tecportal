@@ -89,6 +89,10 @@
         <%= text_field_tag(:future_date, @future_date, class: "date-picker") %>
       </form>
 
+      <div id="export-all-confirm" title="Export All Schedules?">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0; z-index: 900"></span>Exporting all schedules could take a while.  Proceed?</p>
+      </div>
+
       <%= render "shared/spinner" %>
       <%= render "shared/progressbar" %>
     </main>
@@ -117,6 +121,9 @@
   // Init date picker
   $('.date-picker').datepicker();
 
+  // Set expand btn icon to << for this page only 
+  $('#expand-btn').html("<<");
+
   function poll()
   {
     $.get('progress', { progress_type: "export_scheds" }, function(data) {
@@ -142,7 +149,7 @@
         {
           // Show spinner and check status again in 2 seconds
           $('#spinner').show();
-          setTimeout(poll, 2000);
+          setTimeout(poll, 1000);
         }
       }
     });
@@ -167,15 +174,53 @@
     // Get form inputs
     var exportAll = $('#export_all').prop('checked')
 
+    // If Export All is checked
+    if (exportAll === true) {
+
+      // Confirm they want to proceed
+      $("#export-all-confirm").dialog("open");
+
+    } else {
+
+      // Export just the scheds being viewed
+      export_scheds(false);
+    }
+  });
+
+  // Confirmation dialog for Export All
+  $("#export-all-confirm").dialog({
+    autoOpen: false,
+    resizable: false,
+    width:460,
+    modal: true,
+    buttons: {
+      Yes: function() {
+        $(this).dialog("close");
+
+        // Export all schedules
+        export_scheds(true);
+      },
+      No: function() {
+        $(this).dialog("close");
+
+        // Reset results
+        $('#progress-status').text('')
+        $('#progress-bar').progressbar('value', null);
+
+        // Hide spinner
+        $('#spinner').hide();
+      }
+    }
+  });
+
+  function export_scheds(exportAll) {
+
     // Send inputs and run the export
     $.get('export_scheds', { export_all: exportAll } );
 
     // Poll for status
-    setTimeout(poll, 2000);
-
-  });
-
-  $('#expand-btn').html("<<");
+    setTimeout(poll, 1000);
+  }
 
 </script>
 
