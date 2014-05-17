@@ -71,8 +71,8 @@
       <form id="export-scheds-form">
         <input id="export-btn" type="submit" value="Export to AoD"><br>
 
-        <%= check_box_tag "export_all_customers", true, @export_all_customers %>
-        <%= label_tag(:export_all_customers, "Export All Customers") %><br>
+        <%= check_box_tag "export_all", true, @export_all %>
+        <%= label_tag(:export_all, "Export All") %><br>
       </form>
 
       <form id="gen-scheds-form" action="generate_scheds" method="get">
@@ -165,10 +165,10 @@
     $('#spinner').show();
 
     // Get form inputs
-    var exportAll = $('#export_all_customers').prop('checked')
+    var exportAll = $('#export_all').prop('checked')
 
     // Send inputs and run the export
-    $.get('export_scheds', { export_all_customers: exportAll } );
+    $.get('export_scheds', { export_all: exportAll } );
 
     // Poll for status
     setTimeout(poll, 2000);

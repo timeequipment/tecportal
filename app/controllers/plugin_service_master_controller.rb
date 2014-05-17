@@ -27,7 +27,7 @@ class PluginServiceMasterController < ApplicationController
     @cust_filter            = session[:cust_filter] || ""
     @startdate              = session[:settings].weekstart || Date.today.beginning_of_week
     @enddate                = @startdate + 6.days
-    @export_all_customers   = session[:export_all_customers]
+    @export_all             = session[:export_all]
     @overwrite_scheds       = session[:overwrite_scheds]
     @apply_to_all_customers = session[:apply_to_all_customers]
     @apply_to_future        = session[:apply_to_future]
@@ -223,47 +223,52 @@ class PluginServiceMasterController < ApplicationController
   def export_scheds
     log __method__
 
-    # Get the dates for the week we're exporting
+    # Get the options
+    session[:export_all] = params[:export_all].to_bool
+
+    # Get the current week's dates
     start_date = session[:settings].weekstart
     end_date = start_date + 6.days
-
-    # Get the options
-    session[:export_all_customers] = params[:export_all_customers].to_bool
-
-    # Get the employees we're exporting scheds for
-    if session[:export_all_customers] == true
-      employees = get_filtered_emps(nil, nil)
-    else
-      employees = get_filtered_emps(session[:team_filter],
-                                    session[:cust_filter])
-    end
-
-    log 'employees count', employees.count
-
-    # Get the schedules to export
+    
     scheds = []
-    v = PluginServiceMaster::ViewModels::ViewWeekVM.new
-    v.start_date = start_date
-    v.end_date = end_date
-    v.emp_weeks = get_emp_weeks(employees, start_date, end_date)
+    employees = []
 
-    # For each empweek
-    v.emp_weeks.each do |ew|
+    # If we're exporting all schedules
+    if session[:export_all] == true
 
-      # For each custweek
-      ew.cust_weeks.each do |cw|
+      # Get ALL schedules from the start date forward
+      scheds = PsvmSched.where(
+        sch_date: start_date..1000.years.from_now)
+        .order('filekey, sch_date, sch_start_time')
+    else
 
-        # Get the scheds
-        scheds << cw.day1 if cw.day1.id.present?
-        scheds << cw.day2 if cw.day2.id.present?
-        scheds << cw.day3 if cw.day3.id.present?
-        scheds << cw.day4 if cw.day4.id.present?
-        scheds << cw.day5 if cw.day5.id.present?
-        scheds << cw.day6 if cw.day6.id.present?
+      # Get the schedules currently being viewed
+      employees = get_filtered_emps(session[:team_filter], session[:cust_filter])
+      
+      v = PluginServiceMaster::ViewModels::ViewWeekVM.new
+      v.start_date = start_date
+      v.end_date = end_date
+      v.emp_weeks = get_emp_weeks(employees, start_date, end_date)
+
+      # For each empweek
+      v.emp_weeks.each do |ew|
+
+        # For each custweek
+        ew.cust_weeks.each do |cw|
+
+          # Get the scheds
+          scheds << cw.day1 if cw.day1.id.present?
+          scheds << cw.day2 if cw.day2.id.present?
+          scheds << cw.day3 if cw.day3.id.present?
+          scheds << cw.day4 if cw.day4.id.present?
+          scheds << cw.day5 if cw.day5.id.present?
+          scheds << cw.day6 if cw.day6.id.present?
+        end
       end
     end
 
-    log 'export count', scheds.count
+    log 'employees count', employees.count
+    log 'scheds count', scheds.count
 
     # Export them to AoD
     if scheds.count > 0
