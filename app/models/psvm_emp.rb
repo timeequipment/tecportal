@@ -1,7 +1,6 @@
 class PsvmEmp < ActiveRecord::Base
   has_many :psvm_scheds
-  has_many :psvm_emp_workgroups
-  has_many :psvm_workgroups, through: :psvm_emp_workgroups
+  has_and_belongs_to_many :psvm_patterns
 
   attr_accessible \
     :filekey, 
@@ -37,8 +36,4 @@ class PsvmEmp < ActiveRecord::Base
   def fullname 
     "#{ last_name }, #{ first_name }"
   end
-
-  def customers
-    PsvmWorkgroup.find_all_by_id(self.psvm_workgroup_ids)
-  end 
 end

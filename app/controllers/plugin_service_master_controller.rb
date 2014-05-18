@@ -101,7 +101,7 @@ class PluginServiceMasterController < ApplicationController
   def get_customer
     log __method__
     customer    = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first
+    custpattern = PsvmPattern.where(wg3: params[:wg_num]).first
     employees   = PsvmEmp
       .joins(:psvm_workgroups)
       .where(psvm_workgroups: {wg_level: 3, wg_num: params[:wg_num]})
@@ -112,7 +112,7 @@ class PluginServiceMasterController < ApplicationController
   def save_customer
     log __method__
     customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    custpattern = PsvmCustPattern.where(wg_level: 3, wg_num: params[:wg_num]).first_or_initialize
+    custpattern = PsvmPattern.where(wg3: params[:wg_num]).first_or_initialize
     customer.wg_name = params[:wg_name]
     custpattern.day1 = params[:day_field1]
     custpattern.day2 = params[:day_field2]
@@ -144,13 +144,13 @@ class PluginServiceMasterController < ApplicationController
     cache_save current_user.id, 'svm_import_status', 'Initializing'
     cache_save current_user.id, 'svm_import_progress', '10'
 
-    # Request workgroup3 from AoD, in the background
+    # Request wg3 (Customers) from AoD, in the background
     Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
       current_user.id,
       session[:settings],
       3)
 
-    # Request workgroup5 from AoD, in the background
+    # Request wg5 (Activities) from AoD, in the background
     Delayed::Job.enqueue PluginServiceMaster::ImportWorkgroups.new(
       current_user.id,
       session[:settings],
@@ -267,13 +267,6 @@ class PluginServiceMasterController < ApplicationController
       end
     end
 
-    log 'employees', employees
-    log 'scheds', scheds
-    log 'start_date', start_date
-    log 'end_date', end_date 
-    log 'session[:settings]', session[:settings]
-    log 'current user id', current_user.id
-
     # Export them to AoD
     if scheds.length > 0
       cache_save current_user.id, 'svm_export_scheds_status', 'Initializing'
@@ -285,72 +278,6 @@ class PluginServiceMasterController < ApplicationController
         start_date,
         end_date,
         scheds)
-
-        # # Connect to AoD
-        # # progress 20, 'Connecting to AoD'
-        # aod = create_conn(session[:settings])
-
-        # # Get the unique filekeys we're exporting scheds for
-        # filekeys = scheds
-        #   .uniq {|sched| sched.filekey}
-        #   .map  {|sched| sched.filekey}
-
-        # log 'filekeys', filekeys
-
-        # # For each filekey
-        # filekeys.each_with_index do |filekey, i|
-
-        #   # Remove scheds in AoD for this filekey, for this date range
-        #   x = i + 1
-        #   y = filekeys.count
-        #   a = "Removing old schedules for "
-        #   b = "#{ x } of #{ y } employees"
-        #   # progress 20 + (20 * x / y), a + b
-        #   log a, b
-
-        #   response = aod.call(:remove_employee_schedules_in_range_by_filekey,
-        #     message: {
-        #       filekey:        filekey,
-        #       tDateRangeEnum: 'drCustom',
-        #       minDate:        start_date,
-        #       maxDate:        end_date
-        #     })
-        # end
-
-        # # Send scheds to AoD one at a time
-        # scheds.each_with_index do |sched, i|
-
-        #   x = i + 1
-        #   y = scheds.count
-        #   a = "Exporting schedule "
-        #   b = "#{ x } of #{ y }"
-        #   # progress 40 + (60 * x / y), a + b
-        #   log a, b
-
-        #   # Fix null values
-        #   fix_nulls sched
-
-        #   # Send schedule to AoD
-        #   log "sched", sched
-        #   response = aod.call(:append_employee_schedule_by_filekey,
-        #     message: {
-        #       filekey:        sched.filekey,
-        #       aeSchedule: {
-        #         schDate:      sched.sch_date,
-        #         schStartTime: sched.sch_start_time,
-        #         schEndTime:   sched.sch_end_time,
-        #         schHours:     sched.sch_hours,
-        #         schRate:      sched.sch_rate,
-        #         schHoursHund: sched.sch_hours_hund,
-        #         schWG1:       sched.sch_wg1,
-        #         schWG2:       sched.sch_wg2,
-        #         schWG3:       sched.sch_wg3,
-        #         schWG4:       sched.sch_wg4,
-        #         schWG5:       sched.sch_wg5,
-        #         schWGDescr:   "",
-        #       }
-        #     })
-        # end
     end
 
     render json: true
@@ -399,7 +326,7 @@ class PluginServiceMasterController < ApplicationController
         ew.cust_weeks.each do |cw|
 
           # If the customer has a pattern
-          pattern = cw.customer.pattern
+          pattern = PsvmPattern.where(wg3: cw.customer.wg_num).first
           if pattern.present?
 
             # For each day that is unscheduled, get it from the pattern

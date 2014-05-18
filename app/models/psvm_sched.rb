@@ -21,6 +21,9 @@ class PsvmSched < ActiveRecord::Base
       :sch_wg5,
       :sch_wg6,
       :sch_wg7,
+      :sch_wg8,
+      :sch_wg9,
+      :is_event,
       :unique_id
 
     attr_accessor :overlapping
@@ -32,7 +35,6 @@ class PsvmSched < ActiveRecord::Base
       self[:sch_start_time] = attributes[:sch_start_time] if attributes[:sch_start_time].present?
       self[:sch_end_time] = attributes[:sch_end_time] if attributes[:sch_end_time].present?
     end
-
 
     # def to_s
     #   @sch_start_time.strftime('%T') + ', ' + @sch_end_time.strftime('%T')
