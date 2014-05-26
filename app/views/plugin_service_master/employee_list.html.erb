@@ -7,7 +7,7 @@
 
   <main>
     <div id="list-wrapper">
-      <%= select_tag "list[]", options_from_collection_for_select(@employees, "emp_id", "fullname"), multiple: true, id: 'employee-list', class: 'list-box column' %>
+      <%= select_tag "list[]", options_from_collection_for_select(@employees, "emp_id", "fullname"), id: 'employee-list', class: 'column' %>
       <div id="view-emp-btn" class="column">View Employee</div>
       <div id="emp-wrapper" class="shrink-wrap login column">
         <h3 id="emp-name"></h3><br>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140310075204) do
+ActiveRecord::Schema.define(:version => 20140518163718) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
@@ -79,22 +79,6 @@ ActiveRecord::Schema.define(:version => 20140310075204) do
 
   add_index "plugins", ["id"], :name => "index_plugins_on_id", :unique => true
 
-  create_table "psvm_cust_patterns", :force => true do |t|
-    t.integer  "wg_level"
-    t.integer  "wg_num"
-    t.string   "day1"
-    t.string   "day2"
-    t.string   "day3"
-    t.string   "day4"
-    t.string   "day5"
-    t.string   "day6"
-    t.string   "day7"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  add_index "psvm_cust_patterns", ["wg_level", "wg_num"], :name => "psvm_cust_patterns_wg_level_wg_num"
-
   create_table "psvm_emp_customers", :force => true do |t|
     t.string  "emp_id"
     t.integer "wg_level"
@@ -102,13 +86,6 @@ ActiveRecord::Schema.define(:version => 20140310075204) do
   end
 
   add_index "psvm_emp_customers", ["emp_id", "wg_level", "wg_num"], :name => "index_psvm_emp_customers_on_emp_id_and_wg_level_and_wg_num"
-
-  create_table "psvm_emp_workgroups", :force => true do |t|
-    t.integer "psvm_emp_id"
-    t.integer "psvm_workgroup_id"
-  end
-
-  add_index "psvm_emp_workgroups", ["psvm_emp_id", "psvm_workgroup_id"], :name => "index_psvm_emp_workgroups_on_psvm_emp_id_and_psvm_workgroup_id"
 
   create_table "psvm_emps", :force => true do |t|
     t.integer  "filekey"
@@ -146,6 +123,44 @@ ActiveRecord::Schema.define(:version => 20140310075204) do
 
   add_index "psvm_emps", ["filekey"], :name => "psvm_scheds_filekey"
 
+  create_table "psvm_emps_psvm_patterns", :force => true do |t|
+    t.integer "psvm_emp_id"
+    t.integer "psvm_pattern_id"
+  end
+
+  add_index "psvm_emps_psvm_patterns", ["psvm_emp_id"], :name => "psvm_emps_psvm_patterns_psvm_emp_id"
+  add_index "psvm_emps_psvm_patterns", ["psvm_pattern_id"], :name => "psvm_emps_psvm_patterns_psvm_pattern_id"
+
+  create_table "psvm_patterns", :force => true do |t|
+    t.integer  "wg1"
+    t.integer  "wg2"
+    t.integer  "wg3"
+    t.integer  "wg4"
+    t.integer  "wg5"
+    t.integer  "wg6"
+    t.integer  "wg7"
+    t.integer  "wg8"
+    t.integer  "wg9"
+    t.string   "day1"
+    t.string   "day2"
+    t.string   "day3"
+    t.string   "day4"
+    t.string   "day5"
+    t.string   "day6"
+    t.string   "day7"
+    t.string   "day8"
+    t.string   "day9"
+    t.string   "day10"
+    t.string   "day11"
+    t.string   "day12"
+    t.string   "day13"
+    t.string   "day14"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "psvm_patterns", ["wg1", "wg2", "wg3", "wg4", "wg5", "wg6", "wg7", "wg8", "wg9"], :name => "psvm_patterns_wg1_wg2_wg3_wg4_wg5_wg6_wg7_wg8_wg9"
+
   create_table "psvm_scheds", :force => true do |t|
     t.integer  "filekey"
     t.date     "sch_date"
@@ -169,6 +184,9 @@ ActiveRecord::Schema.define(:version => 20140310075204) do
     t.integer  "unique_id"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
+    t.integer  "sch_wg8"
+    t.integer  "sch_wg9"
+    t.boolean  "is_event"
   end
 
   add_index "psvm_scheds", ["filekey", "sch_date", "sch_start_time"], :name => "psvm_scheds_filekey_sch_date_sch_start_time"

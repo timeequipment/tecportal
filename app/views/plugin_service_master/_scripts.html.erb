@@ -13,27 +13,6 @@
 
   //--------------- Functions ---------------
 
-  function getCustomer() {
-    customer = {};
-    cust_pattern = {};
-    employees = {};
-    
-    // Get selected customer id
-    var params = { wg_num : $('#customer-list').val() };
-    
-    // Ajax - get this customer
-    $.get('get_customer', params, function(data) {
-      if (data) {
-        if (data[0]) customer     = data[0].psvm_workgroup;
-        if (data[1]) cust_pattern = data[1].psvm_cust_pattern;
-        if (data[2]) employees    = data[2];
-        deserializeCustPattern();
-        viewCustomer();
-      }
-      $('#cust-wrapper').show();
-    });
-  }
-
   function getEmployee() {
     employee = {};
     workgroups = {};
@@ -52,95 +31,6 @@
       }
       $('#emp-wrapper').show();
     });
-  }
-
-  function viewCustomer() {
-    // Reset all labels
-    $('#employees-assigned').html('<label>(None)</label>');
-
-    // If we recieved a customer object from the server
-    if (customer) {
-      $('#cust-name').html(customer.wg_name);
-      $('#wg_name').val(customer.wg_name);  
-      $('#wg_num').val(customer.wg_num);  
-    }
-
-    // If this customer has employees assigned to it
-    if (employees && employees.length > 0) {
-      // List their names
-      var container = $('<div />');
-      for (var i = 0; i < employees.length; i++) {
-        $('<label />', {
-          html: employees[i].psvm_emp.first_name + ' ' + employees[i].psvm_emp.last_name
-        }).appendTo(container);
-      }
-      $('#employees-assigned').html(container);
-    }
-  
-    // If this customer has a pattern defined
-    if (cust_pattern) {
-      // Load the days
-      var day1 = cust_pattern.day1;
-      var day2 = cust_pattern.day2;
-      var day3 = cust_pattern.day3;
-      var day4 = cust_pattern.day4;
-      var day5 = cust_pattern.day5;
-      var day6 = cust_pattern.day6;
-      var day7 = cust_pattern.day7;
-      // Clear day boxes
-      $('#day1').html('');
-      $('#day2').html('');
-      $('#day3').html('');
-      $('#day4').html('');
-      $('#day5').html('');
-      $('#day6').html('');
-      $('#day7').html('');
-      var total = 0.0;
-      // View info for days that have schedules defined
-      if (day1) {
-        $('#day1').html(
-          day1.start_time.format("h:mm a") + ' - ' + 
-          day1.end_time.format("h:mm a"));
-        total += day1.hours;
-      }
-      if (day2) {
-        $('#day2').html(
-          day2.start_time.format("h:mm a") + ' - ' + 
-          day2.end_time.format("h:mm a"));
-        total += day2.hours;
-      }
-      if (day3) {
-        $('#day3').html(
-          day3.start_time.format("h:mm a") + ' - ' + 
-          day3.end_time.format("h:mm a"));
-        total += day3.hours;
-      }
-      if (day4) {
-        $('#day4').html(
-          day4.start_time.format("h:mm a") + ' - ' + 
-          day4.end_time.format("h:mm a"));
-        total += day4.hours;
-      }
-      if (day5) {
-        $('#day5').html(
-          day5.start_time.format("h:mm a") + ' - ' + 
-          day5.end_time.format("h:mm a"));
-        total += day5.hours;
-      }
-      if (day6) {
-        $('#day6').html(
-          day6.start_time.format("h:mm a") + ' - ' + 
-          day6.end_time.format("h:mm a"));
-        total += day6.hours;
-      }
-      if (day7) {
-        $('#day7').html(
-          day7.start_time.format("h:mm a") + ' - ' + 
-          day7.end_time.format("h:mm a"));
-        total += day7.hours;
-      }
-      $('#total').html(total.toFixed(2));
-    }
   }
 
   function viewEmployee() {
@@ -175,51 +65,6 @@
       }
       $('#customers-assigned').html(container);
     }
-  }
-
-  function deserializeCustPattern() {
-    var day1_str = cust_pattern.day1 || "";
-    var day2_str = cust_pattern.day2 || "";
-    var day3_str = cust_pattern.day3 || "";
-    var day4_str = cust_pattern.day4 || "";
-    var day5_str = cust_pattern.day5 || "";
-    var day6_str = cust_pattern.day6 || "";
-    var day7_str = cust_pattern.day7 || "";
-    if (day1_str.length > 0) {
-      cust_pattern.day1 = JSON.parse(day1_str);
-      cust_pattern.day1.start_time = moment.utc(cust_pattern.day1.start_time)
-      cust_pattern.day1.end_time = moment.utc(cust_pattern.day1.end_time)
-    } 
-    if (day2_str.length > 0) {
-      cust_pattern.day2 = JSON.parse(day2_str);
-      cust_pattern.day2.start_time = moment.utc(cust_pattern.day2.start_time)
-      cust_pattern.day2.end_time = moment.utc(cust_pattern.day2.end_time)
-    } 
-    if (day3_str.length > 0) {
-      cust_pattern.day3 = JSON.parse(day3_str);
-      cust_pattern.day3.start_time = moment.utc(cust_pattern.day3.start_time)
-      cust_pattern.day3.end_time = moment.utc(cust_pattern.day3.end_time)
-    } 
-    if (day4_str.length > 0) {
-      cust_pattern.day4 = JSON.parse(day4_str);
-      cust_pattern.day4.start_time = moment.utc(cust_pattern.day4.start_time)
-      cust_pattern.day4.end_time = moment.utc(cust_pattern.day4.end_time)
-    } 
-    if (day5_str.length > 0) {
-      cust_pattern.day5 = JSON.parse(day5_str);
-      cust_pattern.day5.start_time = moment.utc(cust_pattern.day5.start_time)
-      cust_pattern.day5.end_time = moment.utc(cust_pattern.day5.end_time)
-    } 
-    if (day6_str.length > 0) {
-      cust_pattern.day6 = JSON.parse(day6_str);
-      cust_pattern.day6.start_time = moment.utc(cust_pattern.day6.start_time)
-      cust_pattern.day6.end_time = moment.utc(cust_pattern.day6.end_time)
-    } 
-    if (day7_str.length > 0) {
-      cust_pattern.day7 = JSON.parse(day7_str);
-      cust_pattern.day7.start_time = moment.utc(cust_pattern.day7.start_time)
-      cust_pattern.day7.end_time = moment.utc(cust_pattern.day7.end_time)
-    } 
   }
 
   function editCustPattern(td, e) {
@@ -552,37 +397,6 @@
     editSchedule($(this), e);
   });
 
-  // Expand button shows links
-  $('#expand-btn').click(function(e) {
-    e.preventDefault();
-    if ($('#links-expand').width() == 0)
-    {
-      expandMenu();
-    }
-    else
-    {
-      shrinkMenu();
-    }
-  });
-
-  function expandMenu() {
-    $('#expand-btn').html('>>');
-    $('#expand-btn').css('margin-right','-2px');
-    $('#home-btn').css('margin-left','-7px');
-    $("#links-expand").animate({
-      "width": "330px",
-    }, 300 );
-  }
-
-  function shrinkMenu() {
-    $('#expand-btn').html('<<');
-    $('#expand-btn').css('margin-right','-5px');
-    $('#home-btn').css('margin-left','0px');
-    $("#links-expand").animate({
-      "width": "0px",
-    }, 300 );
-  }
-
   // Team filter saves filter, reloads page
   $('#team_filter').change(function() {
     $.get('team_filter', { team_filter: $(this).val() }, function() {
@@ -607,14 +421,13 @@
     if (e.keyCode == 27) { cancelSchedule(); }   // code 27 = escape key
   });
 
-  // Attach a submit handler to the customer form
+  // Save customer button
   $("#cust-form").submit(function( event ) {
    
-    // Stop form from submitting normally
+    // Stop form submission
     event.preventDefault();
-   
-    // Get some values from elements on the page:
-    var url        = $(this).attr("action");
+
+    // Get data   
     var wg_num     = $('#wg_num').val();
     var wg_name    = $('#wg_name').val();
     var day_field1 = null;
@@ -633,21 +446,20 @@
     if (cust_pattern.day6) day_field6 = JSON.stringify(cust_pattern.day6);
     if (cust_pattern.day7) day_field7 = JSON.stringify(cust_pattern.day7);
    
-    // Send the data using post
-    var posting = $.post( url, {
+    var params = {
       wg_num:     wg_num, 
       wg_name:    wg_name, 
-      day_field1: day_field1, 
+      day_field1: day_field1,  
       day_field2: day_field2, 
       day_field3: day_field3, 
       day_field4: day_field4, 
       day_field5: day_field5, 
       day_field6: day_field6, 
       day_field7: day_field7, 
-    });
-   
-    // Put the results in a div
-    posting.done(function( data ) {
+    };
+
+    // Post data
+    $.post('save_customer', params, function(data) {
       $('#save-btn').val('Saved!');
       window.setTimeout(function() {
         $('#save-btn').val('Save Customer');
@@ -655,21 +467,20 @@
     });
   });
 
-  // Attach a submit handler to the employee form
+  // Save employee button
   $("#emp-form").submit(function( event ) {
    
-    // Stop form from submitting normally
+    // Stop form submission
     event.preventDefault();
    
-    // Get some values from elements on the page:
-    var url = $(this).attr("action");
+    // Get form
+    params = $(this).serialize();
 
-    // Send the data using post
-    var posting = $.post( url, $("#emp-form").serialize() );
-   
-    // Put the results in a div
-    posting.done(function( data ) {
+    // Post form
+    $.post('save_employee', params, function(data) {
       $('#save-btn').val('Saved!');
+
+      // Reload employee
       getEmployee();
       window.setTimeout(function() {
         $('#save-btn').val('Save Employee');

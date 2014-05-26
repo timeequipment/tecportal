@@ -1,0 +1,107 @@
+<div class="plugin-service-master">  
+
+  <header>
+    <%= render partial: 'links' %>
+  </header>
+  
+  <main>
+    <h2 id="team-name">&nbsp;</h2><br>
+    <%= select_tag "list[]", options_from_collection_for_select(@teams, "wg_num", "wg_name"), id: 'team-list', class: 'column' %>
+    <div id="team-wrapper" class="shrink-wrap login column">
+      <form id="team-form">
+        <div>
+          <%= label_tag :wg_num, 'Number' %> &nbsp;
+          <%= text_field_tag :wg_num %>
+        </div>
+        <div>
+          <%= label_tag :wg_code, 'Code' %> &nbsp;
+          <%= text_field_tag :wg_code %>
+        </div>
+        <div>
+          <%= label_tag :wg_name, 'Name' %> &nbsp;
+          <%= text_field_tag :wg_name %>
+        </div>
+        <br>
+        <input id="save-btn" type="submit" value="Save Team">
+      </form>
+    </div>
+    <div class="shrink-wrap login">
+      <form>
+        <input id="create-team-btn" type="submit" value="Create Team">
+      </form>
+      <form>
+        <input id="delete-team-btn" type="submit" value="Delete Team">
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+  //--------------- Functions ---------------
+
+  function getTeam() {
+    var params = { wg_num : $('#team-list').val() };
+
+    $.get('get_team', params, function(data) {
+      team = data[0].psvm_workgroup;
+      $('#team-name').html(team.wg_name);
+      $('#wg_name').val(team.wg_name);  
+      $('#wg_code').val(team.wg_code);  
+      $('#wg_num').val(team.wg_num);  
+    });
+  }
+
+  //--------------- Events ---------------
+  
+  // Select team from list
+  $('#team-list').change(function() {
+    getTeam();
+  });
+
+  // Create team button
+  $('#create-team-btn').click(function(){
+    $.get('create_team', null, function() {
+      location.reload();
+    });
+  });
+
+  // Delete team button
+  $('#delete-team-btn').click(function(){
+    
+    // Get selected team
+    var params = { wg_num : $('#team-list').val() };
+    
+    // Delete team
+    $.get('delete_team', params, function(data) {
+      location.reload();
+    });
+  });
+
+  // Save team button
+  $("#team-form").submit(function(event) {
+   
+    // Submit form
+    event.preventDefault();
+    $.post('save_team', $(this).serialize(), function() {
+
+      // Refresh name in list
+      wgnum = $('#wg_num').val();
+      wgname = $('#wg_name').val();
+      $('#team-list option[value="' + wgnum + '"]').text(wgname);
+      $('#team-name').html(wgname);
+
+      // Show success
+      $('#save-btn').val('Saved!');
+      window.setTimeout(function() {
+        $('#save-btn').val('Save Team');
+      }, 2000);
+    });
+  });
+
+  // Select first team on page load
+  $(document).ready(function() {
+    $("#team-list option:first").attr('selected','selected');
+    getTeam();  
+  });
+
+</script>

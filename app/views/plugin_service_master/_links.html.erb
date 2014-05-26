@@ -3,6 +3,7 @@
   <div id="links-expand">
     <%= link_to "Schedules", plugin_service_master_index_path %>
     <%= link_to "Employees", plugin_service_master_employee_list_path %>
+    <%= link_to "Teams",     plugin_service_master_team_list_path %>
     <%= link_to "Customers", plugin_service_master_customer_list_path %>
     <% if current_user.customer_admin? %>
       <%= link_to "AoD",     plugin_service_master_settings_path %>
@@ -13,3 +14,37 @@
   <%= link_to "Home", home_dashboard_path, id: "home-btn" %>
 </div>
 
+<script>
+
+  // Expand button shows links
+  $('#expand-btn').click(function(e) {
+    e.preventDefault();
+    if ($('#links-expand').width() == 0)
+    {
+      expandMenu();
+    }
+    else
+    {
+      shrinkMenu();
+    }
+  });
+
+  function expandMenu() {
+    $('#expand-btn').html('>>');
+    $('#expand-btn').css('margin-right','-2px');
+    $('#home-btn').css('margin-left','-7px');
+    $("#links-expand").animate({
+      "width": "396px",
+    }, 300 );
+  }
+
+  function shrinkMenu() {
+    $('#expand-btn').html('<<');
+    $('#expand-btn').css('margin-right','-5px');
+    $('#home-btn').css('margin-left','0px');
+    $("#links-expand").animate({
+      "width": "0px",
+    }, 300 );
+  }
+
+</script>

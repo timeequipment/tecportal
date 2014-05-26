@@ -1,70 +1,354 @@
 <div class="plugin-service-master">  
 
   <header>
-    <h2>Customers</h2>
     <%= render partial: 'links' %>
   </header>
   
   <main>
-    <div id="list-wrapper">
-      <%= select_tag "list[]", options_from_collection_for_select(@customers, "wg_num", "wg_name"), multiple: true, id: 'customer-list', class: 'list-box column' %>
-      <div id="view-cust-btn" class="column">View Customer</div>
-      <div id="cust-wrapper" class="shrink-wrap login column popup-owner-js">
-        <h3 id="cust-name"></h3><br>
-        <form id="cust-form" action="save_customer" method="post">
-          <div>
-            <%= hidden_field_tag :wg_name %>
-            <%= hidden_field_tag :wg_num %>
-            <%= hidden_field_tag :day_field1 %>
-            <%= hidden_field_tag :day_field2 %>
-            <%= hidden_field_tag :day_field3 %>
-            <%= hidden_field_tag :day_field4 %>
-            <%= hidden_field_tag :day_field5 %>
-            <%= hidden_field_tag :day_field6 %>
-            <%= hidden_field_tag :day_field7 %>
-          </div>
-          <br>
-          <h4>Customer Pattern</h4>
-          <table>
-            <thead>
-              <tr>
-                <th>Monday</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-                <th>Friday</th>
-                <th>Saturday</th>
-                <th>Sunday</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td id="day1" daynum="1" class="cust-sched">&nbsp;</td>
-                <td id="day2" daynum="2" class="cust-sched">&nbsp;</td>
-                <td id="day3" daynum="3" class="cust-sched">&nbsp;</td>
-                <td id="day4" daynum="4" class="cust-sched">&nbsp;</td>
-                <td id="day5" daynum="5" class="cust-sched">&nbsp;</td>
-                <td id="day6" daynum="6" class="cust-sched">&nbsp;</td>
-                <td id="day6" daynum="7" class="cust-sched">&nbsp;</td>
-                <td id="total" class="custtotal">&nbsp;</td>
-              </tr>
-            </tbody>
-          </table>
-          <br>
-          <br>
+    <h2 id="customer-name">&nbsp;</h2><br>
+    <%= select_tag "list[]", options_from_collection_for_select(@customers, "wg_num", "wg_name"), id: 'customer-list', class: 'column' %>
+    <%= select_tag "list[]", options_from_collection_for_select(@teams,     "wg_num", "wg_name"), id: 'team-list',     class: 'column' %>
+    <div id="pattern-wrapper" class="shrink-wrap login column popup-owner-js">
+      <form id="pattern-form">
+        <div>
+          <%= hidden_field_tag :id %>
+          <%= hidden_field_tag :wg1 %>
+          <%= hidden_field_tag :wg2 %>
+          <%= hidden_field_tag :wg3 %>
+          <%= hidden_field_tag :wg4 %>
+          <%= hidden_field_tag :wg5 %>
+          <%= hidden_field_tag :wg6 %>
+          <%= hidden_field_tag :wg7 %>
+          <%= hidden_field_tag :wg8 %>
+          <%= hidden_field_tag :wg9 %>
+          <%= hidden_field_tag :day_field1 %>
+          <%= hidden_field_tag :day_field2 %>
+          <%= hidden_field_tag :day_field3 %>
+          <%= hidden_field_tag :day_field4 %>
+          <%= hidden_field_tag :day_field5 %>
+          <%= hidden_field_tag :day_field6 %>
+          <%= hidden_field_tag :day_field7 %>
+        </div>
+        <h4 id="team-name">&nbsp;</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
+              <th>Friday</th>
+              <th>Saturday</th>
+              <th>Sunday</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="day1" daynum="1" class="cust-sched">&nbsp;</td>
+              <td id="day2" daynum="2" class="cust-sched">&nbsp;</td>
+              <td id="day3" daynum="3" class="cust-sched">&nbsp;</td>
+              <td id="day4" daynum="4" class="cust-sched">&nbsp;</td>
+              <td id="day5" daynum="5" class="cust-sched">&nbsp;</td>
+              <td id="day6" daynum="6" class="cust-sched">&nbsp;</td>
+              <td id="day6" daynum="7" class="cust-sched">&nbsp;</td>
+              <td id="total" class="custtotal">&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
 
-          <h4>Employees Assigned:</h4>
-          <div id="employees-assigned">
-            <label>(None)</label>
-          </div>
-          <br>
-          <input id='save-btn' type="submit" value="Save Customer">
-        </form>
-        <%= render partial: "sched_popup", locals: { editing_customer: false } %>
-      </div>
+        <h4>Employees Assigned:</h4>
+        <div id="employees-assigned">
+          <label>(None)</label>
+        </div>
+        <br>
+        <input id='save-btn' type="submit" value="Save Pattern">
+      </form>
+      <%= render partial: "sched_popup", locals: { editing_customer: false } %>
+    </div>
+    <div class="shrink-wrap login">
+      <form>
+        <input id="create-pattern-btn" type="submit" value="Create Pattern">
+        <div>
+          <h5>&nbsp; For: &nbsp;<%= select_tag "list[]", options_from_collection_for_select(@teams, "wg_num", "wg_name"), id: 'all-teams', class: 'column' %></h5>
+        </div>
+        <br>
+        <br>
+      </form>
+      <form>
+        <input id="delete-pattern-btn" type="submit" value="Delete Pattern">
+      </form>
     </div>
   </main>
 </div>
 
-<%= render :partial => "scripts" %>
+<%= render partial: "scripts" %>
+
+<script>
+  //--------------- Functions ---------------
+
+  function getCustomer() {
+    var params = { wg_num : $('#customer-list').val() };
+
+    $.get('get_customer', params, function(data) {
+      customer = data[0].psvm_workgroup;
+      teams    = data[1];
+      $('#wg3').val(customer.wg_num);
+      $('#team-list').empty();
+      $.each(teams, function() {
+        $('#team-list').append(new Option(this.psvm_workgroup.wg_name, this.psvm_workgroup.wg_num));
+      });
+      $('#customer-name').html(customer.wg_name);
+
+      // If it has teams
+      if (teams.length > 0) {
+
+        // Select the first one
+        $("#team-list option:first").attr('selected','selected');
+        getPattern();
+      }
+    });
+  }
+
+  function getPattern() {
+    var params = { 
+      wg3 : $('#wg3').val(),
+      wg8 : $('#team-list').val(),
+    };
+
+    $.get('get_pattern', params, function(data) {
+      customer = data[0].psvm_workgroup;
+      team     = data[1].psvm_workgroup;
+      pattern  = data[2].psvm_pattern;
+      $('#id').val(pattern.id);
+      $('#wg1').val(pattern.wg1);
+      $('#wg2').val(pattern.wg2);
+      $('#wg3').val(pattern.wg3);
+      $('#wg4').val(pattern.wg4);
+      $('#wg5').val(pattern.wg5);
+      $('#wg6').val(pattern.wg6);
+      $('#wg7').val(pattern.wg7);
+      $('#wg8').val(pattern.wg8);
+      $('#wg9').val(pattern.wg9);
+      $('#').val(pattern.wg9);
+      $('#team-name').html(team.wg_name);
+
+      deserializePattern(pattern);
+      viewPattern(pattern);
+    });
+  }
+
+  function deserializePattern(pattern) {
+    var day1_str = pattern.day1 || "";
+    var day2_str = pattern.day2 || "";
+    var day3_str = pattern.day3 || "";
+    var day4_str = pattern.day4 || "";
+    var day5_str = pattern.day5 || "";
+    var day6_str = pattern.day6 || "";
+    var day7_str = pattern.day7 || "";
+    if (day1_str.length > 0) {
+      pattern.day1 = JSON.parse(day1_str);
+      pattern.day1.start_time = moment.utc(pattern.day1.start_time)
+      pattern.day1.end_time = moment.utc(pattern.day1.end_time)
+    } 
+    if (day2_str.length > 0) {
+      pattern.day2 = JSON.parse(day2_str);
+      pattern.day2.start_time = moment.utc(pattern.day2.start_time)
+      pattern.day2.end_time = moment.utc(pattern.day2.end_time)
+    } 
+    if (day3_str.length > 0) {
+      pattern.day3 = JSON.parse(day3_str);
+      pattern.day3.start_time = moment.utc(pattern.day3.start_time)
+      pattern.day3.end_time = moment.utc(pattern.day3.end_time)
+    } 
+    if (day4_str.length > 0) {
+      pattern.day4 = JSON.parse(day4_str);
+      pattern.day4.start_time = moment.utc(pattern.day4.start_time)
+      pattern.day4.end_time = moment.utc(pattern.day4.end_time)
+    } 
+    if (day5_str.length > 0) {
+      pattern.day5 = JSON.parse(day5_str);
+      pattern.day5.start_time = moment.utc(pattern.day5.start_time)
+      pattern.day5.end_time = moment.utc(pattern.day5.end_time)
+    } 
+    if (day6_str.length > 0) {
+      pattern.day6 = JSON.parse(day6_str);
+      pattern.day6.start_time = moment.utc(pattern.day6.start_time)
+      pattern.day6.end_time = moment.utc(pattern.day6.end_time)
+    } 
+    if (day7_str.length > 0) {
+      pattern.day7 = JSON.parse(day7_str);
+      pattern.day7.start_time = moment.utc(pattern.day7.start_time)
+      pattern.day7.end_time = moment.utc(pattern.day7.end_time)
+    } 
+  }
+
+  function viewPattern(pattern) {
+    // Reset all labels
+    $('#employees-assigned').html('<label>(None)</label>');
+
+    // // If this pattern has employees assigned to it
+    // if (employees && employees.length > 0) {
+    //   // List their names
+    //   var container = $('<div />');
+    //   for (var i = 0; i < employees.length; i++) {
+    //     $('<label />', {
+    //       html: employees[i].psvm_emp.first_name + ' ' + employees[i].psvm_emp.last_name
+    //     }).appendTo(container);
+    //   }
+    //   $('#employees-assigned').html(container);
+    // }
+  
+    // Load the days
+    var day1 = pattern.day1;
+    var day2 = pattern.day2;
+    var day3 = pattern.day3;
+    var day4 = pattern.day4;
+    var day5 = pattern.day5;
+    var day6 = pattern.day6;
+    var day7 = pattern.day7;
+
+    // Clear day boxes
+    $('#day1').html('');
+    $('#day2').html('');
+    $('#day3').html('');
+    $('#day4').html('');
+    $('#day5').html('');
+    $('#day6').html('');
+    $('#day7').html('');
+    var total = 0.0;
+
+    // View info for days that have schedules defined
+    if (day1) {
+      $('#day1').html(
+        day1.start_time.format("h:mm a") + ' - ' + 
+        day1.end_time.format("h:mm a"));
+      total += day1.hours;
+    }
+    if (day2) {
+      $('#day2').html(
+        day2.start_time.format("h:mm a") + ' - ' + 
+        day2.end_time.format("h:mm a"));
+      total += day2.hours;
+    }
+    if (day3) {
+      $('#day3').html(
+        day3.start_time.format("h:mm a") + ' - ' + 
+        day3.end_time.format("h:mm a"));
+      total += day3.hours;
+    }
+    if (day4) {
+      $('#day4').html(
+        day4.start_time.format("h:mm a") + ' - ' + 
+        day4.end_time.format("h:mm a"));
+      total += day4.hours;
+    }
+    if (day5) {
+      $('#day5').html(
+        day5.start_time.format("h:mm a") + ' - ' + 
+        day5.end_time.format("h:mm a"));
+      total += day5.hours;
+    }
+    if (day6) {
+      $('#day6').html(
+        day6.start_time.format("h:mm a") + ' - ' + 
+        day6.end_time.format("h:mm a"));
+      total += day6.hours;
+    }
+    if (day7) {
+      $('#day7').html(
+        day7.start_time.format("h:mm a") + ' - ' + 
+        day7.end_time.format("h:mm a"));
+      total += day7.hours;
+    }
+    $('#total').html(total.toFixed(2));
+  }  
+
+  //--------------- Events ---------------
+  
+  // Select customer from list
+  $('#customer-list').change(function() {
+    getCustomer();
+  });
+
+  // Select team from list
+  $('#team-list').change(function() {
+    getPattern();
+  });
+
+  // Create pattern button
+  $('#create-pattern-btn').click(function(){
+    var params = { 
+      wg3 : $('#wg3').val(),
+      wg8 : $('#all-teams').val(),
+    };
+    
+    $.get('create_pattern', params, function() {
+      location.reload();
+    });
+  });
+
+  // Delete pattern button
+  $('#delete-pattern-btn').click(function(){
+    // Get selected pattern
+    var params = { id : $('#id').val() };
+    
+    // Delete pattern
+    $.get('delete_pattern', params, function(data) {
+      location.reload();
+    });
+  });
+
+  // Save pattern button
+  $("#pattern-form").submit(function(event) {
+   
+    // Submit forms
+    event.preventDefault();
+    $.post('save_pattern', $(this).serialize(), function() {
+
+      // Show success
+      $('#save-btn').val('Saved!');
+      window.setTimeout(function() {
+        $('#save-btn').val('Save Customer');
+      }, 2000);
+    });
+  });
+
+  // Select first customer on page load
+  $(document).ready(function() {
+    $("#customer-list option:first").attr('selected','selected');
+    getCustomer(); 
+  });
+
+  //---------- Sched specific events -----------
+
+  // OK button updates cust sched
+  $('#save-cust-sched-btn').click(function(){
+    updateCustSchedule();
+  });
+
+  // Close button hides popup
+  $('#close-sched-btn, #close-cust-sched-btn').click(function(){
+    cancelSchedule();
+  });
+
+  // Delete button deletes sched
+  $('#delete-sched-btn').click(function(){
+    deleteSchedule();
+  });
+
+  // Delete button deletes cust sched
+  $('#delete-cust-sched-btn').click(function(){
+    deleteCustSchedule();
+  });
+
+  // When user clicks on a cust schedule
+  $('.cust-sched').click(function(e){
+    editCustPattern($(this), e);
+  });
+
+
+</script>
+

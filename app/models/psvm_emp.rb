@@ -1,5 +1,6 @@
 class PsvmEmp < ActiveRecord::Base
-  has_many :psvm_scheds
+  has_many :psvm_scheds, primary_key: 'filekey', 
+                         foreign_key: 'filekey'
   has_and_belongs_to_many :psvm_patterns
 
   attr_accessible \

@@ -1,6 +1,6 @@
 class PsvmSched < ActiveRecord::Base
-  belongs_to :psvm_emp
-
+  belongs_to :psvm_emp, primary_key: 'filekey', 
+                        foreign_key: 'filekey'
     attr_accessible \
       :filekey,
       :sch_date,

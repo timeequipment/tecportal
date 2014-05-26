@@ -23,8 +23,8 @@ class PluginServiceMasterController < ApplicationController
     session[:enddate] = session[:startdate] + 6.days
 
     # Create view model vars
-    @team_filter            = session[:team_filter] || ""
-    @cust_filter            = session[:cust_filter] || ""
+    @team_filter            = "" #session[:team_filter] || ""
+    @cust_filter            = "" #session[:cust_filter] || ""
     @startdate              = session[:settings].weekstart || Date.today.beginning_of_week
     @enddate                = @startdate + 6.days
     @export_all             = session[:export_all]
@@ -41,14 +41,10 @@ class PluginServiceMasterController < ApplicationController
       @future_date = @enddate.strftime "%m/%d/%Y"
     end
 
-    # Get teams
-    @teams = PsvmEmp.where(active_status: 0).select(:custom1).uniq.map(&:custom1)
-    @teams.delete(nil)  # Clean up nils
-    @teams.delete("")   # Clean up blanks
-
-    # Get customers and activities
-    @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
+    # Get workgroups
+    @customers  = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
     @activities = PsvmWorkgroup.where('wg_level = 5').order('wg_num')
+    @teams      = PsvmWorkgroup.where('wg_level = 8').order('wg_name')
 
     # Get employees
     @employees = get_filtered_emps(@team_filter, @cust_filter)
@@ -68,21 +64,104 @@ class PluginServiceMasterController < ApplicationController
     log __method__
   end
 
+  def team_list
+    log __method__
+    @teams = PsvmWorkgroup.where('wg_level = 8').order('wg_name')
+  end
+
+  def customer_list
+    log __method__
+    @customers = PsvmWorkgroup.where(wg_level: 3).order('wg_name')
+    @teams     = PsvmWorkgroup.where(wg_level: 8).order('wg_name')
+    @activities = PsvmWorkgroup.where(wg_level: 5).select('wg_num, wg_name').order('wg_name')
+  end
+
   def employee_list
     log __method__
     @employees = PsvmEmp.where(active_status: 0).order('last_name, first_name')
   end
 
-  def customer_list
+  def get_team
     log __method__
-    @customers = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
-    @activities = PsvmWorkgroup.where('wg_level = 5').select('wg_num, wg_name').order('wg_name')
+    team = PsvmWorkgroup.where(wg_level: 8, wg_num: params[:wg_num]).first
+    render json: [ team ].to_json
+  end
+
+  def save_team
+    log __method__
+    team = PsvmWorkgroup.where(wg_level: 8, wg_num: params[:wg_num]).first
+    team.wg_code = params[:wg_code]
+    team.wg_name = params[:wg_name]
+    team.save
+    render json: true
+  end
+
+  def create_team
+    log __method__
+    max = PsvmWorkgroup.maximum("wg_num") + 1
+    PsvmWorkgroup.create(wg_level: 8, wg_num: max, wg_name: 'New Team')
+    render json: true
+  end
+
+  def delete_team
+    log __method__
+    team = PsvmWorkgroup.where(wg_level: 8, wg_num: params[:wg_num]).first
+    team.destroy
+    render json: true
+  end
+
+  def get_customer
+    log __method__
+    customer  = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
+    patterns  = PsvmPattern.where(wg3: params[:wg_num])
+    teams     = PsvmWorkgroup.where(wg_level: 8, wg_num: patterns.map(&:wg8))
+    render json: [ customer, teams ].to_json
+  end
+
+  def get_pattern
+    log __method__
+    customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg3]).first
+    team     = PsvmWorkgroup.where(wg_level: 8, wg_num: params[:wg8]).first
+    pattern  = PsvmPattern.where(wg3: params[:wg3], wg8: params[:wg8]).first
+    render json: [ customer, team, pattern ].to_json
+  end
+
+  def save_pattern
+    log __method__
+    pattern = PsvmPattern.where(wg3: params[:wg3], wg8: params[:wg8]).first_or_initialize
+    pattern.day1 = params[:day_field1]
+    pattern.day2 = params[:day_field2]
+    pattern.day3 = params[:day_field3]
+    pattern.day4 = params[:day_field4]
+    pattern.day5 = params[:day_field5]
+    pattern.day6 = params[:day_field6]
+    pattern.day7 = params[:day_field7]
+    pattern.day8 = params[:day_field8]
+    pattern.day9 = params[:day_field9]
+    pattern.day10 = params[:day_field10]
+    pattern.day11 = params[:day_field11]
+    pattern.day12 = params[:day_field12]
+    pattern.day13 = params[:day_field13]
+    pattern.day14 = params[:day_field14]
+    pattern.save
+    render json: true
+  end
+
+  def create_pattern
+    log __method__
+    PsvmPattern.create(wg3: params[:wg3], wg8: params[:wg8])
+    render json: true
+  end
+
+  def delete_pattern
+    log __method__
+    PsvmPattern.destroy(params[:id])
+    render json: true
   end
 
   def get_employee
     log __method__
     employee = PsvmEmp.where(emp_id: params[:emp_id]).first
-    workgroups = employee.psvm_workgroups.order('wg_name')
     render json: [ employee, workgroups ].to_json
   end
 
@@ -91,38 +170,7 @@ class PluginServiceMasterController < ApplicationController
     employee = PsvmEmp.where(emp_id: params[:emp_id]).first
     employee.first_name = params[:first_name]
     employee.last_name = params[:last_name]
-    employee.custom1 = params[:custom1]
-    employee.psvm_workgroups.clear
-    employee.psvm_workgroup_ids = params[:psvm_workgroup_ids].to_a
     employee.save
-    render json: true
-  end
-
-  def get_customer
-    log __method__
-    customer    = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    custpattern = PsvmPattern.where(wg3: params[:wg_num]).first
-    employees   = PsvmEmp
-      .joins(:psvm_workgroups)
-      .where(psvm_workgroups: {wg_level: 3, wg_num: params[:wg_num]})
-      .order('last_name')
-    render json: [ customer, custpattern, employees ].to_json
-  end
-
-  def save_customer
-    log __method__
-    customer = PsvmWorkgroup.where(wg_level: 3, wg_num: params[:wg_num]).first
-    custpattern = PsvmPattern.where(wg3: params[:wg_num]).first_or_initialize
-    customer.wg_name = params[:wg_name]
-    custpattern.day1 = params[:day_field1]
-    custpattern.day2 = params[:day_field2]
-    custpattern.day3 = params[:day_field3]
-    custpattern.day4 = params[:day_field4]
-    custpattern.day5 = params[:day_field5]
-    custpattern.day6 = params[:day_field6]
-    custpattern.day7 = params[:day_field7]
-    custpattern.save
-    customer.save
     render json: true
   end
 

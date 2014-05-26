@@ -1,64 +1,72 @@
 Tecportal::Application.routes.draw do
 
   # BambooHR plugin
-  get 'plugin_bamboo_hr/index'
-  get 'plugin_bamboo_hr/settings'
-  get 'plugin_bamboo_hr/save_settings'
-  get 'plugin_bamboo_hr/import_employees'
-  get 'plugin_bamboo_hr/progress'
+  get  'plugin_bamboo_hr/index'
+  get  'plugin_bamboo_hr/settings'
+  get  'plugin_bamboo_hr/save_settings'
+  get  'plugin_bamboo_hr/import_employees'
+  get  'plugin_bamboo_hr/progress'
 
   # ServiceMaster plugin
-  get 'plugin_service_master/index'
-  get 'plugin_service_master/settings'
+  get  'plugin_service_master/index'
+  get  'plugin_service_master/settings'
   post 'plugin_service_master/save_settings'
-  get 'plugin_service_master/employee_list'
-  get 'plugin_service_master/customer_list'
-  get 'plugin_service_master/get_employee'
+  get  'plugin_service_master/team_list'
+  get  'plugin_service_master/customer_list'
+  get  'plugin_service_master/employee_list'
+  get  'plugin_service_master/get_team'
+  post 'plugin_service_master/save_team'
+  get  'plugin_service_master/create_team'
+  get  'plugin_service_master/delete_team'
+  get  'plugin_service_master/get_customer'
+  get  'plugin_service_master/get_pattern'
+  post 'plugin_service_master/save_pattern'
+  get  'plugin_service_master/create_pattern'
+  get 'plugin_service_master/delete_pattern'
+  get  'plugin_service_master/get_employee'
   post 'plugin_service_master/save_employee'
-  get 'plugin_service_master/get_customer'
-  post 'plugin_service_master/save_customer'
-  get 'plugin_service_master/import_employees'
-  get 'plugin_service_master/import_workgroups'
+  get  'plugin_service_master/import_employees'
+  get  'plugin_service_master/import_workgroups'
   post 'plugin_service_master/save_schedule'
   post 'plugin_service_master/delete_schedule'
-  get 'plugin_service_master/team_filter'
-  get 'plugin_service_master/cust_filter'
-  get 'plugin_service_master/next_week'
-  get 'plugin_service_master/prev_week'
-  get 'plugin_service_master/export_scheds'
-  get 'plugin_service_master/generate_scheds'
-  get 'plugin_service_master/progress'
+  get  'plugin_service_master/team_filter'
+  get  'plugin_service_master/cust_filter'
+  get  'plugin_service_master/next_week'
+  get  'plugin_service_master/prev_week'
+  get  'plugin_service_master/export_scheds'
+  get  'plugin_service_master/generate_scheds'
+  get  'plugin_service_master/progress'
 
   # Snohomish plugin
-  get 'plugin_snohomish/index'
-  get 'plugin_snohomish/settings'
+  get  'plugin_snohomish/index'
+  get  'plugin_snohomish/settings'
   post 'plugin_snohomish/save_settings'
-  get 'plugin_snohomish/round_hours'
+  get  'plugin_snohomish/round_hours'
 
   # FMC plugin
-  get 'plugin_fmc/index'
-  get 'plugin_fmc/settings'
+  get  'plugin_fmc/index'
+  get  'plugin_fmc/settings'
   post 'plugin_fmc/save_settings'
-  get 'plugin_fmc/create_export'
-  get 'plugin_fmc/progress'
-  get 'plugin_fmc/finish'
-  get 'plugin_fmc/download_file'
+  get  'plugin_fmc/create_export'
+  get  'plugin_fmc/progress'
+  get  'plugin_fmc/finish'
+  get  'plugin_fmc/download_file'
 
   # Visualizer plugin
-  get 'plugin_visualizer/index'
-  get 'plugin_visualizer/settings'
+  get  'plugin_visualizer/index'
+  get  'plugin_visualizer/settings'
   post 'plugin_visualizer/save_settings'
-  get 'plugin_visualizer/create_report'
-  get 'plugin_visualizer/download_report'
+  get  'plugin_visualizer/create_report'
+  get  'plugin_visualizer/download_report'
 
   # AoD Time Entry plugin  
-  get 'plugin_aod_time_entry/index'
-  get 'plugin_aod_time_entry/settings'
-  get 'plugin_aod_time_entry/start'
-  get 'plugin_aod_time_entry/end'
+  get  'plugin_aod_time_entry/index'
+  get  'plugin_aod_time_entry/settings'
+  get  'plugin_aod_time_entry/start'
+  get  'plugin_aod_time_entry/end'
 
   # Tec Plugins
-  get 'tec_plugins/list' 
+  get  'tec_plugins/list' 
 
   # Devise
   devise_for :users; 
@@ -67,7 +75,7 @@ Tecportal::Application.routes.draw do
   mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
 
   # Home
-  get 'home/dashboard' 
+  get  'home/dashboard' 
   root :to => 'home#index'
 
   # The priority is based upon order of creation:
