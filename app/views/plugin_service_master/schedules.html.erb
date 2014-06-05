@@ -1,0 +1,265 @@
+<div class="plugin-service-master">
+  <div id="schedules-page">
+
+    <header>
+      <%= link_to "<", plugin_service_master_prev_week_path %>
+      <div class="daterange">
+        <%= @startdate.strftime '%b %d' %> - 
+        <%= @enddate  .strftime '%b %d' %>
+      </div>
+      <%= link_to ">", plugin_service_master_next_week_path %>
+      <%= render partial: 'links' %>
+      <div id="team-filter-wrap">
+        <%= label_tag :team_filter, 'Team' %>
+        <%= select_tag :team_filter, options_for_select(@teams.map { |a| [ a.wg_name, a.wg_num ] }, @team_filter), prompt: "Select Team" %>
+      </div>
+      <div id="cust-filter-wrap">
+        <%= label_tag :cust_filter, 'Customer' %>
+        <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
+      </div>
+    </header>
+
+    <main>
+      <table id="main-table" class="popup-owner-js">
+        <thead>
+          <tr>
+            <th class="name">
+              <div class="name-wrapper">Name</div>
+            </th>
+            <th>
+              <table class="custweek">
+                <tr>
+                  <th class="cust">Customer</th>
+                  <th>
+                    <table class="teamweek">
+                      <tr>
+                        <th class="team">Team</th>
+                        <th class="sched">Mon</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></Schedule>
+                        <th class="sched">Tue</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Wed</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Thu</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Fri</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Sat</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
+                      </tr>
+                    </table>
+                  </th>
+                  <th class="custtotal">Cust.</br>Total</th>
+                </tr>
+              </table>
+            </th>
+            <th class="emptotal">Emp.</br>Total</th>
+            <th class="outside"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @vw.emp_weeks.each_with_index do |ew, ew_index| %>
+            <tr <%= raw 'class="even"' if ew_index.even? %>>
+              <td class="name">
+                <div class="name-wrapper"><%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %></div>
+                <span class="idnum"><%= "#{ ew.employee.emp_id }" %></span>
+              </td>
+              <td>
+                <table class="custweek">
+                  <% ew.cust_weeks.each_with_index do |cw, cw_index| %>
+                    <tr <%= raw 'class="even"' if ew_index.even? %>>
+                      <% if cw_index == 0 %>
+                        <td class="cust">
+                      <% else %>
+                        <td class="cust top-border">
+                      <% end %>
+                      <%= "#{ cw.customer.wg_name }" %></td>
+                      <td>
+                        <table class="teamweek">
+                          <% cw.team_weeks.each do |tw| %>
+                            <tr <%= raw 'class="even"' if ew_index.even? %>>
+                              <td class="team"><%= "#{ tw.team.wg_name }" %></td>
+                              <td <%= raw generate_td_attr(tw.day1) %>> <%= raw generate_td_content(tw.day1) %></td>
+                              <td <%= raw generate_td_attr(tw.day2) %>> <%= raw generate_td_content(tw.day2) %></td>
+                              <td <%= raw generate_td_attr(tw.day3) %>> <%= raw generate_td_content(tw.day3) %></td>
+                              <td <%= raw generate_td_attr(tw.day4) %>> <%= raw generate_td_content(tw.day4) %></td>
+                              <td <%= raw generate_td_attr(tw.day5) %>> <%= raw generate_td_content(tw.day5) %></td>
+                              <td <%= raw generate_td_attr(tw.day6) %>> <%= raw generate_td_content(tw.day6) %></td>
+                            </tr>
+                          <% end %>
+                        </table>
+                      </td>
+                      <td class="custtotal">
+                        <%= cw.total_hours.round(2) %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </table>
+              </td>
+              <td class="emptotal">
+                <%= ew.total_hours.round(2) %>
+              </td>
+              <td class="overlimit outside">
+                <%= ew.exceptions %>
+              </td>
+            </tr>
+          <% end %>
+          <%= render partial: "sched_popup", locals: { show_customer: true } %>
+        </tbody>
+      </table>
+      <%= render partial: "legend" %>
+      
+      <form id="export-scheds-form">
+        <input id="export-btn" type="submit" value="Export to AoD"><br>
+
+        <%= check_box_tag "export_all", true, @export_all %>
+        <%= label_tag(:export_all, "Export All") %><br>
+      </form>
+
+      <form id="gen-scheds-form" action="generate_scheds" method="get">
+        <input id="generate-btn" type="submit" value="Generate Schedules"><br>
+        
+        <%= check_box_tag "overwrite_scheds", true, @overwrite_scheds %>
+        <%= label_tag(:overwrite_scheds, "Overwrite Schedules") %><br>
+        
+        <%= check_box_tag "apply_to_all_customers", true, @apply_to_all_customers %>
+        <%= label_tag(:apply_to_all_customers, "Apply to All Customers") %><br>
+        
+        <%= check_box_tag "apply_to_future", true, @apply_to_future %>
+        <%= label_tag(:apply_to_future, "Apply to Future Date: ") %>
+        <%= text_field_tag(:future_date, @future_date, class: "date-picker") %>
+      </form>
+
+      <div id="export-all-confirm" title="Export All Schedules?">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0; z-index: 900"></span>Exporting all schedules could take a while.  Proceed?</p>
+      </div>
+
+      <%= render "shared/spinner" %>
+      <%= render "shared/progressbar" %>
+
+    </main>
+  </div>  
+</div>  
+
+<%= render partial: "scripts" %>
+
+<!-- Scripts -->
+<script>
+
+  // Init progress bar
+  var progressbar = $( "#progress-bar" );
+  var progressLabel = $( "#progress-label" );
+  
+  progressbar.progressbar({
+    value: 0,
+    change: function() {
+      progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+    },
+    complete: function() {
+      progressLabel.text( "Complete!" );
+    }
+  });
+
+  // Init date picker
+  $('.date-picker').datepicker();
+
+  // Set expand btn icon to << for this page only 
+  $('#expand-btn').html("<<");
+
+  function poll()
+  {
+    $.get('progress', { progress_type: "export_scheds" }, function(data) {
+
+      // If job completed
+      if (data === true)
+      {
+        // Show results
+        $('#progress-status').text('Finished')
+        $('#progress-bar').progressbar('value', 100);
+
+        // Hide spinner
+        $('#spinner').hide();
+      }
+      else if (data.status)
+      {
+        // Show status
+        $('#progress-status').text(data.status)
+        $('#progress-bar').progressbar('value', parseInt(data.progress)); 
+
+        // If job processing
+        if (data.status != '')
+        {
+          // Show spinner and check status again in 2 seconds
+          $('#spinner').show();
+          setTimeout(poll, 1000);
+        }
+      }
+    });
+  }
+
+  // When the user clicks the generate button
+  $( "#generate-btn" ).click(function( event ) {
+
+    // Show the spinner
+    $('#spinner').show();
+  });
+
+  // When the user clicks the export button
+  $( "#export-btn" ).click(function( event ) {
+   
+    // Stop form from submitting normally
+    event.preventDefault();
+
+    // Show the spinner and progress bar
+    $('#spinner').show();
+
+    // Get form inputs
+    var exportAll = $('#export_all').prop('checked')
+
+    // If Export All is checked
+    if (exportAll === true) {
+
+      // Confirm they want to proceed
+      $("#export-all-confirm").dialog("open");
+
+    } else {
+
+      // Export just the scheds being viewed
+      export_scheds(false);
+    }
+  });
+
+  // Confirmation dialog for Export All
+  $("#export-all-confirm").dialog({
+    autoOpen: false,
+    resizable: false,
+    width:460,
+    modal: true,
+    buttons: {
+      Yes: function() {
+        $(this).dialog("close");
+
+        // Export all schedules
+        export_scheds(true);
+      },
+      No: function() {
+        $(this).dialog("close");
+
+        // Reset results
+        $('#progress-status').text('')
+        $('#progress-bar').progressbar('value', null);
+
+        // Hide spinner
+        $('#spinner').hide();
+      }
+    }
+  });
+
+  function export_scheds(exportAll) {
+
+    // Send inputs and run the export
+    $.get('export_scheds', { export_all: exportAll } );
+
+    // Poll for status
+    setTimeout(poll, 1000);
+  }
+
+</script>
+
+
+
+

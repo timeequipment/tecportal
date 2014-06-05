@@ -229,6 +229,12 @@ module PluginBambooHr
             # Emp does not exist in AoD, must be new
           end
 
+          # If the employee is about to be terminated
+          if emp[:activeStatus] == 1 
+            # Assign them an appropriate Inactive Status Condition
+            emp[:inactiveStatusConditionID] = 1
+          end
+
           # Send emp to AoD
           debug_import(emp, a)
           response = aod.call(:maintain_employee_detail2, 

@@ -1,5 +1,5 @@
 <div class="plugin-service-master">
-  <div id="index">
+  <div id="events-page">
 
     <header>
       <%= link_to "<", plugin_service_master_prev_week_path %>
@@ -23,50 +23,83 @@
       <table id="main-table" class="popup-owner-js">
         <thead>
           <tr>
-            <th class="name">Name</th>
-            <th class="cust">Customer</th>
-            <th class="team">Team</th>
-            <th class="sched">Monday</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></th>
-            <th class="sched">Tuesday</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
-            <th class="sched">Wednesday</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
-            <th class="sched">Thursday</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
-            <th class="sched">Friday</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
-            <th class="sched">Saturday</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
-            <th class="custtotal">Cust.</br>Total</th>
+            <th class="name">
+              <div class="name-wrapper">Name</div>
+            </th>
+            <th>
+              <table class="custweek">
+                <tr>
+                  <th class="cust">Customer</th>
+                  <th>
+                    <table class="teamweek">
+                      <tr>
+                        <th class="team">Team</th>
+                        <th class="sched">Mon</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></Schedule>
+                        <th class="sched">Tue</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Wed</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Thu</br><%= (@startdate + 3.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Fri</br><%= (@startdate + 4.days).strftime('%-m/%-d') %></th>
+                        <th class="sched">Sat</br><%= (@startdate + 5.days).strftime('%-m/%-d') %></th>
+                      </tr>
+                    </table>
+                  </th>
+                  <th class="custtotal">Cust.</br>Total</th>
+                </tr>
+              </table>
+            </th>
             <th class="emptotal">Emp.</br>Total</th>
             <th class="outside"></th>
           </tr>
         </thead>
-        <% @v.emp_weeks.each_with_index do |ew, index| %>
-          <tr <%= raw 'class="even"' if index.even? %>>
-            <td class="name" rowspan="<%= ew.cust_weeks.count + 1 %>">
-              <div class="name-wrapper"><%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %></div>
-              <span class="idnum"><%= "#{ ew.employee.emp_id }" %></span> &nbsp;
-              <span class="team"><%= "#{ ew.employee.custom1 }" if ew.employee.custom1.present? %></span>
-            </td>
-            <td class="flattened" colspan="8"></td>
-            <td class="emptotal" rowspan="<%= ew.cust_weeks.count + 1 %>">
-              <%= ew.total_hours.round(2) %>
-            </td>
-            <td class="overlimit outside" rowspan="<%= ew.cust_weeks.count + 1 %>">
-              <%= ew.exceptions %>
-            </td>
-          </tr>
-          <% ew.cust_weeks.each do |cw| %>
-            <tr <%= raw 'class="even"' if index.even? %>>
-              <td class="cust"><%= "#{ cw.customer.wg_name }" %>&nbsp;</td>
-              <td class="team"><%= "Team Name!!!" %>&nbsp;</td>
-              <td <%= raw generate_td_attr(cw.day1) %>> <%= raw generate_td_content(cw.day1) %></td>
-              <td <%= raw generate_td_attr(cw.day2) %>> <%= raw generate_td_content(cw.day2) %></td>
-              <td <%= raw generate_td_attr(cw.day3) %>> <%= raw generate_td_content(cw.day3) %></td>
-              <td <%= raw generate_td_attr(cw.day4) %>> <%= raw generate_td_content(cw.day4) %></td>
-              <td <%= raw generate_td_attr(cw.day5) %>> <%= raw generate_td_content(cw.day5) %></td>
-              <td <%= raw generate_td_attr(cw.day6) %>> <%= raw generate_td_content(cw.day6) %></td>
-              <td class="custtotal"><%= cw.total_hours.round(2) %></td>
+        <tbody>
+          <% @vw.emp_weeks.each_with_index do |ew, ew_index| %>
+            <tr <%= raw 'class="even"' if ew_index.even? %>>
+              <td class="name">
+                <div class="name-wrapper"><%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %></div>
+                <span class="idnum"><%= "#{ ew.employee.emp_id }" %></span>
+              </td>
+              <td>
+                <table class="custweek">
+                  <% ew.cust_weeks.each_with_index do |cw, cw_index| %>
+                    <tr <%= raw 'class="even"' if ew_index.even? %>>
+                      <% if cw_index == 0 %>
+                        <td class="cust">
+                      <% else %>
+                        <td class="cust top-border">
+                      <% end %>
+                      <%= "#{ cw.customer.wg_name }" %></td>
+                      <td>
+                        <table class="teamweek">
+                          <% cw.team_weeks.each do |tw| %>
+                            <tr <%= raw 'class="even"' if ew_index.even? %>>
+                              <td class="team"><%= "#{ tw.team.wg_name }" %></td>
+                              <td <%= raw generate_td_attr(tw.day1) %>> <%= raw generate_td_content(tw.day1) %></td>
+                              <td <%= raw generate_td_attr(tw.day2) %>> <%= raw generate_td_content(tw.day2) %></td>
+                              <td <%= raw generate_td_attr(tw.day3) %>> <%= raw generate_td_content(tw.day3) %></td>
+                              <td <%= raw generate_td_attr(tw.day4) %>> <%= raw generate_td_content(tw.day4) %></td>
+                              <td <%= raw generate_td_attr(tw.day5) %>> <%= raw generate_td_content(tw.day5) %></td>
+                              <td <%= raw generate_td_attr(tw.day6) %>> <%= raw generate_td_content(tw.day6) %></td>
+                            </tr>
+                          <% end %>
+                        </table>
+                      </td>
+                      <td class="custtotal">
+                        <%= cw.total_hours.round(2) %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </table>
+              </td>
+              <td class="emptotal">
+                <%= ew.total_hours.round(2) %>
+              </td>
+              <td class="overlimit outside">
+                <%= ew.exceptions %>
+              </td>
             </tr>
           <% end %>
-        <% end %>
-        <%= render partial: "sched_popup", locals: { editing_customer: true } %>
+          <%= render partial: "sched_popup", locals: { show_customer: true } %>
+        </tbody>
       </table>
       <%= render partial: "legend" %>
       
@@ -101,7 +134,6 @@
     </main>
   </div>  
 </div>  
-      fix lines 26, 27
 
 <%= render partial: "scripts" %>
 

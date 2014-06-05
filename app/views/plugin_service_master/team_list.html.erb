@@ -6,8 +6,13 @@
   
   <main>
     <h2 id="team-name">&nbsp;</h2><br>
-    <%= select_tag "list[]", options_from_collection_for_select(@teams, "wg_num", "wg_name"), id: 'team-list', class: 'column' %>
-    <div id="team-wrapper" class="shrink-wrap login column">
+    <div class="list-label">Team: </div>
+    <%= select_tag "list[]", 
+        options_from_collection_for_select(
+        @teams, "wg_num", "wg_name"), 
+        id: 'team-list' %> 
+    <br>
+    <div id="team-wrapper" class="shrink-wrap login">
       <form id="team-form">
         <div>
           <%= label_tag :wg_num, 'Number' %> &nbsp;
@@ -22,15 +27,15 @@
           <%= text_field_tag :wg_name %>
         </div>
         <br>
-        <input id="save-btn" type="submit" value="Save Team">
+        <div id="delete-team-btn" class="submit-btn">
+          Delete</div>
+        <input id="save-team-btn" type="submit" value="Save Team">
       </form>
     </div>
     <div class="shrink-wrap login">
       <form>
-        <input id="create-team-btn" type="submit" value="Create Team">
-      </form>
-      <form>
-        <input id="delete-team-btn" type="submit" value="Delete Team">
+        <input id="create-team-btn" type="submit" 
+         value="Create Team">
       </form>
     </div>
   </main>
@@ -91,9 +96,9 @@
       $('#team-name').html(wgname);
 
       // Show success
-      $('#save-btn').val('Saved!');
+      $('#save-team-btn').val('Saved!');
       window.setTimeout(function() {
-        $('#save-btn').val('Save Team');
+        $('#save-team-btn').val('Save Team');
       }, 2000);
     });
   });

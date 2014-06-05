@@ -1,9 +1,14 @@
 <div id="sched-popup">
   <form id="form-popup">
-    <% if editing_customer %>
+    <% if show_customer %>
       <div>
         <%= label_tag :sch_wg3, 'Customer' %>
         <%= select_tag :sch_wg3, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Customer" %>
+      </div>
+      <br>
+      <div>
+        <%= label_tag :sch_wg8, 'Team' %>
+        <%= select_tag :sch_wg8, options_for_select(@teams.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Team" %>
       </div>
       <br>
     <% end %>
@@ -25,16 +30,9 @@
       <%= select_tag :sch_wg5, options_for_select(@activities.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Activity" %>
     </div>
     <br>
-    <% if editing_customer %>
-      <input type="submit" id='save-sched-btn' value="OK">
-      <input type="submit" id='close-sched-btn' value="Cancel">
-      <!-- <input type="submit" id='copy-sched-btn' value="Copy"> -->
-      <input type="submit" id='delete-sched-btn' value="Delete">
-    <% else %>
-      <input type="submit" id='save-cust-sched-btn' value="OK">
-      <input type="submit" id='close-cust-sched-btn' value="Cancel">
-      <!-- <input type="submit" id='copy-cust-sched-btn' value="Copy"> -->
-      <input type="submit" id='delete-cust-sched-btn' value="Delete">
-    <% end %>
+    <input type="submit" id='save-sched-btn' value="OK">
+    <input type="submit" id='close-sched-btn' value="Cancel">
+    <!-- <input type="submit" id='copy-sched-btn' value="Copy"> -->
+    <input type="submit" id='delete-sched-btn' value="Delete">
   </form>
 </div>

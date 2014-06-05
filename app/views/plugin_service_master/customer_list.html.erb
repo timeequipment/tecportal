@@ -6,99 +6,107 @@
   
   <main>
     <h2 id="customer-name">&nbsp;</h2><br>
-    <%= select_tag "list[]", options_from_collection_for_select(@customers, "wg_num", "wg_name"), id: 'customer-list', class: 'column' %>
-    <%= select_tag "list[]", options_from_collection_for_select(@teams,     "wg_num", "wg_name"), id: 'team-list',     class: 'column' %>
-    <div id="pattern-wrapper" class="shrink-wrap login column popup-owner-js">
-      <form id="pattern-form">
-        <div>
-          <%= hidden_field_tag :id %>
-          <%= hidden_field_tag :wg1 %>
-          <%= hidden_field_tag :wg2 %>
-          <%= hidden_field_tag :wg3 %>
-          <%= hidden_field_tag :wg4 %>
-          <%= hidden_field_tag :wg5 %>
-          <%= hidden_field_tag :wg6 %>
-          <%= hidden_field_tag :wg7 %>
-          <%= hidden_field_tag :wg8 %>
-          <%= hidden_field_tag :wg9 %>
-          <%= hidden_field_tag :day_field1 %>
-          <%= hidden_field_tag :day_field2 %>
-          <%= hidden_field_tag :day_field3 %>
-          <%= hidden_field_tag :day_field4 %>
-          <%= hidden_field_tag :day_field5 %>
-          <%= hidden_field_tag :day_field6 %>
-          <%= hidden_field_tag :day_field7 %>
-        </div>
-        <h4 id="team-name">&nbsp;</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>Monday</th>
-              <th>Tuesday</th>
-              <th>Wednesday</th>
-              <th>Thursday</th>
-              <th>Friday</th>
-              <th>Saturday</th>
-              <th>Sunday</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td id="day1" daynum="1" class="cust-sched">&nbsp;</td>
-              <td id="day2" daynum="2" class="cust-sched">&nbsp;</td>
-              <td id="day3" daynum="3" class="cust-sched">&nbsp;</td>
-              <td id="day4" daynum="4" class="cust-sched">&nbsp;</td>
-              <td id="day5" daynum="5" class="cust-sched">&nbsp;</td>
-              <td id="day6" daynum="6" class="cust-sched">&nbsp;</td>
-              <td id="day6" daynum="7" class="cust-sched">&nbsp;</td>
-              <td id="total" class="custtotal">&nbsp;</td>
-            </tr>
-          </tbody>
-        </table>
-        <br>
-        <br>
-
-        <h4>Employees Assigned:</h4>
-        <div id="employees-assigned">
-          <label>(None)</label>
-        </div>
-        <br>
-        <input id='save-btn' type="submit" value="Save Pattern">
-      </form>
-      <%= render partial: "sched_popup", locals: { editing_customer: false } %>
+    <div class="list-label">Customer: </div>
+    <%= select_tag :customers, 
+        options_from_collection_for_select(
+        @customers, "wg_num", "wg_name"), 
+        id: 'customer-list' %> 
+    <br>
+    <div class="list-label">Team: </div>
+    <%= select_tag :teams, 
+        options_from_collection_for_select(
+        @teams, "wg_num", "wg_name"), 
+        id: 'team-list' %> 
+    <br>
+    <div id="pattern-wrapper" 
+     class="shrink-wrap login popup-owner-js">
+      <h4 id="team-name">&nbsp;</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+            <th>Sunday</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="day1-cell" daynum="1" class="sched">
+              &nbsp;</td>
+            <td id="day2-cell" daynum="2" class="sched">
+              &nbsp;</td>
+            <td id="day3-cell" daynum="3" class="sched">
+              &nbsp;</td>
+            <td id="day4-cell" daynum="4" class="sched">
+              &nbsp;</td>
+            <td id="day5-cell" daynum="5" class="sched">
+              &nbsp;</td>
+            <td id="day6-cell" daynum="6" class="sched">
+              &nbsp;</td>
+            <td id="day6-cell" daynum="7" class="sched">
+              &nbsp;</td>
+            <td id="total" class="custtotal">&nbsp;</td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      <br>
+      <h4>Employees Assigned:</h4>
+      <div id="employees-assigned">
+        <label>(None)</label>
+      </div>
+      <br>
+      <div id='delete-pattern-btn' class="submit-btn">
+        Delete</div> 
+      <div id='save-pattern-btn' class="submit-btn">
+        Save</div>
+      <%= render partial: "sched_popup", 
+          locals: { show_customer: false } %>
     </div>
     <div class="shrink-wrap login">
       <form>
-        <input id="create-pattern-btn" type="submit" value="Create Pattern">
-        <div>
-          <h5>&nbsp; For: &nbsp;<%= select_tag "list[]", options_from_collection_for_select(@teams, "wg_num", "wg_name"), id: 'all-teams', class: 'column' %></h5>
-        </div>
+        <div id="create-pattern-btn" class="submit-btn">
+         Add Team</div>
         <br>
         <br>
-      </form>
-      <form>
-        <input id="delete-pattern-btn" type="submit" value="Delete Pattern">
-      </form>
+        <%= select_tag :patterns, 
+            options_from_collection_for_select(
+            @teams, "wg_num", "wg_name"), 
+            id: 'patterns-list' %>
+      </form>    
     </div>
   </main>
 </div>
 
-<%= render partial: "scripts" %>
-
 <script>
+  //--------------- Variables ---------------
+  
+  var day_editing = 0;
+  var customer = {};
+  var employees = [];
+  var pattern = {};
+  
+  // Popup is draggable
+  var popup = $('#sched-popup').draggable();
+
   //--------------- Functions ---------------
 
-  function getCustomer() {
+  function getCustomer(callback) {
     var params = { wg_num : $('#customer-list').val() };
 
     $.get('get_customer', params, function(data) {
       customer = data[0].psvm_workgroup;
       teams    = data[1];
-      $('#wg3').val(customer.wg_num);
       $('#team-list').empty();
       $.each(teams, function() {
-        $('#team-list').append(new Option(this.psvm_workgroup.wg_name, this.psvm_workgroup.wg_num));
+        $('#team-list').append(
+          new Option(this.psvm_workgroup.wg_name, 
+                     this.psvm_workgroup.wg_num));
       });
       $('#customer-name').html(customer.wg_name);
 
@@ -106,41 +114,57 @@
       if (teams.length > 0) {
 
         // Select the first one
-        $("#team-list option:first").attr('selected','selected');
-        getPattern();
+        $("#team-list option:first")
+          .attr('selected','selected');
+        getPattern(callback);
+
+      } else {
+        clearPattern();
+
+        if (callback) {
+          callback();
+        }
       }
     });
   }
 
-  function getPattern() {
+  function getPattern(callback) {
     var params = { 
-      wg3 : $('#wg3').val(),
+      wg3 : customer.wg_num,
       wg8 : $('#team-list').val(),
     };
 
+    clearPattern();
+    
     $.get('get_pattern', params, function(data) {
-      customer = data[0].psvm_workgroup;
-      team     = data[1].psvm_workgroup;
-      pattern  = data[2].psvm_pattern;
-      $('#id').val(pattern.id);
-      $('#wg1').val(pattern.wg1);
-      $('#wg2').val(pattern.wg2);
-      $('#wg3').val(pattern.wg3);
-      $('#wg4').val(pattern.wg4);
-      $('#wg5').val(pattern.wg5);
-      $('#wg6').val(pattern.wg6);
-      $('#wg7').val(pattern.wg7);
-      $('#wg8').val(pattern.wg8);
-      $('#wg9').val(pattern.wg9);
-      $('#').val(pattern.wg9);
+      team      = data[1].psvm_workgroup;
+      pattern   = data[2].psvm_pattern;
+      employees = data[3];
       $('#team-name').html(team.wg_name);
 
-      deserializePattern(pattern);
-      viewPattern(pattern);
+      deserializePattern();
+      viewPattern();
+
+      if (callback) {
+        callback();
+      }
     });
   }
 
-  function deserializePattern(pattern) {
+  function clearPattern() {
+    $('#team-name').html('&nbsp;');
+    $('#day1-cell').html('');
+    $('#day2-cell').html('');
+    $('#day3-cell').html('');
+    $('#day4-cell').html('');
+    $('#day5-cell').html('');
+    $('#day6-cell').html('');
+    $('#day7-cell').html('');
+    $('#total').html('0.00');
+    $('#employees-assigned').html('<div>(None)</div>');
+  }
+
+  function deserializePattern() {
     var day1_str = pattern.day1 || "";
     var day2_str = pattern.day2 || "";
     var day3_str = pattern.day3 || "";
@@ -150,56 +174,70 @@
     var day7_str = pattern.day7 || "";
     if (day1_str.length > 0) {
       pattern.day1 = JSON.parse(day1_str);
-      pattern.day1.start_time = moment.utc(pattern.day1.start_time)
-      pattern.day1.end_time = moment.utc(pattern.day1.end_time)
+      pattern.day1.start_time = 
+        moment.utc(pattern.day1.start_time)
+      pattern.day1.end_time = 
+        moment.utc(pattern.day1.end_time)
     } 
     if (day2_str.length > 0) {
       pattern.day2 = JSON.parse(day2_str);
-      pattern.day2.start_time = moment.utc(pattern.day2.start_time)
-      pattern.day2.end_time = moment.utc(pattern.day2.end_time)
+      pattern.day2.start_time = 
+        moment.utc(pattern.day2.start_time)
+      pattern.day2.end_time = 
+        moment.utc(pattern.day2.end_time)
     } 
     if (day3_str.length > 0) {
       pattern.day3 = JSON.parse(day3_str);
-      pattern.day3.start_time = moment.utc(pattern.day3.start_time)
-      pattern.day3.end_time = moment.utc(pattern.day3.end_time)
+      pattern.day3.start_time = 
+        moment.utc(pattern.day3.start_time)
+      pattern.day3.end_time = 
+        moment.utc(pattern.day3.end_time)
     } 
     if (day4_str.length > 0) {
       pattern.day4 = JSON.parse(day4_str);
-      pattern.day4.start_time = moment.utc(pattern.day4.start_time)
-      pattern.day4.end_time = moment.utc(pattern.day4.end_time)
+      pattern.day4.start_time = 
+        moment.utc(pattern.day4.start_time)
+      pattern.day4.end_time = 
+        moment.utc(pattern.day4.end_time)
     } 
     if (day5_str.length > 0) {
       pattern.day5 = JSON.parse(day5_str);
-      pattern.day5.start_time = moment.utc(pattern.day5.start_time)
-      pattern.day5.end_time = moment.utc(pattern.day5.end_time)
+      pattern.day5.start_time = 
+        moment.utc(pattern.day5.start_time)
+      pattern.day5.end_time = 
+        moment.utc(pattern.day5.end_time)
     } 
     if (day6_str.length > 0) {
       pattern.day6 = JSON.parse(day6_str);
-      pattern.day6.start_time = moment.utc(pattern.day6.start_time)
-      pattern.day6.end_time = moment.utc(pattern.day6.end_time)
+      pattern.day6.start_time = 
+        moment.utc(pattern.day6.start_time)
+      pattern.day6.end_time = 
+        moment.utc(pattern.day6.end_time)
     } 
     if (day7_str.length > 0) {
       pattern.day7 = JSON.parse(day7_str);
-      pattern.day7.start_time = moment.utc(pattern.day7.start_time)
-      pattern.day7.end_time = moment.utc(pattern.day7.end_time)
+      pattern.day7.start_time = 
+        moment.utc(pattern.day7.start_time)
+      pattern.day7.end_time = 
+        moment.utc(pattern.day7.end_time)
     } 
   }
 
-  function viewPattern(pattern) {
-    // Reset all labels
-    $('#employees-assigned').html('<label>(None)</label>');
-
-    // // If this pattern has employees assigned to it
-    // if (employees && employees.length > 0) {
-    //   // List their names
-    //   var container = $('<div />');
-    //   for (var i = 0; i < employees.length; i++) {
-    //     $('<label />', {
-    //       html: employees[i].psvm_emp.first_name + ' ' + employees[i].psvm_emp.last_name
-    //     }).appendTo(container);
-    //   }
-    //   $('#employees-assigned').html(container);
-    // }
+  function viewPattern() {
+    // If this pattern has employees assigned to it
+    if (employees && employees.length > 0) {
+      // List their names
+      var container = $('<div />');
+      for (var i = 0; i < employees.length; i++) {
+        $('<label />', {
+          html: employees[i].psvm_emp.first_name + ' ' + employees[i].psvm_emp.last_name
+        }).appendTo(container);
+      }
+      $('#employees-assigned').html(container);
+    
+    } else {
+      $('#employees-assigned').html('<div>(None)</div>');
+    }
   
     // Load the days
     var day1 = pattern.day1;
@@ -209,62 +247,284 @@
     var day5 = pattern.day5;
     var day6 = pattern.day6;
     var day7 = pattern.day7;
-
-    // Clear day boxes
-    $('#day1').html('');
-    $('#day2').html('');
-    $('#day3').html('');
-    $('#day4').html('');
-    $('#day5').html('');
-    $('#day6').html('');
-    $('#day7').html('');
     var total = 0.0;
 
     // View info for days that have schedules defined
     if (day1) {
-      $('#day1').html(
+      $('#day1-cell').html(
         day1.start_time.format("h:mm a") + ' - ' + 
         day1.end_time.format("h:mm a"));
       total += day1.hours;
     }
     if (day2) {
-      $('#day2').html(
+      $('#day2-cell').html(
         day2.start_time.format("h:mm a") + ' - ' + 
         day2.end_time.format("h:mm a"));
       total += day2.hours;
     }
     if (day3) {
-      $('#day3').html(
+      $('#day3-cell').html(
         day3.start_time.format("h:mm a") + ' - ' + 
         day3.end_time.format("h:mm a"));
       total += day3.hours;
     }
     if (day4) {
-      $('#day4').html(
+      $('#day4-cell').html(
         day4.start_time.format("h:mm a") + ' - ' + 
         day4.end_time.format("h:mm a"));
       total += day4.hours;
     }
     if (day5) {
-      $('#day5').html(
+      $('#day5-cell').html(
         day5.start_time.format("h:mm a") + ' - ' + 
         day5.end_time.format("h:mm a"));
       total += day5.hours;
     }
     if (day6) {
-      $('#day6').html(
+      $('#day6-cell').html(
         day6.start_time.format("h:mm a") + ' - ' + 
         day6.end_time.format("h:mm a"));
       total += day6.hours;
     }
     if (day7) {
-      $('#day7').html(
+      $('#day7-cell').html(
         day7.start_time.format("h:mm a") + ' - ' + 
         day7.end_time.format("h:mm a"));
       total += day7.hours;
     }
     $('#total').html(total.toFixed(2));
   }  
+
+  function updateSchedule() {
+    // Validate times
+    var startCheck = checkTime($('#sch_start_time'));
+    var endCheck   = checkTime($('#sch_end_time'));
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
+
+    // If they pass
+    if (startCheck && endCheck) {
+      // Make moment objects to contain sched info
+      var start_time = parseTime($('#sch_start_time').val());
+      var end_time   = parseTime($('#sch_end_time').val());
+      if (start_time.isAfter(end_time)) end_time = 
+        end_time.add('hours', 12); // For am - pm
+      if (start_time.isAfter(end_time)) end_time = 
+        end_time.add('hours', 12); // For pm - am
+
+      // Refresh inputs with parsed times
+      $('#sch_start_time').val(start_time.format('h:mm a'))
+      $('#sch_end_time').val(end_time.format('h:mm a'))
+
+      s = {
+        'start_time' : start_time, 
+        'end_time' : end_time,
+        'hours' : end_time.diff(
+          start_time, 'hours', true), // end_time - start_time,
+        'activity' : $('#sch_wg5').val(), 
+      };
+
+      // Save in memory
+      if (day_editing === '1') {
+        pattern.day1 = s;
+        //$('#day1').val(JSON.stringify(s));
+      }
+      if (day_editing === '2') pattern.day2 = s;
+      if (day_editing === '3') pattern.day3 = s;
+      if (day_editing === '4') pattern.day4 = s;
+      if (day_editing === '5') pattern.day5 = s;
+      if (day_editing === '6') pattern.day6 = s;
+      if (day_editing === '7') pattern.day7 = s;
+
+      JSON.stringify(pattern.day1)
+
+      // Clear inputs, exit popup, refresh customer
+      resetPopup();
+      popup.hide(); 
+      viewPattern();
+
+    // If they didn't pass make them red
+    } else {
+      if (!startCheck) {
+        $('#sch_start_time').css("background","#ffc4ba");
+        $('#sch_start_time').select();
+      }
+      if (!endCheck) {
+        $('#sch_end_time').css("background","#ffc4ba");
+        $('#sch_end_time').select();
+      }
+    }
+  }     
+
+  function deleteSchedule()
+  {
+    // Delete in memory and in html
+    if (day_editing === '1') {
+      pattern.day1 = "";
+      $('#day1-cell').html('');
+    } else if (day_editing === '2') {
+      pattern.day2 = "";
+      $('#day2-cell').html('');
+    } else if (day_editing === '3') {
+      pattern.day3 = "";
+      $('#day3-cell').html('');
+    } else if (day_editing === '4') {
+      pattern.day4 = "";
+      $('#day4-cell').html('');
+    } else if (day_editing === '5') {
+      pattern.day5 = "";
+      $('#day5-cell').html('');
+    } else if (day_editing === '6') {
+      pattern.day6 = "";
+      $('#day6-cell').html('');
+    }
+
+    // exit popup form
+    cancelSchedule();
+  }
+
+  function cancelSchedule() {
+    resetPopup();
+    popup.hide(); 
+  }
+
+  function resetPopup() {
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
+    $('#sch_start_time').val('');
+    $('#sch_end_time').val('');
+    $('#sch_wg5').val('');
+  }
+
+  function editPattern(td, e) {
+    resetPopup();
+    // Find the day it references
+    day_editing = td.attr('daynum');
+    // Load the values into the schedule popup
+    if (day_editing === '1' && pattern.day1) {
+      $('#sch_start_time').val(
+          pattern.day1.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day1.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day1.activity);
+    }
+    if (day_editing === '2' && pattern.day2) {
+      $('#sch_start_time').val(
+          pattern.day2.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day2.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day2.activity);
+    }
+    if (day_editing === '3' && pattern.day3) {
+      $('#sch_start_time').val(
+          pattern.day3.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day3.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day3.activity);
+    }
+    if (day_editing === '4' && pattern.day4) {
+      $('#sch_start_time').val(
+          pattern.day4.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day4.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day4.activity);
+    }
+    if (day_editing === '5' && pattern.day5) {
+      $('#sch_start_time').val(
+          pattern.day5.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day5.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day5.activity);
+    }
+    if (day_editing === '6' && pattern.day6) {
+      $('#sch_start_time').val(
+          pattern.day6.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day6.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day6.activity);
+    }
+    if (day_editing === '7' && pattern.day7) {
+      $('#sch_start_time').val(
+          pattern.day7.start_time.format('h:mm a')); 
+      $('#sch_end_time')  .val(
+          pattern.day7.end_time.format('h:mm a')); 
+      $('#sch_wg5')  .val(pattern.day7.activity);
+    }
+    // Show the schedule popup
+    var offset = $('.popup-owner-js').offset();
+    popup.css("left", e.pageX - offset.left + 'px');
+    popup.css("top",  e.pageY - offset.top + 'px');
+    popup.show();
+    $('#sch_start_time').select();
+  }
+
+  // Check if input has a valid time
+  function checkTime(field) {
+    var valid = true;
+
+    // Regex for valid time format
+    // re = /(\d{1,2}):(\d{2})(:00)?([ap]m)?/   // good
+    re = /(\d+)(?::(\d\d))?\s*(p?)/i;        // better
+    var val = field.val().toString();
+
+    // If there's input
+    if(val != '') {
+      regs = val.match(re);
+      // And it passes regex
+      if(regs) {
+        if(regs[4]) {
+          // Check:  12-hour time format with am/pm
+          if(regs[1] < 1 || regs[1] > 12) {
+            valid = false;
+          }
+        } else {
+          // Check:  24-hour time format
+          if(regs[1] > 23) {
+            valid = false;
+          }
+        }
+        // Check:  Minutes
+        if(regs[2] > 59) {
+          valid = false;
+        }
+      } else {
+        valid = false;
+      }
+    }
+    else {
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  function parseTime(timeStr, dt) {
+    // This function takes a string and outputs a moment obj.
+    // The moment obj can parse, but you have to specify the time format.
+    // Here, we can't be sure what format the user will input,
+    // so a regex is the next best choice
+
+    if (!dt) {
+      dt = moment.utc("1-1-1900", "M-D-YYYY");
+    }
+ 
+    var time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/i);
+    if (!time) {
+      return dt;
+    }
+    var hours = parseInt(time[1], 10);
+    if (hours == 12 && !time[3]) {
+      hours = 0;
+    }
+    else {
+      hours += (hours < 12 && time[3]) ? 12 : 0;
+    }
+ 
+    dt.hours(hours);
+    dt.minutes(parseInt(time[2], 10) || 0);
+    dt.seconds(0);
+    return dt;
+  }
 
   //--------------- Events ---------------
   
@@ -279,39 +539,68 @@
   });
 
   // Create pattern button
-  $('#create-pattern-btn').click(function(){
+  $('#create-pattern-btn').click(function() {
     var params = { 
-      wg3 : $('#wg3').val(),
-      wg8 : $('#all-teams').val(),
+      wg3 : customer.wg_num,
+      wg8 : $('#patterns-list').val(),
     };
     
     $.get('create_pattern', params, function() {
-      location.reload();
+      getCustomer(function() {
+        $('#team-list').val($('#patterns-list').val());
+        getPattern();
+      });
     });
   });
 
   // Delete pattern button
-  $('#delete-pattern-btn').click(function(){
+  $('#delete-pattern-btn').click(function() {
     // Get selected pattern
-    var params = { id : $('#id').val() };
+    var params = { id : pattern.id };
     
     // Delete pattern
     $.get('delete_pattern', params, function(data) {
-      location.reload();
+      getCustomer();
     });
   });
 
   // Save pattern button
-  $("#pattern-form").submit(function(event) {
-   
-    // Submit forms
-    event.preventDefault();
-    $.post('save_pattern', $(this).serialize(), function() {
+  $("#save-pattern-btn").click(function() {
+
+    // Get data
+    var params = {
+      wg1:  pattern.wg1, 
+      wg2:  pattern.wg2, 
+      wg3:  pattern.wg3, 
+      wg4:  pattern.wg4, 
+      wg5:  pattern.wg5, 
+      wg6:  pattern.wg6, 
+      wg7:  pattern.wg7, 
+      wg8:  pattern.wg8, 
+      wg9:  pattern.wg9, 
+      day1: null,  
+      day2: null, 
+      day3: null, 
+      day4: null, 
+      day5: null, 
+      day6: null, 
+      day7: null, 
+    };   
+
+    if (pattern.day1) params.day1 = JSON.stringify(pattern.day1);
+    if (pattern.day2) params.day2 = JSON.stringify(pattern.day2);
+    if (pattern.day3) params.day3 = JSON.stringify(pattern.day3);
+    if (pattern.day4) params.day4 = JSON.stringify(pattern.day4);
+    if (pattern.day5) params.day5 = JSON.stringify(pattern.day5);
+    if (pattern.day6) params.day6 = JSON.stringify(pattern.day6);
+    if (pattern.day7) params.day7 = JSON.stringify(pattern.day7);
+
+    $.post('save_pattern', params, function() {
 
       // Show success
-      $('#save-btn').val('Saved!');
+      $("#save-pattern-btn").html('Saved!');
       window.setTimeout(function() {
-        $('#save-btn').val('Save Customer');
+        $("#save-pattern-btn").html('Save');
       }, 2000);
     });
   });
@@ -325,12 +614,12 @@
   //---------- Sched specific events -----------
 
   // OK button updates cust sched
-  $('#save-cust-sched-btn').click(function(){
-    updateCustSchedule();
+  $('#save-sched-btn').click(function(){
+    updateSchedule();
   });
 
   // Close button hides popup
-  $('#close-sched-btn, #close-cust-sched-btn').click(function(){
+  $('#close-sched-btn').click(function(){
     cancelSchedule();
   });
 
@@ -340,15 +629,24 @@
   });
 
   // Delete button deletes cust sched
-  $('#delete-cust-sched-btn').click(function(){
-    deleteCustSchedule();
+  $('#delete-sched-btn').click(function(){
+    deletechedule();
   });
 
   // When user clicks on a cust schedule
-  $('.cust-sched').click(function(e){
-    editCustPattern($(this), e);
+  $('.sched').click(function(e){
+    editPattern($(this), e);
   });
 
+  // Stop sched popup form from submitting normally
+  $('#form-popup').submit(function(event) {
+    event.preventDefault();
+  });
+
+  // When user presses escape, hide sched-popup
+  $(document).keyup(function(e) {
+    if (e.keyCode == 27) { cancelSchedule(); }   // code 27 = escape key
+  });
 
 </script>
 

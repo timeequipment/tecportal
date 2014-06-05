@@ -51,28 +51,43 @@
     margin-left: 14px;
     width: 100px; }
 
-  #save-btn { width: 170px; }
+  #delete-team-btn,
+  #delete-pattern-btn {
+    display: inline-block;
+  }
+
+  #save-pattern-btn,
+  #save-team-btn {
+    display: inline-block;
+    margin-left: 8px;
+    width: 170px;
+  }
 
   #team-name,
   #customer-name,
-  #employee-name {
+  #emp-name {
     margin-top: 15px;
     white-space: nowrap;
+  }
+
+  .list-label {
+    display: inline-block;
+    width: 70px;
   }
 
   #team-list,
   #customer-list,
   #employee-list {
-    display: block;
     margin-bottom: 20px;
   }
 
   #team-wrapper,
-  #pattern-wrapper {
+  #pattern-wrapper,
+  #emp-wrapper {
     float: left;
     margin: 0 20px 20px 0;
 
-    label, input { 
+    label, input[type="text"] { 
       display: block; 
     } 
 
@@ -107,12 +122,37 @@
     } 
   }
 
-  #index {
+  #create-pattern-btn,
+  #assign-btn {
+    width: 100%;
+  }
+
+  .emp-pattern {
+    height: 24px;
+    border: solid 1px #aaa;
+    padding: 4px;
+    background: #e9e9e9;
+    margin-bottom: -1px;
+  }
+
+  .delete-emp-pattern {
+    @extend .submit-btn;
+    text-align: left;
+    margin-bottom: -1px;
+    padding: 4px;
+    border-radius: 0px;
+    top: -4px;
+    right: -4px;
+    float: right;
+    width: 24px;
+    height: 22px;
+  }
+
+  #schedules-page {
     overflow: visible;
     white-space: nowrap;
 
     #main-table {
-      width: 890px;
     }
 
     #expand-btn {
@@ -164,38 +204,72 @@
     cursor: default;
   }
 
-  th, td {
-    margin: 0px;
-    min-width: 69px;
-    text-align: center;
-    // vertical-align: top;
-    border: solid 1px #333;
-  }
-
   th {
     background: #084B8A;
     color: white;
     font-weight: normal;
-    padding: 5px;
   }
 
-  th.name, th.cust, th.team { text-align: left; width: 124px; }
+  th, td {
+    margin: 0px;
+    min-width: 69px;
+    text-align: center;
+    border: solid 1px #333;
+  }
 
-  tr.even { background: #fff; }
+  th.name, th.cust, th.team, 
+  td.name, td.cust, td.team { 
+    padding: 4px; 
+    height: 36px;
+    width: 124px; 
+    max-width: 124px; 
+    vertical-align: middle; 
+    text-align: left; 
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
-  td.name { text-align: left; padding-left: 5px;
-    .idnum { color: #777; font-size: 10px; }
-    .team { color: #777; font-size: 10px; } }
-  td.cust, td.team { text-align: left; vertical-align: middle; padding: 5px; }
-  td.sched, td.cust-sched { 
-    width: 70px; 
-    height: 28px; 
-    vertical-align: middle;
+  th.team,
+  td.team {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+  }
+
+  tr.even { 
+    background: #fff; 
+  }
+  
+  table.custweek,
+  table.teamweek {
+    margin: -1px;
+  }
+
+  th.sched,
+  td.sched { 
+    @extend td.team;
+    width: 72px; 
+    max-width: 72px;
+    text-align: center;
+  }
+
+  td.sched {
     cursor: pointer;
+
     &:hover {
-      background: #d6d6d6; } }
-  td.custtotal { width: 60px; vertical-align: middle; }
-  td.emptotal { width: 60px; vertical-align: middle; }
+      background: #d6d6d6; 
+    }
+  }
+  
+  td.custtotal { 
+    width: 60px; 
+    vertical-align: middle; 
+  }
+  
+  td.emptotal { 
+    width: 60px; 
+    vertical-align: middle; 
+  }
 
   td.overlimit { color: red; }
   td.transfer { font-style: italic; }
@@ -218,6 +292,11 @@
     vertical-align: middle;
   }
 
+  .idnum { 
+    color: #777; 
+    font-size: 10px; 
+  }
+
   #legend {
     float: left;
     margin: 24px 0;
@@ -238,32 +317,36 @@
 
     @include box-shadow(0 0 12px 2px rgba(#666,1), 0 2px 2px rgba(#666,.6), inset 0 1px 1px rgba(#fff,1));
 
+    label {
+      display: block;
+    }
+    
     input, select { 
       width: 160px; 
     }
     
-    #save-sched-btn, #save-cust-sched-btn { 
+    #save-sched-btn { 
       display: inline-block;
       float: right;
       padding: 7px 6px;
       width: 84px; 
     }
 
-    #close-sched-btn, #close-cust-sched-btn { 
+    #close-sched-btn { 
       display: inline-block;
       float: left; 
       padding: 7px 6px;
       width: 64px; 
     }
 
-    #copy-sched-btn, #copy-cust-sched-btn { 
+    #copy-sched-btn { 
       display: inline-block;
       float: right; 
       padding: 3px 2px;
       width: 84px; 
     }
 
-    #delete-sched-btn, #delete-cust-sched-btn { 
+    #delete-sched-btn { 
       display: inline-block;
       float: left; 
       padding: 3px 2px;

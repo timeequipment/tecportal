@@ -1,10 +1,11 @@
 <div id="links">
   <a id="expand-btn" href="">>></a>
   <div id="links-expand">
-    <%= link_to "Schedules", plugin_service_master_index_path %>
+    <%= link_to "Schedules", plugin_service_master_schedules_path %>
     <%= link_to "Employees", plugin_service_master_employee_list_path %>
     <%= link_to "Teams",     plugin_service_master_team_list_path %>
     <%= link_to "Customers", plugin_service_master_customer_list_path %>
+    <%= link_to "Events",    plugin_service_master_events_path %>
     <% if current_user.customer_admin? %>
       <%= link_to "AoD",     plugin_service_master_settings_path %>
     <% else %>

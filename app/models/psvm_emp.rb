@@ -37,4 +37,8 @@ class PsvmEmp < ActiveRecord::Base
   def fullname 
     "#{ last_name }, #{ first_name }"
   end
+
+  def patterns
+    self.psvm_patterns
+  end
 end

@@ -43,14 +43,12 @@
       var empid     = employee.emp_id;
       var firstname = employee.first_name;
       var lastname  = employee.last_name;
-      var custom1   = employee.custom1;
 
       // View employee's name and id #
       $('#emp-name').html(firstname + ' ' + lastname);
       $('#emp_id').val(empid);
       $('#first_name').val(firstname);
       $('#last_name') .val(lastname);
-      $('#custom1').val(custom1);
     }
 
     // If this employee is assigned to customers
@@ -67,56 +65,8 @@
     }
   }
 
-  function editCustPattern(td, e) {
-    resetSchedForm();
-    // Find the day it references
-    day_editing = td.attr('daynum');
-    // Load the values into the schedule popup
-    if (day_editing === '1' && cust_pattern.day1) {
-      $('#sch_start_time').val(cust_pattern.day1.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day1.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day1.activity);
-    }
-    if (day_editing === '2' && cust_pattern.day2) {
-      $('#sch_start_time').val(cust_pattern.day2.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day2.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day2.activity);
-    }
-    if (day_editing === '3' && cust_pattern.day3) {
-      $('#sch_start_time').val(cust_pattern.day3.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day3.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day3.activity);
-    }
-    if (day_editing === '4' && cust_pattern.day4) {
-      $('#sch_start_time').val(cust_pattern.day4.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day4.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day4.activity);
-    }
-    if (day_editing === '5' && cust_pattern.day5) {
-      $('#sch_start_time').val(cust_pattern.day5.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day5.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day5.activity);
-    }
-    if (day_editing === '6' && cust_pattern.day6) {
-      $('#sch_start_time').val(cust_pattern.day6.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day6.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day6.activity);
-    }
-    if (day_editing === '7' && cust_pattern.day7) {
-      $('#sch_start_time').val(cust_pattern.day7.start_time.format('h:mm a')); 
-      $('#sch_end_time')  .val(cust_pattern.day7.end_time.format('h:mm a')); 
-      $('#sch_wg5')  .val(cust_pattern.day7.activity);
-    }
-    // Show the schedule popup
-    var offset = $('.popup-owner-js').offset();
-    popup.css("left", e.pageX - offset.left + 'px');
-    popup.css("top",  e.pageY - offset.top + 'px');
-    popup.show();
-    $('#sch_start_time').select();
-  }
-
   function editSchedule(td, e) {
-    resetSchedForm();
+    resetPopup();
     // Find the <td> it references
     schid     = td.attr('schid');
     filekey   = td.attr('filekey');
@@ -124,6 +74,7 @@
     starttime = td.attr('starttime');
     endtime   = td.attr('endtime');
     cust      = td.attr('cust');
+    team      = td.attr('team');
     activity  = td.attr('activity');
     // Load the values into the schedule popup
     $('#schid')         .val(schid); 
@@ -132,6 +83,7 @@
     $('#sch_start_time').val(starttime); 
     $('#sch_end_time')  .val(endtime); 
     $('#sch_wg3')       .val(cust);
+    $('#sch_wg8')       .val(team);
     $('#sch_wg5')       .val(activity);
     // Show the schedule popup
     var offset = $('.popup-owner-js').offset();
@@ -141,7 +93,7 @@
     $('#sch_start_time').select();
   }
 
-  function resetSchedForm() {
+  function resetPopup() {
     $('#sch_start_time').css("background","#fff");
     $('#sch_end_time').css("background","#fff");
     $('#sch_start_time').val('');
@@ -150,60 +102,8 @@
   }
 
   function cancelSchedule() {
-    resetSchedForm();
+    resetPopup();
     popup.hide(); 
-  }
-
-  function updateCustSchedule() {
-    // Validate times
-    var startCheck = checkTime($('#sch_start_time'));
-    var endCheck   = checkTime($('#sch_end_time'));
-    $('#sch_start_time').css("background","#fff");
-    $('#sch_end_time').css("background","#fff");
-
-    // If they pass
-    if (startCheck && endCheck) {
-      // Make moment objects to contain sched info
-      var start_time = parseTime($('#sch_start_time').val());
-      var end_time   = parseTime($('#sch_end_time').val());
-      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For am - pm
-      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
-
-      // Refresh inputs with parsed times
-      $('#sch_start_time').val(start_time.format('h:mm a'))
-      $('#sch_end_time').val(end_time.format('h:mm a'))
-
-      s = {
-        'start_time' : start_time, 
-        'end_time' : end_time,
-        'hours' : end_time.diff(start_time, 'hours', true), // end_time - start_time,
-        'activity' : $('#sch_wg5').val(), 
-      };
-      // Save in memory
-      if (day_editing === '1') cust_pattern.day1 = s;
-      if (day_editing === '2') cust_pattern.day2 = s;
-      if (day_editing === '3') cust_pattern.day3 = s;
-      if (day_editing === '4') cust_pattern.day4 = s;
-      if (day_editing === '5') cust_pattern.day5 = s;
-      if (day_editing === '6') cust_pattern.day6 = s;
-      if (day_editing === '7') cust_pattern.day7 = s;
-
-      // Clear inputs, exit popup, refresh customer
-      resetSchedForm();
-      popup.hide(); 
-      viewCustomer();
-
-    // If they didn't pass make them red
-    } else {
-      if (!startCheck) {
-        $('#sch_start_time').css("background","#ffc4ba");
-        $('#sch_start_time').select();
-      }
-      if (!endCheck) {
-        $('#sch_end_time').css("background","#ffc4ba");
-        $('#sch_end_time').select();
-      }
-    }
   }
 
   function saveSchedule() {
@@ -253,33 +153,6 @@
     $.post('delete_schedule', $('#form-popup').serialize(), function() {
       location.reload();
     });
-  }
-
-  function deleteCustSchedule()
-  {
-    // Delete in memory and in html
-    if (day_editing === '1') {
-      cust_pattern.day1 = "";
-      $('#day1').html('');
-    } else if (day_editing === '2') {
-      cust_pattern.day2 = "";
-      $('#day2').html('');
-    } else if (day_editing === '3') {
-      cust_pattern.day3 = "";
-      $('#day3').html('');
-    } else if (day_editing === '4') {
-      cust_pattern.day4 = "";
-      $('#day4').html('');
-    } else if (day_editing === '5') {
-      cust_pattern.day5 = "";
-      $('#day5').html('');
-    } else if (day_editing === '6') {
-      cust_pattern.day6 = "";
-      $('#day6').html('');
-    }
-
-    // exit popup form
-    cancelSchedule();
   }
 
   // Check if input has a valid time
@@ -393,7 +266,7 @@
   });
 
   // When user clicks on a schedule
-  $('.sched').click(function(e){
+  $('td.sched').click(function(e){
     editSchedule($(this), e);
   });
 
@@ -419,52 +292,6 @@
   // When user presses escape, hide sched-popup
   $(document).keyup(function(e) {
     if (e.keyCode == 27) { cancelSchedule(); }   // code 27 = escape key
-  });
-
-  // Save customer button
-  $("#cust-form").submit(function( event ) {
-   
-    // Stop form submission
-    event.preventDefault();
-
-    // Get data   
-    var wg_num     = $('#wg_num').val();
-    var wg_name    = $('#wg_name').val();
-    var day_field1 = null;
-    var day_field2 = null;
-    var day_field3 = null;
-    var day_field4 = null;
-    var day_field5 = null;
-    var day_field6 = null;
-    var day_field7 = null;
-
-    if (cust_pattern.day1) day_field1 = JSON.stringify(cust_pattern.day1);
-    if (cust_pattern.day2) day_field2 = JSON.stringify(cust_pattern.day2);
-    if (cust_pattern.day3) day_field3 = JSON.stringify(cust_pattern.day3);
-    if (cust_pattern.day4) day_field4 = JSON.stringify(cust_pattern.day4);
-    if (cust_pattern.day5) day_field5 = JSON.stringify(cust_pattern.day5);
-    if (cust_pattern.day6) day_field6 = JSON.stringify(cust_pattern.day6);
-    if (cust_pattern.day7) day_field7 = JSON.stringify(cust_pattern.day7);
-   
-    var params = {
-      wg_num:     wg_num, 
-      wg_name:    wg_name, 
-      day_field1: day_field1,  
-      day_field2: day_field2, 
-      day_field3: day_field3, 
-      day_field4: day_field4, 
-      day_field5: day_field5, 
-      day_field6: day_field6, 
-      day_field7: day_field7, 
-    };
-
-    // Post data
-    $.post('save_customer', params, function(data) {
-      $('#save-btn').val('Saved!');
-      window.setTimeout(function() {
-        $('#save-btn').val('Save Customer');
-      }, 2000);
-    });
   });
 
   // Save employee button

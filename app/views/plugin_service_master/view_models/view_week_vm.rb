@@ -14,5 +14,11 @@ module PluginServiceMaster::ViewModels
       :day6_exceptions,
       :day7_exceptions
 
+    def initialize(start_date, end_date)
+      @start_date = start_date
+      @end_date = end_date
+      @emp_weeks = []
+    end
+
   end
 end

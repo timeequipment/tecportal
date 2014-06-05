@@ -1,42 +1,106 @@
 <div class="plugin-service-master">  
 
   <header>
-    <h2>Employees</h2>
     <%= render partial: 'links' %>
   </header>
 
   <main>
-    <div id="list-wrapper">
-      <%= select_tag "list[]", options_from_collection_for_select(@employees, "emp_id", "fullname"), id: 'employee-list', class: 'column' %>
-      <div id="view-emp-btn" class="column">View Employee</div>
-      <div id="emp-wrapper" class="shrink-wrap login column">
-        <h3 id="emp-name"></h3><br>
-        <form id="emp-form" action="save_employee" method="post">
-          <%= hidden_field_tag :emp_id %>
-          <%= hidden_field_tag :first_name %>
-          <%= hidden_field_tag :last_name %>
-          <div>
-            <%= label_tag :custom1, 'Team' %> &nbsp;
-            <%= text_field_tag :custom1 %>
-          </div>
-          <label>Customers Assigned To:</label>
-          <div id="customers-assigned">
-            <label>(None)</label>
-          </div>
-          <div id="cust-scroll-box">
-            <% PsvmWorkgroup.where("wg_level = 3").order("wg_name").each do |workgroup| %>
-              <div class="checkbox-wrapper">
-                <%= check_box_tag "[psvm_workgroup_ids][]", workgroup.id, false, id: dom_id(workgroup) %>
-                <%= label_tag dom_id(workgroup), workgroup.wg_name %>
-              </div>
-            <% end %>
-          </div>
-          <br>
-          <input id="save-btn" type="submit" value="Save Employee">
-        </form>
+    <h2 id="emp-name">&nbsp;</h2><br>
+    <div class="list-label">Employee: </div>
+    <%= select_tag :employee, 
+        options_from_collection_for_select(
+        @employees, "emp_id", "fullname"), 
+        id: 'employee-list' %> 
+    <br>
+    <div id="emp-wrapper" class="shrink-wrap login">
+      <h4>Team Assignments</h4>
+      <div id="team-assignments">
       </div>
+    </div>
+    <div class="shrink-wrap login">
+      <form id="assign-form">
+        <%= hidden_field_tag :emp_id %>
+        <input id="assign-btn" type="submit" 
+         value="Assign to Team">
+        <div>
+          <%= select_tag :pattern_id, 
+              options_from_collection_for_select(
+              @patterns, "id", "customer_team_name"), 
+              id: 'pattern-list' %>
+        </div>
+      </form>
     </div>
   </main>
 </div>
 
 <%= render partial: 'scripts' %>
+
+<script>
+  //--------------- Functions ---------------
+
+  function getEmployee() {
+    var params = { emp_id : $('#employee-list').val() };
+
+    $.get('get_employee', params, function(data) {
+      employee = data[0].psvm_emp;
+      patterns = data[1];
+      $('#team-assignments').empty();
+
+      if (patterns.length === 0) {
+        $('#team-assignments').append(
+          "<div>None</div>");
+      } else {
+        $.each(patterns, function() {
+          $('#team-assignments').append(
+            "<div class='emp-pattern'>" + 
+            this.psvm_pattern.customer_team_name +
+            "<div class='delete-emp-pattern' pattern-id='" + 
+            this.psvm_pattern.id + 
+            "'>&nbsp;X</div></div>");
+        });
+      }
+      $('#emp_id').val(employee.emp_id);
+      $('#emp-name').html(employee.fullname);
+    });
+  }
+
+  //--------------- Events ---------------
+
+  // Select employee from list
+  $('#employee-list').change(function() {
+    getEmployee();
+  });
+
+  // Assign pattern button
+  $('#assign-form').submit(function(event) {
+   
+    // Submit form
+    event.preventDefault();
+    $.get('assign_pattern', $(this).serialize(), function() {
+      getEmployee();
+    });
+  });
+
+  // Delete emp pattern button
+  // These are delegated to their parent: #team-assignments, 
+  // as the delete emp pattern buttons are dynamically 
+  // appended after the DOM has been loaded
+  $('#team-assignments').on('click', 
+    '.delete-emp-pattern', function() {
+    var params = { 
+      emp_id     : $('#emp_id').val(),
+      pattern_id : $(this).attr('pattern-id') 
+    };
+
+    $.get('delete_emp_pattern', params, function() {
+      getEmployee();
+    });
+  });
+
+  // Select first employee on page load
+  $(document).ready(function() {
+    $("#employee-list option:first").attr('selected','selected');
+    getEmployee(); 
+  });
+
+</script>

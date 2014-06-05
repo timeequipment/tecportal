@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140518163718) do
+ActiveRecord::Schema.define(:version => 20140605061455) do
 
   create_table "caches", :force => true do |t|
     t.string   "key"
@@ -187,6 +187,7 @@ ActiveRecord::Schema.define(:version => 20140518163718) do
     t.integer  "sch_wg8"
     t.integer  "sch_wg9"
     t.boolean  "is_event"
+    t.string   "label"
   end
 
   add_index "psvm_scheds", ["filekey", "sch_date", "sch_start_time"], :name => "psvm_scheds_filekey_sch_date_sch_start_time"

@@ -33,11 +33,12 @@ module PluginServiceMasterHelper
          starttime='#{ sched.sch_start_time.strftime('%-l:%M %P') }'
          endtime='#{ sched.sch_end_time.strftime('%-l:%M %P') }'
          cust='#{ sched.sch_wg3 }'
+         team='#{ sched.sch_wg8 }'
          activity='#{ sched.sch_wg5 }'
          title='#{ sched.sch_hours_hund.to_f.round(2) } hours'"
     else
       attributes +=
-      "' schid filekey date starttime endtime cust activity"
+      "' schid filekey date starttime endtime cust team activity"
     end
 
     attributes
