@@ -11,11 +11,17 @@
       <%= render partial: 'links' %>
       <div id="team-filter-wrap">
         <%= label_tag :team_filter, 'Team' %>
-        <%= select_tag :team_filter, options_for_select(@teams.map { |a| [ a.wg_name, a.wg_num ] }, @team_filter), prompt: "Select Team" %>
+        <%= select_tag :team_filter, 
+            options_for_select(
+            @teams.map { |a| [ a.wg_name, a.wg_num ] }, 
+            @team_filter), prompt: "Select Team" %>
       </div>
       <div id="cust-filter-wrap">
         <%= label_tag :cust_filter, 'Customer' %>
-        <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
+        <%= select_tag :cust_filter, 
+            options_for_select(
+            @customers.map { |a| [ a.wg_name, a.wg_num ] }, 
+            @cust_filter), prompt: "Select Customer" %>
       </div>
     </header>
 

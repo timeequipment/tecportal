@@ -181,11 +181,39 @@ class PluginServiceMasterController < ApplicationController
           tw.total_hours += s.sch_hours_hund
           cw.total_hours += s.sch_hours_hund
           ew.total_hours += s.sch_hours_hund
-
-          # Look up any events for this custweek
-
         end
       end
+
+      # # Look up any events for this employee
+      # events = PsvmSched.where(is_event: true,
+      #                          sch_wg3: customer.wg_num,
+      #                          sch_date: @startdate..@enddate)
+
+      # log 'events', events
+      
+      # # For each event
+      # events.each do |e|
+
+      #   # Create a teamweek for it
+      #   tw = PluginServiceMaster::ViewModels::TeamWeekVM.new(
+      #     emp, customer, 
+      #     PsvmWorkgroup.new({ wg_level: 8, wg_name: e.label }),
+      #     @startdate)
+      #   cw.team_weeks << tw
+
+      #   # Add this event to the teamweek
+      #   tw.day1 = e if e.sch_date.monday?
+      #   tw.day2 = e if e.sch_date.tuesday?
+      #   tw.day3 = e if e.sch_date.wednesday?
+      #   tw.day4 = e if e.sch_date.thursday?
+      #   tw.day5 = e if e.sch_date.friday?
+      #   tw.day6 = e if e.sch_date.saturday?
+
+      #   # Tally hours
+      #   tw.total_hours += e.sch_hours_hund
+      #   cw.total_hours += e.sch_hours_hund
+      #   ew.total_hours += e.sch_hours_hund
+      # end
 
       # Check for any overlapping schedules
       ew.cust_weeks.each do |cw1|
@@ -238,6 +266,82 @@ class PluginServiceMasterController < ApplicationController
     end
   end
 
+  def events
+    log __method__
+
+    # Get the dates for the week we're viewing
+    session[:startdate] = session[:settings].weekstart || Date.today.beginning_of_week
+    session[:enddate] = session[:startdate] + 6.days
+
+    # Create view model vars
+    @team_filter            = session[:team_filter] || ""
+    @cust_filter            = session[:cust_filter] || ""
+    @startdate              = session[:settings].weekstart || Date.today.beginning_of_week
+    @enddate                = @startdate + 6.days
+
+    log 'cust_filter', @cust_filter
+    
+    # Get workgroups
+    @customers  = PsvmWorkgroup.where('wg_level = 3').order('wg_name')
+
+    # Get all the events for these filters
+    events = get_filtered_events(@startdate, @enddate, @cust_filter)
+
+    # Get all their customers
+    customers = PsvmWorkgroup.where(
+      wg_level: 3, 
+      wg_num: events.map { |e| e.sch_wg3 })
+    .sort_by &:wg_name
+
+    # If there were none, create a dummy customer
+    if customers.nil? || customers.empty?
+      customers = []
+      customers << PsvmWorkgroup.new({ wg_level: 3, wg_name: 'None' })
+    end
+
+    # Make a viewweek
+    @vw = PluginServiceMaster::ViewModels::ViewWeekVM.new(
+      @startdate, 
+      @enddate)
+
+    # Make a dummy empweek
+    emp = PsvmEmp.new
+    ew = PluginServiceMaster::ViewModels::EmpWeekVM.new(emp)
+
+    # Add it to the viewweek
+    @vw.emp_weeks << ew
+
+    # For each customer
+    customers.each do |customer|
+
+      # Make a custweek
+      cw = PluginServiceMaster::ViewModels::CustWeekVM.new(
+        customer)
+      ew.cust_weeks << cw
+
+      # Make a teamweek
+      tw = PluginServiceMaster::ViewModels::TeamWeekVM.new(
+        emp, customer, PsvmWorkgroup.new({ wg_level: 8, wg_name: 'None' }), @startdate)
+      cw.team_weeks << tw
+
+      # For each event
+      events.each do |e|
+
+        # If this event is for this customer
+        if e.sch_wg3 == customer.wg_num
+
+          # Add this event to the teamweek
+          tw.day1 = e if e.sch_date.monday?
+          tw.day2 = e if e.sch_date.tuesday?
+          tw.day3 = e if e.sch_date.wednesday?
+          tw.day4 = e if e.sch_date.thursday?
+          tw.day5 = e if e.sch_date.friday?
+          tw.day6 = e if e.sch_date.saturday?
+        end
+      end
+    end
+  end  
+
   def settings
     log __method__
   end
@@ -248,7 +352,7 @@ class PluginServiceMasterController < ApplicationController
 
   def team_list
     log __method__
-    @teams = PsvmWorkgroup.where('wg_level = 8').order('wg_name')
+    @teams = PsvmWorkgroup.where('wg_level = 8').order('wg_num desc')
   end
 
   def customer_list
@@ -429,6 +533,8 @@ class PluginServiceMasterController < ApplicationController
     sch_wg3 = params[:sch_wg3]
     sch_wg8 = params[:sch_wg8]
     sch_wg5 = params[:sch_wg5]
+    is_event = params[:is_event]
+    label = params[:label]
 
     s = PsvmSched.where(id: schid).first_or_initialize
     s.filekey = filekey if filekey.present?
@@ -436,6 +542,8 @@ class PluginServiceMasterController < ApplicationController
     s.sch_wg3 = sch_wg3 if sch_wg3.present?
     s.sch_wg8 = sch_wg8 if sch_wg8.present?
     s.sch_wg5 = sch_wg5 if sch_wg5.present?
+    s.is_event = is_event if is_event.present?
+    s.label = label if label.present?
 
     if sch_start_time.present?
       a = DateTime.parse(sch_start_time).utc 
@@ -495,13 +603,25 @@ class PluginServiceMasterController < ApplicationController
   def next_week
     log __method__
     session[:settings].weekstart = session[:settings].weekstart + 7.days
-    redirect_to action: 'index'
+    redirect_to action: 'schedules'
   end
 
   def prev_week
     log __method__
     session[:settings].weekstart = session[:settings].weekstart - 7.days
-    redirect_to action: 'index'
+    redirect_to action: 'schedules'
+  end
+
+  def next_event_week
+    log __method__
+    session[:settings].weekstart = session[:settings].weekstart + 7.days
+    redirect_to action: 'events'
+  end
+
+  def prev_event_week
+    log __method__
+    session[:settings].weekstart = session[:settings].weekstart - 7.days
+    redirect_to action: 'events'
   end
 
   def export_scheds
@@ -659,7 +779,7 @@ class PluginServiceMasterController < ApplicationController
       end_date += 7.days
     end
 
-    redirect_to action: 'index'
+    redirect_to action: 'schedules'
   end
 
   def progress
@@ -711,7 +831,8 @@ class PluginServiceMasterController < ApplicationController
     # get all scheds in date range, for this customer
     if team_filter.blank? && cust_filter.present?
       scheds = PsvmSched
-        .where(sch_date: startdate..enddate, 
+        .where("is_event != true",
+               sch_date: startdate..enddate, 
                sch_wg3: cust_filter)
         .order('filekey, sch_wg3, sch_wg8')
 
@@ -719,7 +840,8 @@ class PluginServiceMasterController < ApplicationController
     # get all scheds in date range, for this team
     elsif team_filter.present? && cust_filter.blank?
       scheds = PsvmSched
-        .where(sch_date: startdate..enddate, 
+        .where("is_event != true",
+               sch_date: startdate..enddate, 
                sch_wg8: team_filter)
         .order('filekey, sch_wg3, sch_wg8')
 
@@ -727,14 +849,37 @@ class PluginServiceMasterController < ApplicationController
     # get all scheds in date range, for this customer/team
     elsif team_filter.present? && cust_filter.present?
       scheds = PsvmSched
-        .where(sch_date: startdate..enddate, 
+        .where("is_event != true",
+               sch_date: startdate..enddate, 
                sch_wg3: cust_filter,
                sch_wg8: team_filter)
         .order('filekey, sch_wg3, sch_wg8')
     end
 
     scheds
-    log 'scheds', scheds
+  end
+
+  def get_filtered_events(startdate, enddate, cust_filter)
+    log __method__
+    events = []
+
+    # If we're filtering by customer
+    # get all events in date range, for this customer
+    if cust_filter.present?
+      events = PsvmSched
+        .where("is_event = true AND label != ''")
+        .where(sch_date: startdate..enddate, 
+               sch_wg3: cust_filter)
+        .order('sch_wg3')
+    else
+      # Else get all events in date range
+      events = PsvmSched
+        .where("is_event = true AND label != ''")
+        .where(sch_date: startdate..enddate)
+        .order('sch_wg3')
+    end
+
+    events
   end
 
   def get_filtered_emps(team_filter, cust_filter)

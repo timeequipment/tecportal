@@ -34,7 +34,7 @@
 
     #links-expand {
       display: inline-block;
-      width: 396px;
+      width: 465px;
       overflow: hidden;
       white-space: nowrap;
       vertical-align: bottom;
@@ -148,57 +148,6 @@
     height: 22px;
   }
 
-  #schedules-page {
-    overflow: visible;
-    white-space: nowrap;
-
-    #main-table {
-    }
-
-    #expand-btn {
-      margin-right: -5px; }
-    #home-btn {
-      margin-left: 0px; }
-    #links-expand {
-      width: 0px; }
-
-    #cust-filter-wrap {
-      position: absolute;
-      top: 0;
-      right: 120px;
-    }
-
-    #team-filter-wrap {
-      position: absolute;
-      top: 0;
-      right: 444px;
-    }
-  
-    #export-scheds-form {
-      float: left;
-      margin: 12px 0 0 220px;
-
-      input[type="checkbox"] {
-        margin-left: 8px;
-      }
-    } 
-   
-    #gen-scheds-form {
-      float: left;
-      margin: 12px 0 0 12px;
-
-      input[type="checkbox"] {
-        margin-left: 8px;
-      }
-
-      .date-picker {
-        margin-top: 2px;
-        height: 20px;
-        width: 90px;
-      }
-    }
-  }
-
   table { 
     border-collapse: collapse;
     cursor: default;
@@ -226,6 +175,11 @@
     vertical-align: middle; 
     text-align: left; 
     overflow: hidden;
+    white-space: normal;
+  }
+
+  th.name,
+  td.name {
     white-space: nowrap;
   }
 
@@ -281,6 +235,8 @@
     &:hover     { background: #EBBF8F; } }
   td.supervision { background: #E0BAFD; 
     &:hover     { background: #C294E5; } }
+  td.event      { background: #FF4AB7; color: #fff; 
+    &:hover     { background: #D6489E; } }
   td.overlap   { font-weight: bold; color: #FF9420; }
   td.flattened {
     padding: 0;
@@ -301,14 +257,95 @@
     float: left;
     margin: 24px 0;
     height: 300px;
-    width: 200px;
+    width: 240px;
+    max-width: 240px;
 
     td {
-      padding: 4px;
+      padding: 8px;
     }
   }
 
-  #sched-popup {
+  #schedules-page {
+    overflow: visible;
+    white-space: nowrap;
+
+    #expand-btn {
+      margin-right: -5px; }
+    #home-btn {
+      margin-left: 0px; }
+    #links-expand {
+      width: 0px; }
+
+    #cust-filter-wrap {
+      position: absolute;
+      top: 0;
+      right: 120px;
+    }
+
+    #team-filter-wrap {
+      position: absolute;
+      top: 0;
+      right: 444px;
+    }
+  
+    #export-scheds-form {
+      float: left;
+      margin: 12px 0 0 220px;
+
+      input[type="checkbox"] {
+        margin-left: 8px;
+      }
+    } 
+   
+    #gen-scheds-form {
+      float: left;
+      margin: 12px 0 0 12px;
+
+      input[type="checkbox"] {
+        margin-left: 8px;
+      }
+
+      .date-picker {
+        margin-top: 2px;
+        height: 20px;
+        width: 90px;
+      }
+    }
+  }
+
+  #events-page {
+    @extend #schedules-page;
+
+    // #main-table {
+    //   float: left;
+    //   margin: 0 20px 20px 0;
+    // }
+
+    #title {
+      position: absolute;
+      top: 0;
+      left: 242px;
+    }
+
+    #cust-filter-wrap {
+      position: absolute;
+      top: 0;
+      left: 376px;
+    }
+
+    th.cust,
+    td.cust {
+      width: 175px;
+      max-width: 175px;
+    }
+
+    // #legend {
+    //   float: none;
+    // }
+  }
+
+  #sched-popup,
+  #event-popup {
     @extend .login;
     position: absolute;
     display: none;

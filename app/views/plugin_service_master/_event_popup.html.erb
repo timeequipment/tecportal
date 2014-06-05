@@ -1,0 +1,32 @@
+<div id="event-popup">
+  <form id="form-popup">
+    <div>
+      <%= label_tag :sch_wg3, 'Customer' %>
+      <%= select_tag :sch_wg3, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }), prompt: "Select Customer" %>
+    </div>
+    <br>
+    <div>
+      <%= hidden_field_tag :schid %>
+      <%= hidden_field_tag :filekey, 0 %>
+      <%= hidden_field_tag :sch_date %>
+      <%= hidden_field_tag :is_event, true %>
+    </div>
+    <div>
+      <%= label_tag :label, 'Label' %>
+      <%= text_field_tag :label %>
+    </div>
+    <div>
+      <%= label_tag :sch_start_time, 'Start Time' %>
+      <%= text_field_tag :sch_start_time %>
+    </div>
+    <div>
+      <%= label_tag :sch_end_time, 'End Time' %>
+      <%= text_field_tag :sch_end_time %>
+    </div>
+    <br>
+    <input type="submit" id='save-sched-btn' value="OK">
+    <input type="submit" id='close-sched-btn' value="Cancel">
+    <!-- <input type="submit" id='copy-sched-btn' value="Copy"> -->
+    <input type="submit" id='delete-sched-btn' value="Delete">
+  </form>
+</div>

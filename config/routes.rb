@@ -9,12 +9,12 @@ Tecportal::Application.routes.draw do
 
   # ServiceMaster plugin
   get  'plugin_service_master/schedules'
+  get  'plugin_service_master/events'
   get  'plugin_service_master/settings'
   post 'plugin_service_master/save_settings'
   get  'plugin_service_master/team_list'
   get  'plugin_service_master/customer_list'
   get  'plugin_service_master/employee_list'
-  get  'plugin_service_master/event_list'
   get  'plugin_service_master/get_team'
   post 'plugin_service_master/save_team'
   get  'plugin_service_master/create_team'
@@ -36,6 +36,8 @@ Tecportal::Application.routes.draw do
   get  'plugin_service_master/cust_filter'
   get  'plugin_service_master/next_week'
   get  'plugin_service_master/prev_week'
+  get  'plugin_service_master/next_event_week'
+  get  'plugin_service_master/prev_event_week'
   get  'plugin_service_master/export_scheds'
   get  'plugin_service_master/generate_scheds'
   get  'plugin_service_master/progress'

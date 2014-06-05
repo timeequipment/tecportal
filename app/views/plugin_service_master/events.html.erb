@@ -2,20 +2,20 @@
   <div id="events-page">
 
     <header>
-      <%= link_to "<", plugin_service_master_prev_week_path %>
+      <%= link_to "<", plugin_service_master_prev_event_week_path %>
       <div class="daterange">
         <%= @startdate.strftime '%b %d' %> - 
         <%= @enddate  .strftime '%b %d' %>
       </div>
-      <%= link_to ">", plugin_service_master_next_week_path %>
+      <%= link_to ">", plugin_service_master_next_event_week_path %>
       <%= render partial: 'links' %>
-      <div id="team-filter-wrap">
-        <%= label_tag :team_filter, 'Team' %>
-        <%= select_tag :team_filter, options_for_select(@teams.map { |a| [ a.wg_name, a.wg_num ] }, @team_filter), prompt: "Select Team" %>
-      </div>
+      <div id="title"><h2>Events</h2></div>
       <div id="cust-filter-wrap">
         <%= label_tag :cust_filter, 'Customer' %>
-        <%= select_tag :cust_filter, options_for_select(@customers.map { |a| [ a.wg_name, a.wg_num ] }, @cust_filter), prompt: "Select Customer" %>
+        <%= select_tag :cust_filter, 
+            options_for_select(
+            @customers.map { |a| [ a.wg_name, a.wg_num ] }, 
+            @cust_filter), prompt: "Select Customer" %>
       </div>
     </header>
 
@@ -23,9 +23,6 @@
       <table id="main-table" class="popup-owner-js">
         <thead>
           <tr>
-            <th class="name">
-              <div class="name-wrapper">Name</div>
-            </th>
             <th>
               <table class="custweek">
                 <tr>
@@ -33,7 +30,6 @@
                   <th>
                     <table class="teamweek">
                       <tr>
-                        <th class="team">Team</th>
                         <th class="sched">Mon</br><%= (@startdate + 0.days).strftime('%-m/%-d') %></Schedule>
                         <th class="sched">Tue</br><%= (@startdate + 1.days).strftime('%-m/%-d') %></th>
                         <th class="sched">Wed</br><%= (@startdate + 2.days).strftime('%-m/%-d') %></th>
@@ -43,115 +39,272 @@
                       </tr>
                     </table>
                   </th>
-                  <th class="custtotal">Cust.</br>Total</th>
                 </tr>
               </table>
             </th>
-            <th class="emptotal">Emp.</br>Total</th>
-            <th class="outside"></th>
           </tr>
         </thead>
         <tbody>
           <% @vw.emp_weeks.each_with_index do |ew, ew_index| %>
-            <tr <%= raw 'class="even"' if ew_index.even? %>>
-              <td class="name">
-                <div class="name-wrapper"><%= "#{ ew.employee.first_name } #{ ew.employee.last_name }" %></div>
-                <span class="idnum"><%= "#{ ew.employee.emp_id }" %></span>
-              </td>
+            <tr>
               <td>
                 <table class="custweek">
                   <% ew.cust_weeks.each_with_index do |cw, cw_index| %>
-                    <tr <%= raw 'class="even"' if ew_index.even? %>>
-                      <% if cw_index == 0 %>
-                        <td class="cust">
-                      <% else %>
-                        <td class="cust top-border">
-                      <% end %>
-                      <%= "#{ cw.customer.wg_name }" %></td>
+                    <tr <%= raw 'class="even"' if cw_index.even? %>>
+                      <td class="cust"><%= "#{ cw.customer.wg_name }" %></td>
                       <td>
                         <table class="teamweek">
                           <% cw.team_weeks.each do |tw| %>
-                            <tr <%= raw 'class="even"' if ew_index.even? %>>
-                              <td class="team"><%= "#{ tw.team.wg_name }" %></td>
-                              <td <%= raw generate_td_attr(tw.day1) %>> <%= raw generate_td_content(tw.day1) %></td>
-                              <td <%= raw generate_td_attr(tw.day2) %>> <%= raw generate_td_content(tw.day2) %></td>
-                              <td <%= raw generate_td_attr(tw.day3) %>> <%= raw generate_td_content(tw.day3) %></td>
-                              <td <%= raw generate_td_attr(tw.day4) %>> <%= raw generate_td_content(tw.day4) %></td>
-                              <td <%= raw generate_td_attr(tw.day5) %>> <%= raw generate_td_content(tw.day5) %></td>
-                              <td <%= raw generate_td_attr(tw.day6) %>> <%= raw generate_td_content(tw.day6) %></td>
+                            <tr <%= raw 'class="even"' if cw_index.even? %>>
+                              <td <%= raw generate_td_attr(tw.day1) %>> <%= raw generate_td_content(tw.day1, true) %></td>
+                              <td <%= raw generate_td_attr(tw.day2) %>> <%= raw generate_td_content(tw.day2, true) %></td>
+                              <td <%= raw generate_td_attr(tw.day3) %>> <%= raw generate_td_content(tw.day3, true) %></td>
+                              <td <%= raw generate_td_attr(tw.day4) %>> <%= raw generate_td_content(tw.day4, true) %></td>
+                              <td <%= raw generate_td_attr(tw.day5) %>> <%= raw generate_td_content(tw.day5, true) %></td>
+                              <td <%= raw generate_td_attr(tw.day6) %>> <%= raw generate_td_content(tw.day6, true) %></td>
                             </tr>
                           <% end %>
                         </table>
-                      </td>
-                      <td class="custtotal">
-                        <%= cw.total_hours.round(2) %>
                       </td>
                     </tr>
                   <% end %>
                 </table>
               </td>
-              <td class="emptotal">
-                <%= ew.total_hours.round(2) %>
-              </td>
-              <td class="overlimit outside">
-                <%= ew.exceptions %>
-              </td>
             </tr>
           <% end %>
-          <%= render partial: "sched_popup", locals: { show_customer: true } %>
+          <%= render partial: "event_popup" %>
         </tbody>
       </table>
-      <%= render partial: "legend" %>
-      
-      <form id="export-scheds-form">
-        <input id="export-btn" type="submit" value="Export to AoD"><br>
-
-        <%= check_box_tag "export_all", true, @export_all %>
-        <%= label_tag(:export_all, "Export All") %><br>
-      </form>
-
-      <form id="gen-scheds-form" action="generate_scheds" method="get">
-        <input id="generate-btn" type="submit" value="Generate Schedules"><br>
-        
-        <%= check_box_tag "overwrite_scheds", true, @overwrite_scheds %>
-        <%= label_tag(:overwrite_scheds, "Overwrite Schedules") %><br>
-        
-        <%= check_box_tag "apply_to_all_customers", true, @apply_to_all_customers %>
-        <%= label_tag(:apply_to_all_customers, "Apply to All Customers") %><br>
-        
-        <%= check_box_tag "apply_to_future", true, @apply_to_future %>
-        <%= label_tag(:apply_to_future, "Apply to Future Date: ") %>
-        <%= text_field_tag(:future_date, @future_date, class: "date-picker") %>
-      </form>
-
-      <div id="export-all-confirm" title="Export All Schedules?">
-        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0; z-index: 900"></span>Exporting all schedules could take a while.  Proceed?</p>
+      <div class="shrink-wrap login" style="display:none">
+        <form>
+          <div id="add-customer-btn" class="submit-btn">
+           Add Customer</div>
+        </form>    
       </div>
-
-      <%= render "shared/spinner" %>
-      <%= render "shared/progressbar" %>
-
+      <%= render partial: "legend" %>
     </main>
   </div>  
 </div>  
 
-<%= render partial: "scripts" %>
-
 <!-- Scripts -->
 <script>
 
-  // Init progress bar
-  var progressbar = $( "#progress-bar" );
-  var progressLabel = $( "#progress-label" );
+  //--------------- Variables ---------------
   
-  progressbar.progressbar({
-    value: 0,
-    change: function() {
-      progressLabel.text( progressbar.progressbar( "value" ) + "%" );
-    },
-    complete: function() {
-      progressLabel.text( "Complete!" );
+  var day_editing = 0;
+  var customer = {};
+  var employee = {};
+  var workgroups = {};
+  var cust_pattern = {};
+  
+  // Popup is draggable
+  var popup = $('#event-popup').draggable();
+
+  //--------------- Functions ---------------
+
+  function editSchedule(td, e) {
+    resetPopup();
+    // Find the <td> it references
+    schid     = td.attr('schid');
+    filekey   = td.attr('filekey');
+    date      = td.attr('date');
+    starttime = td.attr('starttime');
+    endtime   = td.attr('endtime');
+    cust      = td.attr('cust');
+    team      = td.attr('team');
+    activity  = td.attr('activity');
+    label     = td.attr('label');
+    // Load the values into the schedule popup
+    $('#schid')         .val(schid); 
+    $('#filekey')       .val(filekey);
+    $('#sch_date')      .val(date);
+    $('#sch_start_time').val(starttime); 
+    $('#sch_end_time')  .val(endtime); 
+    $('#sch_wg3')       .val(cust);
+    $('#sch_wg8')       .val(team);
+    $('#sch_wg5')       .val(activity);
+    $('#label')         .val(label);
+    // Show the schedule popup
+    var offset = $('.popup-owner-js').offset();
+    popup.css("left", e.pageX - offset.left + 'px');
+    popup.css("top",  e.pageY - offset.top + 'px');
+    popup.show();
+    $('#sch_start_time').select();
+  }
+
+  function resetPopup() {
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
+    $('#sch_start_time').val('');
+    $('#sch_end_time').val('');
+    $('#sch_wg5').val('');
+    $('#label').val('');
+  }
+
+  function cancelSchedule() {
+    resetPopup();
+    popup.hide(); 
+  }
+
+  function saveSchedule() {
+
+    // Validate times
+    var startCheck = checkTime($('#sch_start_time'));
+    var endCheck   = checkTime($('#sch_end_time'));
+    $('#sch_start_time').css("background","#fff");
+    $('#sch_end_time').css("background","#fff");
+
+    // If they pass
+    if (startCheck && endCheck) {
+      
+      // Make moment objects to contain sched info
+      var start_time = parseTime($('#sch_start_time').val());
+      var end_time   = parseTime($('#sch_end_time').val());
+      
+      // Adjust end if its before start
+      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For am - pm
+      if (start_time.isAfter(end_time)) end_time = end_time.add('hours', 12); // For pm - am
+
+      // Refresh inputs with parsed times
+      $('#sch_start_time').val(start_time.format('h:mm a'))
+      $('#sch_end_time').val(end_time.format('h:mm a'))
+
+      // Send it to the server - save this schedule and reload page
+      $.post('save_schedule', $('#form-popup').serialize(), function() {
+        location.reload();
+      });
+
+    // If they didn't pass make them red
+    } else {
+      if (!startCheck) {
+        $('#sch_start_time').css("background","#ffc4ba");
+        $('#sch_start_time').select();
+      }
+      if (!endCheck) {
+        $('#sch_end_time').css("background","#ffc4ba");
+        $('#sch_end_time').select();
+      }
     }
+  }
+
+  function deleteSchedule()
+  {
+    // Tell server to delete this schedule
+    $.post('delete_schedule', $('#form-popup').serialize(), function() {
+      location.reload();
+    });
+  }
+
+  // Check if input has a valid time
+  function checkTime(field) {
+    var valid = true;
+
+    // Regex for valid time format
+    // re = /(\d{1,2}):(\d{2})(:00)?([ap]m)?/   // good
+    re = /(\d+)(?::(\d\d))?\s*(p?)/i;        // better
+    var val = field.val().toString();
+
+    // If there's input
+    if(val != '') {
+      regs = val.match(re);
+      // And it passes regex
+      if(regs) {
+        if(regs[4]) {
+          // Check:  12-hour time format with am/pm
+          if(regs[1] < 1 || regs[1] > 12) {
+            valid = false;
+          }
+        } else {
+          // Check:  24-hour time format
+          if(regs[1] > 23) {
+            valid = false;
+          }
+        }
+        // Check:  Minutes
+        if(regs[2] > 59) {
+          valid = false;
+        }
+      } else {
+        valid = false;
+      }
+    }
+    else {
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  function parseTime(timeStr, dt) {
+    // This function takes a string and outputs a moment obj.
+    // The moment obj can parse, but you have to specify the time format.
+    // Here, we can't be sure what format the user will input,
+    // so a regex is the next best choice
+
+    if (!dt) {
+      dt = moment.utc("1-1-1900", "M-D-YYYY");
+    }
+ 
+    var time = timeStr.match(/(\d+)(?::(\d\d))?\s*(p?)/i);
+    if (!time) {
+      return dt;
+    }
+    var hours = parseInt(time[1], 10);
+    if (hours == 12 && !time[3]) {
+      hours = 0;
+    }
+    else {
+      hours += (hours < 12 && time[3]) ? 12 : 0;
+    }
+ 
+    dt.hours(hours);
+    dt.minutes(parseInt(time[2], 10) || 0);
+    dt.seconds(0);
+    return dt;
+  }
+
+  //--------------- Events ---------------
+
+  // OK button updates sched
+  $('#save-sched-btn').click(function(){
+    saveSchedule();
+  });
+
+  // Close button hides popup
+  $('#close-sched-btn').click(function(){
+    cancelSchedule();
+  });
+
+  // Delete button deletes sched
+  $('#delete-sched-btn').click(function(){
+    deleteSchedule();
+  });
+
+  // Create button creates sched
+  $('#add-customer-btn').click(function(){
+    //editSchedule($(this), e);
+  });  
+
+  // When user clicks on a schedule
+  $('td.sched').click(function(e){
+    editSchedule($(this), e);
+  });
+
+  // Cust filter saves filter, reloads page
+  $('#cust_filter').change(function() {
+    $.get('cust_filter', { cust_filter: $(this).val() }, function() {
+      location.reload();
+    });
+  });
+
+  // Stop sched popup form from submitting normally
+  $('#form-popup').submit(function(event) {
+    event.preventDefault();
+  });
+
+  // When user presses escape, hide event-popup
+  $(document).keyup(function(e) {
+    if (e.keyCode == 27) { cancelSchedule(); }   // code 27 = escape key
   });
 
   // Init date picker
@@ -160,106 +313,4 @@
   // Set expand btn icon to << for this page only 
   $('#expand-btn').html("<<");
 
-  function poll()
-  {
-    $.get('progress', { progress_type: "export_scheds" }, function(data) {
-
-      // If job completed
-      if (data === true)
-      {
-        // Show results
-        $('#progress-status').text('Finished')
-        $('#progress-bar').progressbar('value', 100);
-
-        // Hide spinner
-        $('#spinner').hide();
-      }
-      else if (data.status)
-      {
-        // Show status
-        $('#progress-status').text(data.status)
-        $('#progress-bar').progressbar('value', parseInt(data.progress)); 
-
-        // If job processing
-        if (data.status != '')
-        {
-          // Show spinner and check status again in 2 seconds
-          $('#spinner').show();
-          setTimeout(poll, 1000);
-        }
-      }
-    });
-  }
-
-  // When the user clicks the generate button
-  $( "#generate-btn" ).click(function( event ) {
-
-    // Show the spinner
-    $('#spinner').show();
-  });
-
-  // When the user clicks the export button
-  $( "#export-btn" ).click(function( event ) {
-   
-    // Stop form from submitting normally
-    event.preventDefault();
-
-    // Show the spinner and progress bar
-    $('#spinner').show();
-
-    // Get form inputs
-    var exportAll = $('#export_all').prop('checked')
-
-    // If Export All is checked
-    if (exportAll === true) {
-
-      // Confirm they want to proceed
-      $("#export-all-confirm").dialog("open");
-
-    } else {
-
-      // Export just the scheds being viewed
-      export_scheds(false);
-    }
-  });
-
-  // Confirmation dialog for Export All
-  $("#export-all-confirm").dialog({
-    autoOpen: false,
-    resizable: false,
-    width:460,
-    modal: true,
-    buttons: {
-      Yes: function() {
-        $(this).dialog("close");
-
-        // Export all schedules
-        export_scheds(true);
-      },
-      No: function() {
-        $(this).dialog("close");
-
-        // Reset results
-        $('#progress-status').text('')
-        $('#progress-bar').progressbar('value', null);
-
-        // Hide spinner
-        $('#spinner').hide();
-      }
-    }
-  });
-
-  function export_scheds(exportAll) {
-
-    // Send inputs and run the export
-    $.get('export_scheds', { export_all: exportAll } );
-
-    // Poll for status
-    setTimeout(poll, 1000);
-  }
-
 </script>
-
-
-
-

@@ -24,6 +24,7 @@ class PsvmSched < ActiveRecord::Base
       :sch_wg8,
       :sch_wg9,
       :is_event,
+      :label,
       :unique_id
 
     attr_accessor :overlapping

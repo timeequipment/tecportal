@@ -35,25 +35,29 @@ module PluginServiceMasterHelper
          cust='#{ sched.sch_wg3 }'
          team='#{ sched.sch_wg8 }'
          activity='#{ sched.sch_wg5 }'
+         label='#{ sched.label }'
          title='#{ sched.sch_hours_hund.to_f.round(2) } hours'"
     else
       attributes +=
-      "' schid filekey date starttime endtime cust team activity"
+      "' schid filekey date starttime endtime cust team activity label"
     end
 
     attributes
   end
 
-  def generate_td_content sched
+  def generate_td_content(sched, show_label = false)
     if sched.present? && sched.id.present?
-      if sched.sch_start_time.hour > 12
-        "#{ sched.sch_start_time.strftime('%-l:%M %P') } -
-         #{ sched.sch_end_time.strftime('%-l:%M %P') }"
+      if show_label
+        sched.label
       else
-        "#{ sched.sch_start_time.strftime('%-l:%M') } -
-         #{ sched.sch_end_time.strftime('%-l:%M') }"
+        if sched.sch_start_time.hour > 12
+          "#{ sched.sch_start_time.strftime('%-l:%M %P') } -
+           #{ sched.sch_end_time.strftime('%-l:%M %P') }"
+        else
+          "#{ sched.sch_start_time.strftime('%-l:%M') } -
+           #{ sched.sch_end_time.strftime('%-l:%M') }"
+        end
       end
-      
     end
   end
 

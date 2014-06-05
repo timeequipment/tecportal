@@ -13,58 +13,6 @@
 
   //--------------- Functions ---------------
 
-  function getEmployee() {
-    employee = {};
-    workgroups = {};
-
-    // Get selected emp id
-    var select = document.getElementById('employee-list');
-    var id = select.options[select.selectedIndex].value;
-    var params = { emp_id : id };
-    
-    // Request this emp
-    $.get('get_employee', params, function(data) {
-      if (data) {
-        if (data[0]) employee   = data[0].psvm_emp;
-        if (data[1]) workgroups = data[1];
-        viewEmployee();
-      }
-      $('#emp-wrapper').show();
-    });
-  }
-
-  function viewEmployee() {
-    // Reset all checkboxes, etc.
-    $('input[type="checkbox"]').prop('checked', false);
-    $('#customers-assigned').html('<label>(None)</label>');
-
-    // If we received an employee object from the server
-    if (employee) {
-      var empid     = employee.emp_id;
-      var firstname = employee.first_name;
-      var lastname  = employee.last_name;
-
-      // View employee's name and id #
-      $('#emp-name').html(firstname + ' ' + lastname);
-      $('#emp_id').val(empid);
-      $('#first_name').val(firstname);
-      $('#last_name') .val(lastname);
-    }
-
-    // If this employee is assigned to customers
-    if (workgroups && workgroups.length > 0) {
-      // Check all the customers assigned to this employee and list their names
-      var container = $('<div />');
-      for (var i = 0; i < workgroups.length; i++) {
-        $('#psvm_workgroup_' + workgroups[i].psvm_workgroup.id).prop('checked', true);
-        $('<label />', {
-          html: workgroups[i].psvm_workgroup.wg_name
-        }).appendTo(container);
-      }
-      $('#customers-assigned').html(container);
-    }
-  }
-
   function editSchedule(td, e) {
     resetPopup();
     // Find the <td> it references
