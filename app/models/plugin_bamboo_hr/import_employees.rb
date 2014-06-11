@@ -110,17 +110,17 @@ module PluginBambooHr
             inactiveStatusConditionID:    0,
             activeStatusConditionEffDate: '',
             payTypeID:                    b["payType"],
-            payTypeEffDate:               now,
+            payTypeEffDate:               '',
             payClassID:                   b["customPayClass"],
-            payClassEffDate:              now,
+            payClassEffDate:              '',
             schPatternID:                 0,
-            schPatternEffDate:            now,
+            schPatternEffDate:            '',
             hourlyStatusID:               b["customHourlyStatus"],
-            hourlyStatusEffDate:          now,
+            hourlyStatusEffDate:          '',
             avgWeeklyHrs:                 0,
             clockGroupID:                 0,
             birthDate:                    b["dateOfBirth"],
-            wGEffDate:                    now,
+            wGEffDate:                    '',
             phone1:                       '',
             phone2:                       '',
             emergencyContact:             '',
@@ -210,6 +210,10 @@ module PluginBambooHr
             emp[:activeStatusConditionID]      = a[:active_status_condition_id].to_i
             emp[:inactiveStatusConditionID]    = a[:inactive_status_condition_id].to_i
             emp[:activeStatusConditionEffDate] = a[:active_status_condition_eff_date].to_datetime.strftime("%Y-%m-%d")
+            emp[:payTypeEffDate]               = a[:payTypeEffDate].to_datetime.strftime("%Y-%m-%d")
+            emp[:payClassEffDate]              = a[:payClassEffDate].to_datetime.strftime("%Y-%m-%d")
+            emp[:hourlyStatusEffDate]          = a[:hourlyStatusEffDate].to_datetime.strftime("%Y-%m-%d")
+            emp[:wGEffDate]                    = a[:wGEffDate].to_datetime.strftime("%Y-%m-%d")
             emp[:schPatternID]                 = a[:sch_pattern_id].to_i
             emp[:schPatternEffDate]            = a[:sch_pattern_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:avgWeeklyHrs]                 = a[:avg_weekly_hrs].to_i
@@ -226,34 +230,31 @@ module PluginBambooHr
             emp[:staticCustom5]                = a[:static_custom5]    unless a[:static_custom5].class    == Hash
             emp[:staticCustom6]                = a[:static_custom6]    unless a[:static_custom6].class    == Hash
 
-            # If the Pay Type has changed
-            if emp[:payTypeID] != a[:payTypeID]
+            # If the Active Status has changed, set effective date to today
+            if emp[:activeStatus] != a[:activeStatus]
+              emp[:activeStatusConditionEffDate] = now
+            end
 
-              # Set effective date to today
+            # If the Pay Type has changed, set effective date to today
+            if emp[:payTypeID] != a[:payTypeID]
               emp[:payTypeEffDate] = now
             end
 
-            # If the Hourly Status has changed
-            if emp[:hourlyStatusID] != a[:hourlyStatusID]
+            # If the Pay Class has changed, set effective date to today
+            if emp[:payClassID] != a[:payClassID]
+              emp[:payClassEffDate] = now
+            end
 
-              # Set effective date to today
+            # If the Hourly Status has changed, set effective date to today
+            if emp[:hourlyStatusID] != a[:hourlyStatusID]
               emp[:hourlyStatusEffDate] = now
             end
 
-            # If the Workgroups have changed
+            # If the Workgroups have changed, set effective date to today
             if emp[:wG1] != a[:wG1] ||
                emp[:wG2] != a[:wG2] ||
                emp[:wG3] != a[:wG3]
-
-              # Set effective date to today
               emp[:wGEffDate] = now
-            end
-
-            # If the Active Status has changed
-            if emp[:activeStatus] != a[:activeStatus]
-
-              # Set effective date to today
-              emp[:activeStatusConditionEffDate] = now
             end
 
           rescue
