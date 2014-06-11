@@ -108,7 +108,7 @@ module PluginBambooHr
             currentRateEffDate:           b["payRateEffectiveDate"],
             activeStatusConditionID:      0,
             inactiveStatusConditionID:    0,
-            activeStatusConditionEffDate: now,
+            activeStatusConditionEffDate: '',
             payTypeID:                    b["payType"],
             payTypeEffDate:               now,
             payClassID:                   b["customPayClass"],
@@ -225,12 +225,44 @@ module PluginBambooHr
             emp[:staticCustom4]                = a[:static_custom4]    unless a[:static_custom4].class    == Hash
             emp[:staticCustom5]                = a[:static_custom5]    unless a[:static_custom5].class    == Hash
             emp[:staticCustom6]                = a[:static_custom6]    unless a[:static_custom6].class    == Hash
+
+            # If the Pay Type has changed
+            if emp[:payTypeID] != a[:payTypeID]
+
+              # Set effective date to today
+              emp[:payTypeEffDate] = now
+            end
+
+            # If the Hourly Status has changed
+            if emp[:hourlyStatusID] != a[:hourlyStatusID]
+
+              # Set effective date to today
+              emp[:hourlyStatusEffDate] = now
+            end
+
+            # If the Workgroups have changed
+            if emp[:wG1] != a[:wG1] ||
+               emp[:wG2] != a[:wG2] ||
+               emp[:wG3] != a[:wG3]
+
+              # Set effective date to today
+              emp[:wGEffDate] = now
+            end
+
+            # If the Active Status has changed
+            if emp[:activeStatus] != a[:activeStatus]
+
+              # Set effective date to today
+              emp[:activeStatusConditionEffDate] = now
+            end
+
           rescue
             # Emp does not exist in AoD, must be new
           end
 
           # If the employee is about to be terminated
           if emp[:activeStatus] == 1 
+            
             # Assign them an appropriate Inactive Status Condition
             emp[:inactiveStatusConditionID] = 1
           end
