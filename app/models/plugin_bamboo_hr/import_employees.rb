@@ -194,6 +194,9 @@ module PluginBambooHr
             emp[:pay_type_i_d] = 0
           end
 
+          # Pay Rate - round to thousandths
+          emp[:current_rate] = emp[:current_rate].to_f.round(3)
+
           # Pay Class - extract num from name
           /\d+/.match(emp[:pay_class_i_d]) do |m|
             emp[:pay_class_i_d] = m[0].to_i
@@ -262,7 +265,7 @@ module PluginBambooHr
             end
 
             # If the Current Rate has changed, set effective date to 'lastchanged'
-            if emp[:current_rate].to_s != a[:current_rate].to_s
+            if emp[:current_rate].to_f.round(3) != a[:current_rate].to_f.round(3)
               emp[:current_rate_eff_date] = lastchanged
             end
 
