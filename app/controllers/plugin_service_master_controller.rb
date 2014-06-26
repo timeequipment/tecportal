@@ -1126,20 +1126,8 @@ class PluginServiceMasterController < ApplicationController
   def catch_exceptions
     yield
   rescue Exception => exc
-    # Log the exception
-    log 'exception', exc.message
-
-    # Prepare backtrace
-    bc = ActiveSupport::BacktraceCleaner.new
-    # Ignore gems
-    bc.add_silencer { |line| line =~ /gems/ }
-    # Ignore ruby
-    bc.add_silencer { |line| line =~ /ruby/ } 
-    # Remove rails root from path names to make them shorter
-    bc.add_filter   { |line| line.gsub("#{Rails.root}/", '') } 
-
-    # Log backtrace
-    log 'exception backtrace', bc.clean(exc.backtrace)
+    
+    log_exception exc
 
     # Alert the user
     flash.now[:alert] = exc.message

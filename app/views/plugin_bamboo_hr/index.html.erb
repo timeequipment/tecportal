@@ -18,6 +18,7 @@
     <input type="submit" value="Import employees">
   </form>
 
+  <br>
   <div id="progress-status"></div>
   <div id="progress-bar"><div id="progress-label"></div></div>
   <br>
@@ -43,7 +44,7 @@
     }
   });
 
-  function poll()
+  function poll(lastPoll)
   {
     $.get('progress', function(data) {
 
@@ -51,25 +52,39 @@
       $('#progress-status').text(data.status)
       $('#progress-bar').progressbar('value', parseInt(data.progress)); 
 
-      // If job completed
-      if (data.status == '')
-      {
-        // Hide spinner
-        $('#spinner').hide();
-      }
-      else
-      {
-        // Show spinner and check status again in 2 seconds
-        $('#spinner').show();
+      if (!lastPoll) {
 
-        if (data.messages) {
-          $('#messages').empty();
-          $.each(data.messages.split("/n"), function() {
+        // If job completed
+        if (data.status == '') {
+          
+          // Hide spinner
+          $('#spinner').hide();
+
+          // One last poll
+          setTimeout(poll(true), 2000);
+
+        } else {
+          
+          // Show spinner
+          $('#spinner').show();
+
+          // Poll again in 2 secs
+          setTimeout(poll, 2000);
+        }
+      }
+      
+      // Show messages
+      $('#messages').empty();
+      if (data.messages) {
+        $.each(data.messages.split("/n"), function() {
+          if (this.substring(0, 3) === " - ") {
+            $('#messages').append(
+              "<div class='message-line-indented'>" + this.substring(3) + "</div>");
+          } else {
             $('#messages').append(
               "<div class='message-line'>" + this + "</div>");
-          });
-        }
-        setTimeout(poll, 2000);
+          }
+        });
       }
     });
   }

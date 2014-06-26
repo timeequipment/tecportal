@@ -40,6 +40,24 @@ require 'awesome_print'
     end
   end
 
+  def log_exception(exc)
+   
+    # Log the exception
+    log 'exception', exc.message
+
+    # Prepare backtrace
+    bc = ActiveSupport::BacktraceCleaner.new
+    # Ignore gems
+    bc.add_silencer { |line| line =~ /gems/ }
+    # Ignore ruby
+    bc.add_silencer { |line| line =~ /ruby/ } 
+    # Remove rails root from path names to make them shorter
+    bc.add_filter   { |line| line.gsub("#{Rails.root}/", '') } 
+
+    # Log backtrace
+    log 'exception backtrace', bc.clean(exc.backtrace)
+  end
+
   def awesome_print_test
     test = {
       array: ["apple", "orange", "banana", "grape", "kiwi"],

@@ -17,6 +17,13 @@
   }
 
   .message-line {
-    line-height: 24px;
+    line-height: 20px;
+    font-size: 15px;
+  }
+
+  .message-line-indented {
+    margin-left: 22px;
+    line-height: 20px;
+    font-size: 12px;
   }
 }
