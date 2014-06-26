@@ -75,6 +75,10 @@ require 'awesome_print'
     c.save
   end
 
+  def aod_key_fix
+    
+  end
+
   # AoD Web Services
 
   def create_conn(settings, log_level = :info)

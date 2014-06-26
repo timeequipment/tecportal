@@ -8,4 +8,15 @@
     margin: 0 0 20px 10px;
     width: 100px; }
 
+  #messages {
+    margin-top: 6px;
+    padding: 10px;
+    border: solid 1px #333;
+    border-radius: 6px;
+    background: #eee;
+  }
+
+  .message-line {
+    line-height: 24px;
+  }
 }

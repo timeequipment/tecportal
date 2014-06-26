@@ -42,6 +42,13 @@ class PluginBambooHrController < ApplicationController
         current_user.id,
         session[:settings],
         params[:lastrun])
+
+      # # Request employees from AoD
+      # p = PluginBambooHr::ImportEmployees.new(
+      #   current_user.id,
+      #   session[:settings],
+      #   params[:lastrun])
+      # p.perform
       
       render json: true
 
@@ -54,8 +61,9 @@ class PluginBambooHrController < ApplicationController
   def progress
     progress = cache_get(current_user.id, 'bhr_progress') || 0
     status   = cache_get(current_user.id, 'bhr_status')   || ''
+    messages = cache_get(current_user.id, 'bhr_messages') || ''
 
-    render json: { progress: progress, status: status }.to_json
+    render json: { progress: progress, status: status, messages: messages }.to_json
   end
 
 end

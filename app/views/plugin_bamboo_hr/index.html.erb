@@ -20,6 +20,10 @@
 
   <div id="progress-status"></div>
   <div id="progress-bar"><div id="progress-label"></div></div>
+  <br>
+  <br>
+  <div>Messages:</div>
+  <div id="messages"></div>
 </div>  
 
 <!-- Scripts -->
@@ -57,6 +61,14 @@
       {
         // Show spinner and check status again in 2 seconds
         $('#spinner').show();
+
+        if (data.messages) {
+          $('#messages').empty();
+          $.each(data.messages.split("/n"), function() {
+            $('#messages').append(
+              "<div class='message-line'>" + this + "</div>");
+          });
+        }
         setTimeout(poll, 2000);
       }
     });
