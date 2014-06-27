@@ -5,7 +5,7 @@
   <% if current_user.customer_admin? %>
     <%#= link_to "Settings", plugin_bamboo_hr_settings_path, class: "settings-btn" %>
   <% end %>
-  
+
   <!-- Content -->
   <%= render "shared/spinner" %>
   <form id="import-employees" method="get">
@@ -15,6 +15,10 @@
       <option          value="1">Month</option>
       <option          value="2">Year</option>
     </select>
+    <%= label_tag(:test_emp, "Or run a test import on a single emp with this BambooHR #: ") %> &nbsp;
+    <%= text_field_tag(:test_emp) %>
+    <br>
+    <br>
     <input type="submit" value="Import employees">
   </form>
 
@@ -72,7 +76,7 @@
           setTimeout(poll, 2000);
         }
       }
-      
+
       // Show messages
       $('#messages').empty();
       if (data.messages) {
@@ -99,10 +103,11 @@
     $('#spinner').show();
 
     // Get form inputs
-    var lastRun = $(this).find("select[name='lastrun']").val();
+    var lastRun = $('#lastrun').val();
+    var testEmp = $('#test_emp').val();
 
     // Send inputs and run the import
-    $.get('import_employees', { lastrun: lastRun } );
+    $.get('import_employees', { lastrun: lastRun, test_emp: testEmp } );
 
     // Poll for status
     setTimeout(poll, 2000);

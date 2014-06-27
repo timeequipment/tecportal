@@ -33,18 +33,20 @@ class PluginBambooHrController < ApplicationController
     cache_save current_user.id, 'bhr_status', 'Initializing'
     cache_save current_user.id, 'bhr_progress', '10'
 
-    # Request employees from AoD, in the background
-    Delayed::Job.enqueue PluginBambooHr::ImportEmployees.new(
-      current_user.id,
-      session[:settings],
-      params[:lastrun])
-
-    # # Request employees from AoD
-    # p = PluginBambooHr::ImportEmployees.new(
+    # # Request employees from AoD, in the background
+    # Delayed::Job.enqueue PluginBambooHr::ImportEmployees.new(
     #   current_user.id,
     #   session[:settings],
-    #   params[:lastrun])
-    # p.perform
+    #   params[:lastrun],
+    #   params[:test_emp])
+
+    # Request employees from AoD
+    p = PluginBambooHr::ImportEmployees.new(
+      current_user.id,
+      session[:settings],
+      params[:lastrun],
+      params[:test_emp])
+    p.perform
     
     render json: true
   end

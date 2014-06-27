@@ -4,6 +4,10 @@
 
 .plugin-bamboo-hr {
 
+  #import-employees {
+    margin-top: 12px;
+  }
+
   #lastrun {
     margin: 0 0 20px 10px;
     width: 100px; }
@@ -25,5 +29,9 @@
     margin-left: 22px;
     line-height: 20px;
     font-size: 12px;
+  }
+
+  #test_emp {
+    width: 100px;
   }
 }

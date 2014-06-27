@@ -3,11 +3,12 @@ module PluginBambooHr
   class ImportEmployees 
     include ApplicationHelper
 
-    attr_accessor :user_id, :settings, :lastrun
-    def initialize user_id,  settings,  lastrun
+    attr_accessor :user_id, :settings, :lastrun, :test_emp
+    def initialize user_id,  settings,  lastrun,  test_emp
       @user_id = user_id
       @settings = settings
       @lastrun = lastrun
+      @test_emp = test_emp
     end
     
     def perform
@@ -17,12 +18,13 @@ module PluginBambooHr
 
         log 'settings', @settings
         log 'lastrun', @lastrun
+        log 'test_emp', @test_emp
 
         now = DateTime.now.strftime("%Y-%m-%d")
 
         # Connect to AoD
         progress 15, 'Connecting to AoD'
-        aod = create_conn(@settings)
+        aod = create_conn(@settings, :debug)
 
         # We won't need to download payclasses or hourly status types
         # because in Bamboo the names are prefixed with the AoD num
@@ -40,6 +42,12 @@ module PluginBambooHr
         # # Download active status conditions from AoD
         # response = aod.call(:get_active_status_conditions, message: {})
         # log 'conditions', response.body[:t_ae_basic_data_item]
+
+        # Download all employees from AoD
+        progress 17, 'Downloading employees from AoD'
+        response = aod.call(
+          :get_all_employees_list, message: {})  
+        all_employees = response.body[:t_ae_employee_basic]
 
         # Download locations from AoD
         progress 17, 'Downloading locations from AoD'
@@ -63,40 +71,45 @@ module PluginBambooHr
           :get_pay_period_class_data, message: { 
             pay_period_class_num: 1 })  
         payperiods = response.body[:t_ae_pay_period_info]
-        prevstart = payperiods[:prev_start].to_datetime.strftime('%-m-%d-%Y')
-        prevend   = payperiods[:prev_end]  .to_datetime.strftime('%-m-%d-%Y')
-        currstart = payperiods[:curr_start].to_datetime.strftime('%-m-%d-%Y')
-        currend   = payperiods[:curr_end]  .to_datetime.strftime('%-m-%d-%Y')
+        prevstart = payperiods[:prev_start].to_datetime
+        prevend   = payperiods[:prev_end]  .to_datetime
+        currstart = payperiods[:curr_start].to_datetime
+        currend   = payperiods[:curr_end]  .to_datetime
 
-        # Get all employees changed since a certain date (selected by the user)
-        progress 21, 'Getting employees from BambooHR'
-        if @lastrun == "0"      # Last Week
-          since = 1.week.ago.iso8601
-        elsif @lastrun == "1"   # Last Month
-          since = 1.month.ago.iso8601
-        else                    # Last Year
-          since = 1.year.ago.iso8601
-        end
         bamboo = PluginBambooHr::Bamboo.new(
           @settings.bamboo_company,
           @settings.bamboo_key)
-        emps_changed = bamboo.get_employees_changed(since)
 
-        log 'emps_changed', emps_changed
+        emp_fields = "id,lastName,firstName,middleName,employeeNumber,customBadge,status,hireDate,location,department,payRate,payRateEffectiveDate,payType,customPayClass,customHourlyStatus,dateOfBirth,address1,address2,city,state,zipCode,customFtePercent,bestEmail,lastChanged"
+
+        if @test_emp.present?
+          emps = []
+          emps << bamboo.get_employee(@test_emp.to_i, emp_fields)
+        else
+          # Get all employees changed since a certain date (selected by the user)
+          progress 21, 'Getting employees from BambooHR'
+          if @lastrun == "0"      # Last Week
+            since = 1.week.ago.iso8601
+          elsif @lastrun == "1"   # Last Month
+            since = 1.month.ago.iso8601
+          else                    # Last Year
+            since = 1.year.ago.iso8601
+          end
+          emps = bamboo.get_employees_changed(since)
+        end
 
         # For each changed emp
-        emps_changed.each_with_index do |emp_changed, i|
+        emps.each_with_index do |emp_changed, i|
 
-          progress 21 + (79 * i / emps_changed.count), "Importing employee #{ i + 1 } of #{ emps_changed.count }"
-          log "Importing employee ", "#{ i + 1 } of #{ emps_changed.count }"
+          progress 21 + (79 * i / emps.count), "Importing #{ i + 1 } of #{ emps.count }"
+          log "Importing ", "#{ i + 1 } of #{ emps.count }"
 
           # Get employee info
-          b = bamboo.get_employee(emp_changed["id"].to_i, 
-            "lastName,firstName,middleName,employeeNumber,customBadge,status,hireDate,location,department,payRate,payRateEffectiveDate,payType,customPayClass,customHourlyStatus,dateOfBirth,address1,address2,city,state,zipCode,customFtePercent,bestEmail,lastChanged")
+          b = bamboo.get_employee(emp_changed["id"].to_i, emp_fields)
 
           # ### DEBUG - Get a test employee from BambooHR ###
           # b = bamboo.get_employee(40408, 
-          #   "lastName,firstName,middleName,employeeNumber,customBadge,status,hireDate,location,department,payRate,payRateEffectiveDate,payType,customPayClass,customHourlyStatus,dateOfBirth,address1,address2,city,state,zipCode,customFtePercent,bestEmail,lastChanged")
+          #   "id,lastName,firstName,middleName,employeeNumber,customBadge,status,hireDate,location,department,payRate,payRateEffectiveDate,payType,customPayClass,customHourlyStatus,dateOfBirth,address1,address2,city,state,zipCode,customFtePercent,bestEmail,lastChanged")
           # b["employeeNumber"] = 1000
           # b["firstName"] = 'Test'
           # b["lastName"] = 'Employee'
@@ -117,13 +130,13 @@ module PluginBambooHr
             first_name:                        b["firstName"],
             initial:                           b["middleName"],
             emp_i_d:                           b["employeeNumber"],
-            ssn:                               '',
+            s_s_n:                             '',
             badge:                             b["customBadge"],
             active_status:                     b["status"],
             date_of_hire:                      b["hireDate"],
-            wg1:                               3, 
-            wg2:                               3, 
-            wg3:                               1, 
+            w_g_1:                             3, 
+            w_g_2:                             3, 
+            w_g_3:                             1, 
             current_rate:                      b["payRate"],
             current_rate_eff_date:             b["payRateEffectiveDate"],
             active_status_condition_i_d:       0,
@@ -133,14 +146,14 @@ module PluginBambooHr
             pay_type_eff_date:                 '',
             pay_class_i_d:                     b["customPayClass"],
             pay_class_eff_date:                '',
-            sch_pattern_i_d:                   0,
+            sch_pattern_i_d:                   1,
             sch_pattern_eff_date:              '',
             hourly_status_i_d:                 b["customHourlyStatus"],
             hourly_status_eff_date:            '',
             avg_weekly_hrs:                    0,
-            clock_group_i_d:                   0,
+            clock_group_i_d:                   1,
             birth_date:                        b["dateOfBirth"],
-            wg_eff_date:                       '',
+            w_g_eff_date:                      '',
             phone1:                            '',
             phone2:                            '',
             emergency_contact:                 '',
@@ -157,10 +170,10 @@ module PluginBambooHr
             static_custom4:                    '',
             static_custom5:                    '',
             static_custom6:                    '',
-            email:                             b["bestEmail"],
+            e_m_a_i_l:                         b["bestEmail"],
           }
 
-          send_message "Importing employee #{ i + 1 } of #{ emps_changed.count }:  #{emp[:first_name]} #{emp[:last_name]}, #{emp[:emp_i_d]}"
+          send_message "Importing #{ i + 1 } of #{ emps.count }:  #{emp[:first_name]} #{emp[:last_name]}, AoD ##{emp[:emp_i_d]}, BambooHR ##{b["id"]}"
 
           # EmpID - Pad left 6 zeros
           emp[:emp_i_d] = emp[:emp_i_d].rjust(6, '0')
@@ -172,7 +185,7 @@ module PluginBambooHr
           # emp[:sSN].gsub!('-', '') if emp[:sSN].present?
 
           # Email - Downcase
-          emp[:email].downcase! if emp[:email].present? 
+          emp[:e_m_a_i_l].downcase! if emp[:e_m_a_i_l].present? 
 
           # Active Status - translate
           if emp[:active_status] == "Active"
@@ -194,8 +207,8 @@ module PluginBambooHr
             emp[:pay_type_i_d] = 0
           end
 
-          # Pay Rate - round to thousandths
-          emp[:current_rate] = emp[:current_rate].to_f.round(3)
+          # Pay Rate - round to hundredths
+          emp[:current_rate] = emp[:current_rate].to_f.round(2)
 
           # Pay Class - extract num from name
           /\d+/.match(emp[:pay_class_i_d]) do |m|
@@ -207,10 +220,15 @@ module PluginBambooHr
             emp[:hourly_status_i_d] = m[0].to_i
           end
 
+          # Address Zip Code - take first 5 digits
+          if emp[:address_z_i_p_p_c].length > 5
+            emp[:address_z_i_p_p_c] = emp[:address_z_i_p_p_c][0..4]
+          end
+
           # Location - lookup mapping
           locations.each do |this|
             if this[:wg_code] == b["location"]
-              emp[:wg1] = this[:wg_num].to_i
+              emp[:w_g_1] = this[:wg_num].to_i
             end
           end
 
@@ -218,28 +236,38 @@ module PluginBambooHr
           departments.each do |this|
             /\d+/.match(b["department"]) do |m| # Extract dept code from name
               if this[:wg_code] == m[0]
-                emp[:wg2] = this[:wg_num].to_i
+                emp[:w_g_2] = this[:wg_num].to_i
               end
             end
           end
 
-          # AoD wants a full employee record
-          # So fill in the defaults with current values (if emp is found)
-          a = nil
-          begin
+          # See if this employee exists in AoD
+          found = false
+          all_employees.each do |this_emp|
+            if emp[:emp_i_d].to_s == this_emp[:emp_id].to_s
+              found = true
+              log 'found', this_emp[:emp_id].to_s 
+              break
+            end
+          end
+          if !found
+            send_message " - ** New Employee **"
+          else
+
+            # Get the employee from AoD
             response = aod.call(
               :get_employee_detail2_by_id_num, message: {
                 id_num: emp[:emp_i_d] })  
             a = response.body[:t_ae_employee_detail2]
 
             # Emp exists in AoD, get current values 
-            emp[:wg3]                              = a[:wg3].to_i
+            emp[:w_g_3]                            = a[:wg3].to_i
             emp[:current_rate_eff_date]            = a[:current_rate_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:active_status_condition_eff_date] = a[:active_status_condition_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:pay_type_eff_date]                = a[:pay_type_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:pay_class_eff_date]               = a[:pay_class_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:hourly_status_eff_date]           = a[:hourly_status_eff_date].to_datetime.strftime("%Y-%m-%d")
-            emp[:wg_eff_date]                      = a[:wg_eff_date].to_datetime.strftime("%Y-%m-%d")
+            emp[:w_g_eff_date]                     = a[:wg_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:sch_pattern_i_d]                  = a[:sch_pattern_id].to_i
             emp[:sch_pattern_eff_date]             = a[:sch_pattern_eff_date].to_datetime.strftime("%Y-%m-%d")
             emp[:avg_weekly_hrs]                   = a[:avg_weekly_hrs].to_i
@@ -258,14 +286,20 @@ module PluginBambooHr
 
             # Get the last changed date to set for effective dates
             lastchanged = b["lastChanged"].to_datetime.strftime("%Y-%m-%d")
+            log 'lastchanged', lastchanged
 
-            # If the Active Status has changed, set effective date to 'lastchanged'
+            # If the badge is blank, set it to the AoD badge
+            if emp[:badge].to_s.blank?
+              emp[:badge] = a[:badge]
+            end
+
+            # If the Active Status has changed, set effective date to today
             if emp[:active_status].to_s != a[:active_status].to_s
-              emp[:active_status_condition_eff_date] = lastchanged
+              emp[:active_status_condition_eff_date] = now
             end
 
             # If the Current Rate has changed, set effective date to 'lastchanged'
-            if emp[:current_rate].to_f.round(3) != a[:current_rate].to_f.round(3)
+            if emp[:current_rate].to_f.round(2) != a[:current_rate].to_f.round(2)
               emp[:current_rate_eff_date] = lastchanged
             end
 
@@ -291,24 +325,24 @@ module PluginBambooHr
               end
             end
 
-            # If the Hourly Status has changed, set e ffective date to 'lastchanged'
+            # If the Hourly Status has changed, set effective date to 'lastchanged'
             if emp[:hourly_status_i_d].to_s != a[:hourly_status_id].to_s
               emp[:hourly_status_eff_date] = lastchanged
             end
 
             # If the Workgroup1 has changed, set effective date to 'lastchanged'
-            if emp[:wg1].to_s != a[:wg1].to_s
-              emp[:wg_eff_date] = lastchanged
+            if emp[:w_g_1].to_s != a[:wg1].to_s
+              emp[:w_g_eff_date] = lastchanged
             end
 
             # If the Workgroup2 has changed, set effective date to 'lastchanged'
-            if emp[:wg2].to_s != a[:wg2].to_s
-              emp[:wg_eff_date] = lastchanged
+            if emp[:w_g_2].to_s != a[:wg2].to_s
+              emp[:w_g_eff_date] = lastchanged
             end
 
             # If the Workgroup3 has changed, set effective date to 'lastchanged'
-            if emp[:wg3].to_s != a[:wg3].to_s
-              emp[:wg_eff_date] = lastchanged
+            if emp[:w_g_3].to_s != a[:wg3].to_s
+              emp[:w_g_eff_date] = lastchanged
             end
 
             # Send change messages
@@ -316,14 +350,14 @@ module PluginBambooHr
             emp_first_name                       = ( emp[:first_name].to_s.blank?                       ? '(blank)' : emp[:first_name].to_s )
             emp_initial                          = ( emp[:initial].to_s.blank?                          ? '(blank)' : emp[:initial].to_s )
             emp_emp_id                           = ( emp[:emp_i_d].to_s.blank?                          ? '(blank)' : emp[:emp_i_d].to_s )
-            emp_ssn                              = ( emp[:ssn].to_s.blank?                              ? '(blank)' : emp[:ssn].to_s )
+            emp_ssn                              = ( emp[:s_s_n].to_s.blank?                            ? '(blank)' : emp[:s_s_n].to_s )
             emp_badge                            = ( emp[:badge].to_s.blank?                            ? '(blank)' : emp[:badge].to_s )
             emp_active_status                    = ( emp[:active_status].to_s.blank?                    ? '(blank)' : emp[:active_status].to_s )
             emp_date_of_hire                     = ( emp[:date_of_hire].to_s.blank?                     ? '(blank)' : emp[:date_of_hire].to_s )
-            emp_wg1                              = ( emp[:wg1].to_s.blank?                              ? '(blank)' : emp[:wg1].to_s )
-            emp_wg2                              = ( emp[:wg2].to_s.blank?                              ? '(blank)' : emp[:wg2].to_s )
-            emp_wg3                              = ( emp[:wg3].to_s.blank?                              ? '(blank)' : emp[:wg3].to_s )
-            emp_current_rate                     = ( emp[:current_rate].to_f.round(3).to_s.blank?       ? '(blank)' : emp[:current_rate].to_f.round(3).to_s )
+            emp_wg1                              = ( emp[:w_g_1].to_s.blank?                            ? '(blank)' : emp[:w_g_1].to_s )
+            emp_wg2                              = ( emp[:w_g_2].to_s.blank?                            ? '(blank)' : emp[:w_g_2].to_s )
+            emp_wg3                              = ( emp[:w_g_3].to_s.blank?                            ? '(blank)' : emp[:w_g_3].to_s )
+            emp_current_rate                     = ( emp[:current_rate].to_f.round(2).to_s.blank?       ? '(blank)' : emp[:current_rate].to_f.round(2).to_s )
             emp_current_rate_eff_date            = ( emp[:current_rate_eff_date].to_s.blank?            ? '(blank)' : emp[:current_rate_eff_date].to_s )
             emp_active_status_condition_id       = ( emp[:active_status_condition_i_d].to_s.blank?      ? '(blank)' : emp[:active_status_condition_i_d].to_s )
             emp_inactive_status_condition_id     = ( emp[:inactive_status_condition_i_d].to_s.blank?    ? '(blank)' : emp[:inactive_status_condition_i_d].to_s )
@@ -339,7 +373,7 @@ module PluginBambooHr
             emp_avg_weekly_hrs                   = ( emp[:avg_weekly_hrs].to_s.blank?                   ? '(blank)' : emp[:avg_weekly_hrs].to_s )
             emp_clock_group_id                   = ( emp[:clock_group_i_d].to_s.blank?                  ? '(blank)' : emp[:clock_group_i_d].to_s )
             emp_birth_date                       = ( emp[:birth_date].to_s.blank?                       ? '(blank)' : emp[:birth_date].to_s )
-            emp_wg_eff_date                      = ( emp[:wg_eff_date].to_s.blank?                      ? '(blank)' : emp[:wg_eff_date].to_s )
+            emp_wg_eff_date                      = ( emp[:w_g_eff_date].to_s.blank?                     ? '(blank)' : emp[:w_g_eff_date].to_s )
             emp_phone1                           = ( emp[:phone1].to_s.blank?                           ? '(blank)' : emp[:phone1].to_s )
             emp_phone2                           = ( emp[:phone2].to_s.blank?                           ? '(blank)' : emp[:phone2].to_s )
             emp_emergency_contact                = ( emp[:emergency_contact].to_s.blank?                ? '(blank)' : emp[:emergency_contact].to_s )
@@ -356,7 +390,7 @@ module PluginBambooHr
             emp_static_custom4                   = ( emp[:static_custom4].to_s.blank?                   ? '(blank)' : emp[:static_custom4].to_s )
             emp_static_custom5                   = ( emp[:static_custom5].to_s.blank?                   ? '(blank)' : emp[:static_custom5].to_s )
             emp_static_custom6                   = ( emp[:static_custom6].to_s.blank?                   ? '(blank)' : emp[:static_custom6].to_s )
-            emp_email                            = ( emp[:email].to_s.blank?                            ? '(blank)' : emp[:email].to_s )
+            emp_email                            = ( emp[:e_m_a_i_l].to_s.blank?                        ? '(blank)' : emp[:e_m_a_i_l].to_s )
 
             aod_last_name                        = ( a[:last_name].to_s.blank?                        || a[:last_name].class == Hash ?                        '(blank)' : a[:last_name].to_s )
             aod_first_name                       = ( a[:first_name].to_s.blank?                       || a[:first_name].class == Hash ?                       '(blank)' : a[:first_name].to_s )
@@ -369,7 +403,7 @@ module PluginBambooHr
             aod_wg1                              = ( a[:wg1].to_s.blank?                              || a[:wg1].class == Hash ?                              '(blank)' : a[:wg1].to_s )
             aod_wg2                              = ( a[:wg2].to_s.blank?                              || a[:wg2].class == Hash ?                              '(blank)' : a[:wg2].to_s )
             aod_wg3                              = ( a[:wg3].to_s.blank?                              || a[:wg3].class == Hash ?                              '(blank)' : a[:wg3].to_s )
-            aod_current_rate                     = ( a[:current_rate].to_s.blank?                     || a[:current_rate].class == Hash ?                     '(blank)' : a[:current_rate].to_f.round(3).to_s )
+            aod_current_rate                     = ( a[:current_rate].to_f.round(2).to_s.blank?       || a[:current_rate].class == Hash ?                     '(blank)' : a[:current_rate].to_f.round(2).to_s )
             aod_current_rate_eff_date            = ( a[:current_rate_eff_date].to_s.blank?            || a[:current_rate_eff_date].class == Hash ?            '(blank)' : a[:current_rate_eff_date].to_datetime.strftime("%Y-%m-%d").to_s )
             aod_active_status_condition_id       = ( a[:active_status_condition_id].to_s.blank?       || a[:active_status_condition_id].class == Hash ?       '(blank)' : a[:active_status_condition_id].to_s )
             aod_inactive_status_condition_id     = ( a[:inactive_status_condition_id].to_s.blank?     || a[:inactive_status_condition_id].class == Hash ?     '(blank)' : a[:inactive_status_condition_id].to_s )
@@ -547,11 +581,10 @@ module PluginBambooHr
             if emp_email != aod_email
               send_message " - Email changed from #{aod_email} to #{emp_email}"
             end
-
-          rescue
-            # Emp does not exist in AoD, must be new
-            send_message " - ** New Employee **"
           end
+
+          # Clean up record
+          emp = clean_up_record emp
 
           # Send emp to AoD
           begin
@@ -560,17 +593,33 @@ module PluginBambooHr
               message: {
                 ae_employee_detail2: emp,
                 add_emp_mode:        "aemAuto",
-                t_badge_management:  "bmAuto",
+                t_badge_management:  (emp[:badge].to_s.blank? ? "bmAuto" : "bmManual"),
             })
             success = response.body[:maintain_employee_detail2_response][:return]
-            send_message " - IMPORT FAILED" if success != "merEditOk"
-          rescue
-            send_message " - IMPORT FAILED"
+
+            if success == "merEditOk" || success == "merAddOk"
+              # do nothing
+            elsif success == "merAddedWithErrors"
+              send_message " - IMPORT FAILED - Emp Added, but with errors"
+            elsif success == "merBadParam"
+              send_message " - IMPORT FAILED - Bad Parameter"
+            elsif success == "merDupID"
+              send_message " - IMPORT FAILED - Duplicate ID"
+            elsif success == "merDupBadge"
+              send_message " - IMPORT FAILED - Duplicate Badge"
+            else
+              send_message " - IMPORT FAILED - Unknown Reason"
+            end
+
+          rescue Exception => exc
+            log_exception exc
+            send_message " - IMPORT FAILED - #{exc.message}"
           end
         end
 
       rescue Exception => exc
         log_exception exc
+        send_message " - IMPORT FAILED - #{exc.message}"
       ensure
         progress 100, ''
       end
@@ -578,19 +627,69 @@ module PluginBambooHr
 
     private
 
+    def clean_up_record emp
+      now = DateTime.now.strftime("%Y-%m-%d")
+      emp[:last_name]                        = ''  if emp[:last_name].to_s.blank? 
+      emp[:first_name]                       = ''  if emp[:first_name].to_s.blank? 
+      emp[:initial]                          = ''  if emp[:initial].to_s.blank? 
+      emp[:emp_i_d]                          = ''  if emp[:emp_i_d].to_s.blank? 
+      emp[:s_s_n]                            = ''  if emp[:s_s_n].to_s.blank? 
+      emp[:badge]                            = 0   if emp[:badge].to_s.blank? 
+      emp[:active_status]                    = 0   if emp[:active_status].to_s.blank? 
+      emp[:date_of_hire]                     = now if emp[:date_of_hire].to_s.blank? 
+      emp[:w_g_1]                            = 3   if emp[:w_g_1].to_s.blank? 
+      emp[:w_g_2]                            = 3   if emp[:w_g_2].to_s.blank? 
+      emp[:w_g_3]                            = 1   if emp[:w_g_3].to_s.blank? 
+      emp[:current_rate]                     = ''  if emp[:current_rate].to_s.blank? 
+      emp[:current_rate_eff_date]            = ''  if emp[:current_rate_eff_date].to_s.blank? 
+      emp[:active_status_condition_i_d]      = 0   if emp[:active_status_condition_i_d].to_s.blank? 
+      emp[:inactive_status_condition_i_d]    = 0   if emp[:inactive_status_condition_i_d].to_s.blank? 
+      emp[:active_status_condition_eff_date] = now if emp[:active_status_condition_eff_date].to_s.blank? 
+      emp[:pay_type_i_d]                     = 1   if emp[:pay_type_i_d].to_s.blank? 
+      emp[:pay_type_eff_date]                = now if emp[:pay_type_eff_date].to_s.blank? 
+      emp[:pay_class_i_d]                    = 1   if emp[:pay_class_i_d].to_s.blank? 
+      emp[:pay_class_eff_date]               = now if emp[:pay_class_eff_date].to_s.blank? 
+      emp[:sch_pattern_i_d]                  = 1   if emp[:sch_pattern_i_d].to_s.blank? 
+      emp[:sch_pattern_eff_date]             = now if emp[:sch_pattern_eff_date].to_s.blank? 
+      emp[:hourly_status_i_d]                = 1   if emp[:hourly_status_i_d].to_s.blank? 
+      emp[:hourly_status_eff_date]           = now if emp[:hourly_status_eff_date].to_s.blank? 
+      emp[:avg_weekly_hrs]                   = ''  if emp[:avg_weekly_hrs].to_s.blank? 
+      emp[:clock_group_i_d]                  = 1   if emp[:clock_group_i_d].to_s.blank? 
+      emp[:birth_date]                       = now if emp[:birth_date].to_s.blank? 
+      emp[:w_g_eff_date]                     = now if emp[:w_g_eff_date].to_s.blank? 
+      emp[:phone1]                           = ''  if emp[:phone1].to_s.blank? 
+      emp[:phone2]                           = ''  if emp[:phone2].to_s.blank? 
+      emp[:emergency_contact]                = ''  if emp[:emergency_contact].to_s.blank? 
+      emp[:address1]                         = ''  if emp[:address1].to_s.blank? 
+      emp[:address2]                         = ''  if emp[:address2].to_s.blank? 
+      emp[:address3]                         = ''  if emp[:address3].to_s.blank? 
+      emp[:address_city]                     = ''  if emp[:address_city].to_s.blank? 
+      emp[:address_state_prov]               = ''  if emp[:address_state_prov].to_s.blank? 
+      emp[:address_z_i_p_p_c]                = ''  if emp[:address_z_i_p_p_c].to_s.blank? 
+      emp[:union_code]                       = ''  if emp[:union_code].to_s.blank? 
+      emp[:static_custom1]                   = ''  if emp[:static_custom1].to_s.blank? 
+      emp[:static_custom2]                   = ''  if emp[:static_custom2].to_s.blank? 
+      emp[:static_custom3]                   = ''  if emp[:static_custom3].to_s.blank? 
+      emp[:static_custom4]                   = ''  if emp[:static_custom4].to_s.blank? 
+      emp[:static_custom5]                   = ''  if emp[:static_custom5].to_s.blank? 
+      emp[:static_custom6]                   = ''  if emp[:static_custom6].to_s.blank? 
+      emp[:e_m_a_i_l]                        = ''  if emp[:e_m_a_i_l].to_s.blank? 
+      emp
+    end
+
     def debug_import(emp, a)
       log "FIELD NAME".ljust(30),                      "WHAT WOULD BE IMPORTED".ljust(30)                     + "WHATS IN AOD RIGHT NOW"
       log "last_name".ljust(30),                        emp[:last_name].to_s.ljust(30)                        + ( a.nil? || a[:last_name].nil?                        || a[:last_name].class == Hash ?                        '' : a[:last_name] )
       log "first_name".ljust(30),                       emp[:first_name].to_s.ljust(30)                       + ( a.nil? || a[:first_name].nil?                       || a[:first_name].class == Hash ?                       '' : a[:first_name] )
       log "initial".ljust(30),                          emp[:initial].to_s.ljust(30)                          + ( a.nil? || a[:initial].nil?                          || a[:initial].class == Hash ?                          '' : a[:initial] )
       log "emp_id".ljust(30),                           emp[:emp_i_d].to_s.ljust(30)                          + ( a.nil? || a[:emp_id].nil?                           || a[:emp_id].class == Hash ?                           '' : a[:emp_id] )
-      log "ssn".ljust(30),                              emp[:ssn].to_s.ljust(30)                              + ( a.nil? || a[:ssn].nil?                              || a[:ssn].class == Hash ?                              '' : a[:ssn] )
+      log "ssn".ljust(30),                              emp[:s_s_n].to_s.ljust(30)                            + ( a.nil? || a[:ssn].nil?                              || a[:ssn].class == Hash ?                              '' : a[:ssn] )
       log "badge".ljust(30),                            emp[:badge].to_s.ljust(30)                            + ( a.nil? || a[:badge].nil?                            || a[:badge].class == Hash ?                            '' : a[:badge] )
       log "active_status".ljust(30),                    emp[:active_status].to_s.ljust(30)                    + ( a.nil? || a[:active_status].nil?                    || a[:active_status].class == Hash ?                    '' : a[:active_status] )
       log "date_of_hire".ljust(30),                     emp[:date_of_hire].to_s.ljust(30)                     + ( a.nil? || a[:date_of_hire].nil?                     || a[:date_of_hire].class == Hash ?                     '' : a[:date_of_hire] )
-      log "wg1".ljust(30),                              emp[:wg1].to_s.ljust(30)                              + ( a.nil? || a[:wg1].nil?                              || a[:wg1].class == Hash ?                              '' : a[:wg1] )
-      log "wg2".ljust(30),                              emp[:wg2].to_s.ljust(30)                              + ( a.nil? || a[:wg2].nil?                              || a[:wg2].class == Hash ?                              '' : a[:wg2] )
-      log "wg3".ljust(30),                              emp[:wg3].to_s.ljust(30)                              + ( a.nil? || a[:wg3].nil?                              || a[:wg3].class == Hash ?                              '' : a[:wg3] )
+      log "wg1".ljust(30),                              emp[:w_g_1].to_s.ljust(30)                            + ( a.nil? || a[:wg1].nil?                              || a[:wg1].class == Hash ?                              '' : a[:wg1] )
+      log "wg2".ljust(30),                              emp[:w_g_2].to_s.ljust(30)                            + ( a.nil? || a[:wg2].nil?                              || a[:wg2].class == Hash ?                              '' : a[:wg2] )
+      log "wg3".ljust(30),                              emp[:w_g_3].to_s.ljust(30)                            + ( a.nil? || a[:wg3].nil?                              || a[:wg3].class == Hash ?                              '' : a[:wg3] )
       log "current_rate".ljust(30),                     emp[:current_rate].to_s.ljust(30)                     + ( a.nil? || a[:current_rate].nil?                     || a[:current_rate].class == Hash ?                     '' : a[:current_rate] )
       log "current_rate_eff_date".ljust(30),            emp[:current_rate_eff_date].to_s.ljust(30)            + ( a.nil? || a[:current_rate_eff_date].nil?            || a[:current_rate_eff_date].class == Hash ?            '' : a[:current_rate_eff_date] )
       log "active_status_condition_id".ljust(30),       emp[:active_status_condition_i_d].to_s.ljust(30)      + ( a.nil? || a[:active_status_condition_id].nil?       || a[:active_status_condition_id].class == Hash ?       '' : a[:active_status_condition_id] )
@@ -607,7 +706,7 @@ module PluginBambooHr
       log "avg_weekly_hrs".ljust(30),                   emp[:avg_weekly_hrs].to_s.ljust(30)                   + ( a.nil? || a[:avg_weekly_hrs].nil?                   || a[:avg_weekly_hrs].class == Hash ?                   '' : a[:avg_weekly_hrs] )
       log "clock_group_id".ljust(30),                   emp[:clock_group_i_d].to_s.ljust(30)                  + ( a.nil? || a[:clock_group_id].nil?                   || a[:clock_group_id].class == Hash ?                   '' : a[:clock_group_id] )
       log "birth_date".ljust(30),                       emp[:birth_date].to_s.ljust(30)                       + ( a.nil? || a[:birth_date].nil?                       || a[:birth_date].class == Hash ?                       '' : a[:birth_date] )
-      log "wg_eff_date".ljust(30),                      emp[:wg_eff_date].to_s.ljust(30)                      + ( a.nil? || a[:wg_eff_date].nil?                      || a[:wg_eff_date].class == Hash ?                      '' : a[:wg_eff_date] )
+      log "wg_eff_date".ljust(30),                      emp[:w_g_eff_date].to_s.ljust(30)                     + ( a.nil? || a[:wg_eff_date].nil?                      || a[:wg_eff_date].class == Hash ?                      '' : a[:wg_eff_date] )
       log "phone1".ljust(30),                           emp[:phone1].to_s.ljust(30)                           + ( a.nil? || a[:phone1].nil?                           || a[:phone1].class == Hash ?                           '' : a[:phone1] )
       log "phone2".ljust(30),                           emp[:phone2].to_s.ljust(30)                           + ( a.nil? || a[:phone2].nil?                           || a[:phone2].class == Hash ?                           '' : a[:phone2] )
       log "emergency_contact".ljust(30),                emp[:emergency_contact].to_s.ljust(30)                + ( a.nil? || a[:emergency_contact].nil?                || a[:emergency_contact].class == Hash ?                '' : a[:emergency_contact] )
@@ -624,7 +723,7 @@ module PluginBambooHr
       log "static_custom4".ljust(30),                   emp[:static_custom4].to_s.ljust(30)                   + ( a.nil? || a[:static_custom4].nil?                   || a[:static_custom4].class == Hash ?                   '' : a[:static_custom4] )
       log "static_custom5".ljust(30),                   emp[:static_custom5].to_s.ljust(30)                   + ( a.nil? || a[:static_custom5].nil?                   || a[:static_custom5].class == Hash ?                   '' : a[:static_custom5] )
       log "static_custom6".ljust(30),                   emp[:static_custom6].to_s.ljust(30)                   + ( a.nil? || a[:static_custom6].nil?                   || a[:static_custom6].class == Hash ?                   '' : a[:static_custom6] )
-      log "email".ljust(30),                            emp[:email].to_s.ljust(50)                            + ( a.nil? || a[:email].nil?                            || a[:email].class == Hash ?                            '' : a[:email] )
+      log "email".ljust(30),                            emp[:e_m_a_i_l].to_s.ljust(50)                        + ( a.nil? || a[:email].nil?                            || a[:email].class == Hash ?                            '' : a[:email] )
     end
 
     def progress(percent, status)
