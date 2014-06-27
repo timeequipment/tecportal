@@ -225,7 +225,7 @@ module PluginBambooHr
             end
 
             # Address Zip Code - take first 5 digits
-            if emp[:address_z_i_p_p_c].length > 5
+            if emp[:address_z_i_p_p_c].present? && emp[:address_z_i_p_p_c].length > 5
               emp[:address_z_i_p_p_c] = emp[:address_z_i_p_p_c][0..4]
             end
 
