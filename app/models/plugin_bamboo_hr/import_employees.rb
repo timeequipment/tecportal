@@ -24,7 +24,7 @@ module PluginBambooHr
 
         # Connect to AoD
         progress 15, 'Connecting to AoD'
-        aod = create_conn(@settings, :debug)
+        aod = create_conn(@settings)
 
         # We won't need to download payclasses or hourly status types
         # because in Bamboo the names are prefixed with the AoD num
@@ -175,6 +175,9 @@ module PluginBambooHr
 
           send_message "Importing #{ i + 1 } of #{ emps.count }:  #{emp[:first_name]} #{emp[:last_name]}, AoD ##{emp[:emp_i_d]}, BambooHR ##{b["id"]}"
 
+          # EmpID - if nil, fail
+          raise "Missing AoD # in BambooHR; Unable to lookup AoD employee" if emp[:emp_i_d].nil?
+          
           # EmpID - Pad left 6 zeros
           emp[:emp_i_d] = emp[:emp_i_d].rjust(6, '0')
 
@@ -344,6 +347,9 @@ module PluginBambooHr
             if emp[:w_g_3].to_s != a[:wg3].to_s
               emp[:w_g_eff_date] = lastchanged
             end
+
+            # Clean up record
+            emp = clean_up_record emp
 
             # Send change messages
             emp_last_name                        = ( emp[:last_name].to_s.blank?                        ? '(blank)' : emp[:last_name].to_s )
@@ -582,9 +588,6 @@ module PluginBambooHr
               send_message " - Email changed from #{aod_email} to #{emp_email}"
             end
           end
-
-          # Clean up record
-          emp = clean_up_record emp
 
           # Send emp to AoD
           begin
