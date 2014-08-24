@@ -5,7 +5,7 @@ module PluginBambooHr
     base_uri 'https://api.bamboohr.com/api/gateway.php'
 
     # Uncomment to output entire HTTP request and response
-    # debug_output $stdout
+    debug_output $stdout
   
     def initialize(company, key)
       @company = company
@@ -31,7 +31,7 @@ module PluginBambooHr
 
     def get_employees_changed(since)
       response = self.class.get("/#{ @company }/v1/employees/changed?since=#{ since }", @options)
-      response["changeList"]["employee"]
+      response["employees"]
     end
     
   end

@@ -105,8 +105,15 @@ module PluginBambooHr
             progress 21 + (79 * i / emps.count), "Importing #{ i + 1 } of #{ emps.count }"
             log "Importing ", "#{ i + 1 } of #{ emps.count }"
 
+            # Get emp id
+            if emp_changed.class == Array
+              emp_id = emp_changed[1]["id"].to_i
+            else
+              emp_id = emp_changed["id"].to_i
+            end
+            
             # Get employee info
-            b = bamboo.get_employee(emp_changed["id"].to_i, emp_fields)
+            b = bamboo.get_employee(emp_id, emp_fields)
 
             # ### DEBUG - Get a test employee from BambooHR ###
             # b = bamboo.get_employee(40408, 
